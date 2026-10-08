@@ -30,7 +30,6 @@
     <div style="height: 150px;"></div>
     
     <div id="panel">
-        <!-- BOTÓN NUEVO: Destraba el permiso de sonido del computador -->
         <button id="btn-activar-pc">1. CLICK AQUÍ PRIMERO (Para activar sonido)</button>
         <button id="btn-iniciar" style="display:none;">Empezar Oculto</button>
         <h2 id="mensaje">Primero haz click en el botón naranja de arriba...</h2>
@@ -120,15 +119,10 @@
         }
         dibujarGrafico();
 
-        // LÓGICA DE ACTIVACIÓN MANUAL (DESBLOQUEA EL AUDIO)
         document.getElementById('btn-activar-pc').onclick = function() {
             this.style.display = 'none';
             document.getElementById('mensaje').innerText = "2. ¡Pantalla lista! Ahora usa tu celular, activa el GPS e inicia la carrera...";
-            
-            // Un pequeño truco para destrabar la voz del navegador
-            try {
-                window.speechSynthesis.speak(new SpeechSynthesisUtterance(""));
-            } catch(e) {}
+            try { window.speechSynthesis.speak(new SpeechSynthesisUtterance("")); } catch(e) {}
         };
 
         let carreraActiva = false;
@@ -139,29 +133,29 @@
             velocidadMaxima = 0.1;
             document.getElementById('mensaje').innerText = "¡CARRERA INICIADA DESDE EL CELULAR! Tienes 10 segundos...";
             
-            try {
-                window.speechSynthesis.speak(new SpeechSynthesisUtterance("¡Preparados, listos, corre!"));
-            } catch(e) {}
+            try { window.speechSynthesis.speak(new SpeechSynthesisUtterance("¡Preparados, listos, corre!")); } catch(e) {}
             
             setTimeout(() => {
                 carreraActiva = false;
+                
+                // --- AQUÍ ESTÁ EL FIX ---
                 let superados = todosLosAnimales.filter(a => a.medio !== "humano" && a.kmh <= velocidadMaxima);
+                
+                // Forzamos a ordenar de menor a mayor para asegurar que el último sea el más rápido al que le ganaste
+                superados.sort((a, b) => a.kmh - b.kmh);
+                
                 let animalSuperado = superados.length > 0 ? superados[superados.length - 1].animal : "un Caracol";
                 
-                let textoFinal = "¡Tiempo! Alcanzaste " + Math.floor(velocidadMaxima) + " km/h. Le ganaste a: " + animalSuperado;
+                let textoFinal = "¡Tiempo! Alcanzaste " + velocidadMaxima.toFixed(1) + " km/h. Le ganaste a: " + animalSuperado;
                 document.getElementById('mensaje').innerText = textoFinal;
                 
-                // 1. SALVAVIDAS: Manda el resultado al celular PRIMERO, antes de que nada se congele
                 Protobject.Core.send({ 
                     evento: "resultado_final", 
                     animal: animalSuperado, 
-                    vel: Math.floor(velocidadMaxima) 
+                    vel: velocidadMaxima.toFixed(1) 
                 });
 
-                // 2. Intenta hablar después de haber mandado el resultado
-                try {
-                    window.speechSynthesis.speak(new SpeechSynthesisUtterance(textoFinal));
-                } catch(e) {}
+                try { window.speechSynthesis.speak(new SpeechSynthesisUtterance(textoFinal)); } catch(e) {}
 
             }, 10000);
         };
