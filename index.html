@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <script src="https://app.protobject.com/framework/p.js"></script>
+    <script src="config.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+    
+    <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background-color: #1e1e1e; color: #fff; margin: 0; padding-top: 20px;}
+        h1 { margin-bottom: 10px; color: #fff; }
+        
+        #filtros { margin-bottom: 20px; }
+        .btn-filtro { padding: 10px 20px; font-size: 16px; margin: 0 5px; cursor: pointer; border: 1px solid #444; border-radius: 20px; background-color: #2a2a2a; color: #ccc; transition: 0.3s; }
+        .btn-filtro:hover, .btn-filtro.activo { background-color: #fff; color: #000; }
+        
+        #grafico { width: 95vw; height: 1200px; }
+        
+        #panel { text-align: center; margin-top: 10px; padding-bottom: 30px; position: fixed; bottom: 0; background: rgba(30,30,30,0.9); width: 100%; padding: 20px 0;}
+        button#btn-iniciar { padding: 15px 30px; font-size: 20px; background-color: #007BFF; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        button#btn-iniciar:hover { background-color: #0056b3; }
+        h2 { color: #ff6b6b; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <h1>¿A qué animal le ganas? 🏃💨</h1>
+    
+    <div id="filtros">
+        <button class="btn-filtro activo" onclick="filtrarDatos('todos', this)">🌎 Todos</button>
+        <button class="btn-filtro" onclick="filtrarDatos('tierra', this)">🏜️ Tierra (Naranja)</button>
+        <button class="btn-filtro" onclick="filtrarDatos('agua', this)">🌊 Agua (Azul)</button>
+        <button class="btn-filtro" onclick="filtrarDatos('aire', this)">☁️ Aire (Morado)</button>
+    </div>
+
+    <div id="grafico"></div>
+    
+    <div style="height: 150px;"></div>
+
+    <div id="panel">
+        <button id="btn-iniciar">⏱️ Empezar a correr (10 Segundos)</button>
+        <h2 id="mensaje">Prepara tu celular con el GPS activado...</h2>
+    </div>
+
+    <script>
+        const todosLosAnimales = [
+            { "animal": "Halcón peregrino", "kmh": 389, "emoji": "🦅", "medio": "aire" },
+            { "animal": "Águila real", "kmh": 320, "emoji": "🦅", "medio": "aire" },
+            { "animal": "Vencejo real", "kmh": 169, "emoji": "🐦", "medio": "aire" },
+            { "animal": "Murciélago", "kmh": 160, "emoji": "🦇", "medio": "aire" },
+            { "animal": "Fragata", "kmh": 153, "emoji": "🐦", "medio": "aire" },
+            { "animal": "Paloma mensajera", "kmh": 148, "emoji": "🕊️", "medio": "aire" },
+            { "animal": "Guepardo", "kmh": 120, "emoji": "🐆", "medio": "tierra" },
+            { "animal": "Pez vela", "kmh": 110, "emoji": "🐟", "medio": "agua" },
+            { "animal": "Pez espada", "kmh": 97, "emoji": "🐠", "medio": "agua" },
+            { "animal": "Berrendo", "kmh": 88, "emoji": "🦌", "medio": "tierra" },
+            { "animal": "Caballo de carrera", "kmh": 88, "emoji": "🐎", "medio": "tierra" },
+            { "animal": "León", "kmh": 80, "emoji": "🦁", "medio": "tierra" },
+            { "animal": "Ñu", "kmh": 80, "emoji": "🐃", "medio": "tierra" },
+            { "animal": "Tiburón mako", "kmh": 74, "emoji": "🦈", "medio": "agua" },
+            { "animal": "Galgo", "kmh": 74, "emoji": "🐕", "medio": "tierra" },
+            { "animal": "Canguro rojo", "kmh": 71, "emoji": "🦘", "medio": "tierra" },
+            { "animal": "Avestruz", "kmh": 70, "emoji": "🐦", "medio": "tierra" },
+            { "animal": "Liebre", "kmh": 70, "emoji": "🐇", "medio": "tierra" },
+            { "animal": "Cebra", "kmh": 64, "emoji": "🦓", "medio": "tierra" },
+            { "animal": "Delfín", "kmh": 60, "emoji": "🐬", "medio": "agua" },
+            { "animal": "Jirafa", "kmh": 60, "emoji": "🦒", "medio": "tierra" },
+            { "animal": "Orca", "kmh": 56, "emoji": "🐋", "medio": "agua" },
+            { "animal": "Conejo", "kmh": 56, "emoji": "🐰", "medio": "tierra" },
+            { "animal": "Oso pardo", "kmh": 56, "emoji": "🐻", "medio": "tierra" },
+            { "animal": "Gato doméstico", "kmh": 48, "emoji": "🐈", "medio": "tierra" },
+            { "animal": "Usain Bolt", "kmh": 44.7, "emoji": "🏃", "medio": "tierra" },
+            { "animal": "Elefante", "kmh": 40, "emoji": "🐘", "medio": "tierra" },
+            { "animal": "Pingüino papúa", "kmh": 36, "emoji": "🐧", "medio": "agua" },
+            { "animal": "Tortuga marina", "kmh": 35, "emoji": "🐢", "medio": "agua" },
+            { "animal": "Abeja", "kmh": 29, "emoji": "🐝", "medio": "aire" },
+            { "animal": "Ardilla", "kmh": 20, "emoji": "🐿️", "medio": "tierra" },
+            { "animal": "Mariposa monarca", "kmh": 20, "emoji": "🦋", "medio": "aire" },
+            { "animal": "Cocodrilo", "kmh": 17, "emoji": "🐊", "medio": "tierra" },
+            { "animal": "Gallina", "kmh": 14, "emoji": "🐔", "medio": "tierra" },
+            { "animal": "Ratón", "kmh": 13, "emoji": "🐁", "medio": "tierra" },
+            { "animal": "Humano trotando", "kmh": 12, "emoji": "🚶", "medio": "tierra" },
+            { "animal": "Mosca doméstica", "kmh": 8, "emoji": "🪰", "medio": "aire" },
+            { "animal": "Araña", "kmh": 1.9, "emoji": "🕷️", "medio": "tierra" },
+            { "animal": "Hormiga", "kmh": 0.3, "emoji": "🐜", "medio": "tierra" },
+            { "animal": "Tortuga terrestre", "kmh": 0.3, "emoji": "🐢", "medio": "tierra" },
+            { "animal": "Perezoso", "kmh": 0.27, "emoji": "🦥", "medio": "tierra" },
+            { "animal": "Estrella de mar", "kmh": 0.09, "emoji": "⭐", "medio": "agua" },
+            { "animal": "Caracol", "kmh": 0.048, "emoji": "🐌", "medio": "tierra" },
+            { "animal": "TÚ (Humano)", "kmh": 0.1, "emoji": "🏃", "medio": "humano" }
+        ];
+
+        let datosActuales = [...todosLosAnimales];
+
+        function filtrarDatos(medio, botonApretado) {
+            document.querySelectorAll('.btn-filtro').forEach(btn => btn.classList.remove('activo'));
+            botonApretado.classList.add('activo');
+
+            if (medio === 'todos') {
+                datosActuales = [...todosLosAnimales];
+            } else {
+                datosActuales = todosLosAnimales.filter(a => a.medio === medio || a.medio === "humano");
+            }
+            dibujarGrafico();
+        }
+
+        function dibujarGrafico() {
+            datosActuales.sort((a, b) => a.kmh - b.kmh); 
+            
+            let colores = datosActuales.map(a => {
+                if (a.medio === "humano") return "#ff4757"; 
+                if (a.medio === "tierra") return "#e67e22"; 
+                if (a.medio === "agua") return "#3498db";   
+                if (a.medio === "aire") return "#9b59b6";   
+            });
+            
+            let trace = {
+                x: datosActuales.map(a => a.kmh),
+                y: datosActuales.map(a => a.animal + " " + a.emoji),
+                type: 'bar',
+                orientation: 'h',
+                marker: { color: colores },
+                text: datosActuales.map(a => "<b>" + (a.kmh === 0.1 ? 0 : a.kmh.toFixed(1)) + " km/h</b>"),
+                textposition: 'outside',
+                textfont: { size: 14, color: '#fff' }
+            };
+            
+            let layout = {
+                margin: { l: 200, r: 80, t: 20, b: 20 },
+                plot_bgcolor: '#1e1e1e',
+                paper_bgcolor: '#1e1e1e',
+                xaxis: { 
+                    type: 'log', 
+                    showgrid: true, 
+                    gridcolor: '#333', 
+                    zeroline: false,
+                    showticklabels: false
+                },
+                yaxis: { 
+                    title: '',
+                    tickmode: 'linear',
+                    dtick: 1,
+                    tickfont: { size: 14, color: '#ccc' }
+                }
+            };
+            Plotly.react('grafico', [trace], layout);
+        }
+        dibujarGrafico();
+
+        let corriendo = false;
+        let velocidadUsuario = 0.1; 
+
+        document.getElementById('btn-iniciar').onclick = () => {
+            corriendo = true;
+            velocidadUsuario = 0.1;
+            document.getElementById('mensaje').innerText = "¡CORRE AHORA! Sal a correr al aire libre...";
+            
+            setTimeout(() => {
+                corriendo = false;
+                let superados = todosLosAnimales.filter(a => a.medio !== "humano" && a.kmh <= velocidadUsuario);
+                let animalSuperado = superados.length > 0 ? superados[superados.length - 1].animal : "un Caracol";
+                
+                let textoFinal = "¡Tiempo! Alcanzaste " + Math.floor(velocidadUsuario) + " km/h. Le ganaste a: " + animalSuperado;
+                document.getElementById('mensaje').innerText = textoFinal;
+                
+                let voz = new SpeechSynthesisUtterance(textoFinal);
+                voz.lang = 'es-CL';
+                window.speechSynthesis.speak(voz);
+
+            }, 10000);
+        };
+
+        // --- ESTA ES LA PARTE QUE CAMBIÓ ---
+        Protobject.Core.onReceived((msg) => {
+            if (corriendo && msg.evento === "paso_dado") {
+                
+                // Ahora asignamos directamente la velocidad real enviada por el sensor del GPS
+                velocidadUsuario = msg.velocidad_real; 
+                
+                let indexTotal = todosLosAnimales.findIndex(a => a.animal === "TÚ (Humano)");
+                todosLosAnimales[indexTotal].kmh = velocidadUsuario;
+                
+                let indexActual = datosActuales.findIndex(a => a.animal === "TÚ (Humano)");
+                if(indexActual !== -1){
+                    datosActuales[indexActual].kmh = velocidadUsuario;
+                }
+                
+                dibujarGrafico(); 
+            }
+        });
+    </script>
+</body>
+</html>
