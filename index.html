@@ -17,8 +17,7 @@
         #grafico { width: 95vw; height: 1200px; }
         
         #panel { text-align: center; margin-top: 10px; padding-bottom: 30px; position: fixed; bottom: 0; background: rgba(30,30,30,0.9); width: 100%; padding: 20px 0;}
-        button#btn-iniciar { padding: 15px 30px; font-size: 20px; background-color: #007BFF; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        button#btn-iniciar:hover { background-color: #0056b3; }
+        button#btn-iniciar { display: none; } /* Lo ocultamos porque ahora se controla del celular */
         h2 { color: #ff6b6b; margin-top: 15px; }
     </style>
 </head>
@@ -33,12 +32,11 @@
     </div>
 
     <div id="grafico"></div>
-    
     <div style="height: 150px;"></div>
 
     <div id="panel">
-        <button id="btn-iniciar">⏱️ Empezar a correr (10 Segundos)</button>
-        <h2 id="mensaje">Prepara tu celular con el GPS activado...</h2>
+        <button id="btn-iniciar">Empezar Oculto</button>
+        <h2 id="mensaje">Escanea el QR. Activa el GPS y presiona "Iniciar Carrera" desde tu celular...</h2>
     </div>
 
     <script>
@@ -94,7 +92,6 @@
         function filtrarDatos(medio, botonApretado) {
             document.querySelectorAll('.btn-filtro').forEach(btn => btn.classList.remove('activo'));
             botonApretado.classList.add('activo');
-
             if (medio === 'todos') {
                 datosActuales = [...todosLosAnimales];
             } else {
@@ -128,19 +125,8 @@
                 margin: { l: 200, r: 80, t: 20, b: 20 },
                 plot_bgcolor: '#1e1e1e',
                 paper_bgcolor: '#1e1e1e',
-                xaxis: { 
-                    type: 'log', 
-                    showgrid: true, 
-                    gridcolor: '#333', 
-                    zeroline: false,
-                    showticklabels: false
-                },
-                yaxis: { 
-                    title: '',
-                    tickmode: 'linear',
-                    dtick: 1,
-                    tickfont: { size: 14, color: '#ccc' }
-                }
+                xaxis: { type: 'log', showgrid: true, gridcolor: '#333', zeroline: false, showticklabels: false },
+                yaxis: { title: '', tickmode: 'linear', dtick: 1, tickfont: { size: 14, color: '#ccc' } }
             };
             Plotly.react('grafico', [trace], layout);
         }
@@ -149,10 +135,11 @@
         let corriendo = false;
         let velocidadUsuario = 0.1; 
 
+        // Esta función ahora la dispara el celular, no el mouse
         document.getElementById('btn-iniciar').onclick = () => {
             corriendo = true;
             velocidadUsuario = 0.1;
-            document.getElementById('mensaje').innerText = "¡CORRE AHORA! Sal a correr al aire libre...";
+            document.getElementById('mensaje').innerText = "¡CARRERA INICIADA DESDE EL CELULAR! Corre con todo...";
             
             setTimeout(() => {
                 corriendo = false;
@@ -169,22 +156,29 @@
             }, 10000);
         };
 
-        // --- ESTA ES LA PARTE QUE CAMBIÓ ---
         Protobject.Core.onReceived((msg) => {
+            // El celular nos da la orden de empezar los 10 segundos
+            if (msg.evento === "iniciar_carrera") {
+                document.getElementById('btn-iniciar').click();
+            }
+
             if (corriendo && msg.evento === "paso_dado") {
                 
-                // Ahora asignamos directamente la velocidad real enviada por el sensor del GPS
-                velocidadUsuario = msg.velocidad_real; 
-                
-                let indexTotal = todosLosAnimales.findIndex(a => a.animal === "TÚ (Humano)");
-                todosLosAnimales[indexTotal].kmh = velocidadUsuario;
-                
-                let indexActual = datosActuales.findIndex(a => a.animal === "TÚ (Humano)");
-                if(indexActual !== -1){
-                    datosActuales[indexActual].kmh = velocidadUsuario;
+                // EL ARREGLO DEL BUG: Solo guarda la velocidad si es MAYOR a la que ya tenías
+                // Así, si frenas en el segundo 9, no te baja a cero.
+                if (msg.velocidad_real > velocidadUsuario) {
+                    velocidadUsuario = msg.velocidad_real; 
+                    
+                    let indexTotal = todosLosAnimales.findIndex(a => a.animal === "TÚ (Humano)");
+                    todosLosAnimales[indexTotal].kmh = velocidadUsuario;
+                    
+                    let indexActual = datosActuales.findIndex(a => a.animal === "TÚ (Humano)");
+                    if(indexActual !== -1){
+                        datosActuales[indexActual].kmh = velocidadUsuario;
+                    }
+                    
+                    dibujarGrafico(); 
                 }
-                
-                dibujarGrafico(); 
             }
         });
     </script>
