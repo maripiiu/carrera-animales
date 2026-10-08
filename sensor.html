@@ -22,7 +22,6 @@
     <button id="btn-carrera">🏁 INICIAR CARRERA 10s</button>
     <div id="contador">10</div>
     
-    <!-- Aquí aparecerá el animal al que le ganaste -->
     <div id="resultado"></div>
 
     <script>
@@ -37,10 +36,7 @@
                     let velocidad_ms = posicion.coords.speed;
                     let kmh_real = (velocidad_ms !== null && velocidad_ms > 0) ? (velocidad_ms * 3.6) : 0;
 
-                    // Muestra la velocidad en tu pantalla
                     document.getElementById('velocidad').innerText = kmh_real.toFixed(1) + " km/h";
-
-                    // LE MANDA LA VELOCIDAD AL PC EN VIVO TODO EL TIEMPO
                     Protobject.Core.send({ evento: "velocidad_en_vivo", kmh: kmh_real });
 
                     if (!gpsActivo) {
@@ -57,11 +53,10 @@
         document.getElementById('btn-carrera').onclick = function() {
             this.style.display = 'none';
             document.getElementById('resultado').style.display = 'none';
-            document.body.style.backgroundColor = "#e67e22"; // Cambia a naranjo al correr
+            document.body.style.backgroundColor = "#e67e22";
             document.getElementById('estado').innerText = "¡CORRE CON TODO!";
             document.getElementById('contador').style.display = "block";
 
-            // Le avisa al PC que empiece a grabar la velocidad máxima
             Protobject.Core.send({ evento: "iniciar_carrera" });
 
             let tiempo = 10;
@@ -72,14 +67,13 @@
                 document.getElementById('contador').innerText = tiempo;
                 if (tiempo <= 0) {
                     clearInterval(intervalo);
-                    document.body.style.backgroundColor = "#34495e"; // Gris al terminar
+                    document.body.style.backgroundColor = "#34495e";
                     document.getElementById('estado').innerText = "¡TIEMPO! Calculando...";
                     document.getElementById('contador').style.display = "none";
                 }
             }, 1000);
         };
 
-        // ESCUCHAMOS LA RESPUESTA QUE MANDA EL COMPUTADOR
         Protobject.Core.onReceived((msg) => {
             if (msg.evento === "resultado_final") {
                 document.getElementById('estado').innerText = "Tu récord: " + msg.vel + " km/h";
