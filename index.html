@@ -15,6 +15,7 @@
         #grafico { width: 95vw; height: 1200px; }
         #panel { text-align: center; margin-top: 10px; padding-bottom: 30px; position: fixed; bottom: 0; background: rgba(30,30,30,0.9); width: 100%; padding: 20px 0;}
         h2 { color: #ff6b6b; margin-top: 15px; }
+        #btn-activar-pc { padding: 15px 30px; font-size: 20px; background-color: #e67e22; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -27,9 +28,12 @@
     </div>
     <div id="grafico"></div>
     <div style="height: 150px;"></div>
+    
     <div id="panel">
+        <!-- BOTÓN NUEVO: Destraba el permiso de sonido del computador -->
+        <button id="btn-activar-pc">1. CLICK AQUÍ PRIMERO (Para activar sonido)</button>
         <button id="btn-iniciar" style="display:none;">Empezar Oculto</button>
-        <h2 id="mensaje">Escanea el QR. Activa el GPS y presiona "Iniciar Carrera" desde tu celular...</h2>
+        <h2 id="mensaje">Primero haz click en el botón naranja de arriba...</h2>
     </div>
 
     <script>
@@ -116,6 +120,17 @@
         }
         dibujarGrafico();
 
+        // LÓGICA DE ACTIVACIÓN MANUAL (DESBLOQUEA EL AUDIO)
+        document.getElementById('btn-activar-pc').onclick = function() {
+            this.style.display = 'none';
+            document.getElementById('mensaje').innerText = "2. ¡Pantalla lista! Ahora usa tu celular, activa el GPS e inicia la carrera...";
+            
+            // Un pequeño truco para destrabar la voz del navegador
+            try {
+                window.speechSynthesis.speak(new SpeechSynthesisUtterance(""));
+            } catch(e) {}
+        };
+
         let carreraActiva = false;
         let velocidadMaxima = 0.1; 
 
@@ -124,7 +139,9 @@
             velocidadMaxima = 0.1;
             document.getElementById('mensaje').innerText = "¡CARRERA INICIADA DESDE EL CELULAR! Tienes 10 segundos...";
             
-            window.speechSynthesis.speak(new SpeechSynthesisUtterance("¡Preparados, listos, corre!"));
+            try {
+                window.speechSynthesis.speak(new SpeechSynthesisUtterance("¡Preparados, listos, corre!"));
+            } catch(e) {}
             
             setTimeout(() => {
                 carreraActiva = false;
@@ -134,13 +151,17 @@
                 let textoFinal = "¡Tiempo! Alcanzaste " + Math.floor(velocidadMaxima) + " km/h. Le ganaste a: " + animalSuperado;
                 document.getElementById('mensaje').innerText = textoFinal;
                 
-                window.speechSynthesis.speak(new SpeechSynthesisUtterance(textoFinal));
-                
+                // 1. SALVAVIDAS: Manda el resultado al celular PRIMERO, antes de que nada se congele
                 Protobject.Core.send({ 
                     evento: "resultado_final", 
                     animal: animalSuperado, 
                     vel: Math.floor(velocidadMaxima) 
                 });
+
+                // 2. Intenta hablar después de haber mandado el resultado
+                try {
+                    window.speechSynthesis.speak(new SpeechSynthesisUtterance(textoFinal));
+                } catch(e) {}
 
             }, 10000);
         };
@@ -148,7 +169,6 @@
         Protobject.Core.onReceived((msg) => {
             if (msg.evento === "velocidad_en_vivo") {
                 let velActual = msg.kmh;
-                
                 if (carreraActiva && velActual > velocidadMaxima) {
                     velocidadMaxima = velActual;
                 }
