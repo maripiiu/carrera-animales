@@ -28,7 +28,8 @@
     <div id="grafico"></div>
     <div style="height: 150px;"></div>
     <div id="panel">
-        <h2 id="mensaje">Conecta el GPS y presiona "Iniciar Carrera" en tu celular...</h2>
+        <button id="btn-iniciar" style="display:none;">Empezar Oculto</button>
+        <h2 id="mensaje">Escanea el QR. Activa el GPS y presiona "Iniciar Carrera" desde tu celular...</h2>
     </div>
 
     <script>
@@ -36,21 +37,48 @@
             { "animal": "Halcón peregrino", "kmh": 389, "emoji": "🦅", "medio": "aire" },
             { "animal": "Águila real", "kmh": 320, "emoji": "🦅", "medio": "aire" },
             { "animal": "Vencejo real", "kmh": 169, "emoji": "🐦", "medio": "aire" },
+            { "animal": "Murciélago", "kmh": 160, "emoji": "🦇", "medio": "aire" },
+            { "animal": "Fragata", "kmh": 153, "emoji": "🐦", "medio": "aire" },
+            { "animal": "Paloma mensajera", "kmh": 148, "emoji": "🕊️", "medio": "aire" },
             { "animal": "Guepardo", "kmh": 120, "emoji": "🐆", "medio": "tierra" },
             { "animal": "Pez vela", "kmh": 110, "emoji": "🐟", "medio": "agua" },
+            { "animal": "Pez espada", "kmh": 97, "emoji": "🐠", "medio": "agua" },
+            { "animal": "Berrendo", "kmh": 88, "emoji": "🦌", "medio": "tierra" },
+            { "animal": "Caballo de carrera", "kmh": 88, "emoji": "🐎", "medio": "tierra" },
             { "animal": "León", "kmh": 80, "emoji": "🦁", "medio": "tierra" },
+            { "animal": "Ñu", "kmh": 80, "emoji": "🐃", "medio": "tierra" },
             { "animal": "Tiburón mako", "kmh": 74, "emoji": "🦈", "medio": "agua" },
+            { "animal": "Galgo", "kmh": 74, "emoji": "🐕", "medio": "tierra" },
+            { "animal": "Canguro rojo", "kmh": 71, "emoji": "🦘", "medio": "tierra" },
             { "animal": "Avestruz", "kmh": 70, "emoji": "🐦", "medio": "tierra" },
+            { "animal": "Liebre", "kmh": 70, "emoji": "🐇", "medio": "tierra" },
+            { "animal": "Cebra", "kmh": 64, "emoji": "🦓", "medio": "tierra" },
             { "animal": "Delfín", "kmh": 60, "emoji": "🐬", "medio": "agua" },
+            { "animal": "Jirafa", "kmh": 60, "emoji": "🦒", "medio": "tierra" },
+            { "animal": "Orca", "kmh": 56, "emoji": "🐋", "medio": "agua" },
+            { "animal": "Conejo", "kmh": 56, "emoji": "🐰", "medio": "tierra" },
+            { "animal": "Oso pardo", "kmh": 56, "emoji": "🐻", "medio": "tierra" },
+            { "animal": "Gato doméstico", "kmh": 48, "emoji": "🐈", "medio": "tierra" },
             { "animal": "Usain Bolt", "kmh": 44.7, "emoji": "🏃", "medio": "tierra" },
+            { "animal": "Elefante", "kmh": 40, "emoji": "🐘", "medio": "tierra" },
+            { "animal": "Pingüino papúa", "kmh": 36, "emoji": "🐧", "medio": "agua" },
             { "animal": "Tortuga marina", "kmh": 35, "emoji": "🐢", "medio": "agua" },
+            { "animal": "Abeja", "kmh": 29, "emoji": "🐝", "medio": "aire" },
+            { "animal": "Ardilla", "kmh": 20, "emoji": "🐿️", "medio": "tierra" },
+            { "animal": "Mariposa monarca", "kmh": 20, "emoji": "🦋", "medio": "aire" },
+            { "animal": "Cocodrilo", "kmh": 17, "emoji": "🐊", "medio": "tierra" },
             { "animal": "Gallina", "kmh": 14, "emoji": "🐔", "medio": "tierra" },
+            { "animal": "Ratón", "kmh": 13, "emoji": "🐁", "medio": "tierra" },
             { "animal": "Humano trotando", "kmh": 12, "emoji": "🚶", "medio": "tierra" },
-            { "animal": "Mosca", "kmh": 8, "emoji": "🪰", "medio": "aire" },
+            { "animal": "Mosca doméstica", "kmh": 8, "emoji": "🪰", "medio": "aire" },
+            { "animal": "Araña", "kmh": 1.9, "emoji": "🕷️", "medio": "tierra" },
+            { "animal": "Hormiga", "kmh": 0.3, "emoji": "🐜", "medio": "tierra" },
             { "animal": "Tortuga terrestre", "kmh": 0.3, "emoji": "🐢", "medio": "tierra" },
+            { "animal": "Perezoso", "kmh": 0.27, "emoji": "🦥", "medio": "tierra" },
+            { "animal": "Estrella de mar", "kmh": 0.09, "emoji": "⭐", "medio": "agua" },
             { "animal": "Caracol", "kmh": 0.048, "emoji": "🐌", "medio": "tierra" },
             { "animal": "TÚ (Humano)", "kmh": 0.1, "emoji": "🏃", "medio": "humano" }
-        ]; // (Anoté algunos resumidos por espacio, pero puedes pegar tu lista larga entera aquí)
+        ];
 
         let datosActuales = [...todosLosAnimales];
 
@@ -88,22 +116,43 @@
         }
         dibujarGrafico();
 
-        // LÓGICA DE LA CARRERA
         let carreraActiva = false;
         let velocidadMaxima = 0.1; 
 
-        Protobject.Core.onReceived((msg) => {
+        document.getElementById('btn-iniciar').onclick = () => {
+            carreraActiva = true;
+            velocidadMaxima = 0.1;
+            document.getElementById('mensaje').innerText = "¡CARRERA INICIADA DESDE EL CELULAR! Tienes 10 segundos...";
             
-            // 1. Dibuja tu velocidad en vivo todo el tiempo para que veas que funciona
+            window.speechSynthesis.speak(new SpeechSynthesisUtterance("¡Preparados, listos, corre!"));
+            
+            setTimeout(() => {
+                carreraActiva = false;
+                let superados = todosLosAnimales.filter(a => a.medio !== "humano" && a.kmh <= velocidadMaxima);
+                let animalSuperado = superados.length > 0 ? superados[superados.length - 1].animal : "un Caracol";
+                
+                let textoFinal = "¡Tiempo! Alcanzaste " + Math.floor(velocidadMaxima) + " km/h. Le ganaste a: " + animalSuperado;
+                document.getElementById('mensaje').innerText = textoFinal;
+                
+                window.speechSynthesis.speak(new SpeechSynthesisUtterance(textoFinal));
+                
+                Protobject.Core.send({ 
+                    evento: "resultado_final", 
+                    animal: animalSuperado, 
+                    vel: Math.floor(velocidadMaxima) 
+                });
+
+            }, 10000);
+        };
+
+        Protobject.Core.onReceived((msg) => {
             if (msg.evento === "velocidad_en_vivo") {
                 let velActual = msg.kmh;
                 
-                // Si la carrera ya empezó, va guardando tu pique más rápido
                 if (carreraActiva && velActual > velocidadMaxima) {
                     velocidadMaxima = velActual;
                 }
                 
-                // Mueve la barra en la pantalla (usando velActual o velMaxima si estás corriendo)
                 let velocidadMostrar = carreraActiva ? velocidadMaxima : velActual;
                 if(velocidadMostrar < 0.1) velocidadMostrar = 0.1; 
 
@@ -117,33 +166,8 @@
                 dibujarGrafico(); 
             }
 
-            // 2. Cuando aprietas el botón en el celular
             if (msg.evento === "iniciar_carrera") {
-                carreraActiva = true;
-                velocidadMaxima = 0.1;
-                document.getElementById('mensaje').innerText = "¡CARRERA INICIADA DESDE EL CELULAR! Tienes 10 segundos...";
-                
-                // La voz te avisa que partió
-                window.speechSynthesis.speak(new SpeechSynthesisUtterance("¡Preparados, listos, corre!"));
-                
-                setTimeout(() => {
-                    carreraActiva = false;
-                    let superados = todosLosAnimales.filter(a => a.medio !== "humano" && a.kmh <= velocidadMaxima);
-                    let animalSuperado = superados.length > 0 ? superados[superados.length - 1].animal : "un Caracol";
-                    
-                    let textoFinal = "¡Tiempo! Alcanzaste " + Math.floor(velocidadMaxima) + " km/h. Le ganaste a: " + animalSuperado;
-                    document.getElementById('mensaje').innerText = textoFinal;
-                    
-                    window.speechSynthesis.speak(new SpeechSynthesisUtterance(textoFinal));
-                    
-                    // 3. LA MAGIA: El computador le devuelve el resultado al celular
-                    Protobject.Core.send({ 
-                        evento: "resultado_final", 
-                        animal: animalSuperado, 
-                        vel: Math.floor(velocidadMaxima) 
-                    });
-
-                }, 10000);
+                document.getElementById('btn-iniciar').click();
             }
         });
     </script>
