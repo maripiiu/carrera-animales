@@ -14,36 +14,33 @@
 <body>
     <button id="btn-empezar">📍 ACTIVAR GPS Y CORRER</button>
     <h1 id="estado">Esperando...</h1>
-    <div id="velocidad">0 km/h</div>
+    <div id="velocidad">0.0 km/h</div>
 
     <script>
         document.getElementById('btn-empezar').onclick = function() {
             this.style.display = 'none';
-            document.getElementById('estado').innerText = "Buscando señal GPS...";
+            document.getElementById('estado').innerText = "Buscando señal satelital (Sal al patio)...";
 
-            // Verificamos si el celular tiene GPS activado
             if ("geolocation" in navigator) {
-                // watchPosition sigue tu ubicación en tiempo real
                 navigator.geolocation.watchPosition((posicion) => {
                     
-                    // El GPS entrega la velocidad en metros por segundo. Puede ser null si estás quieto.
+                    // El GPS entrega la velocidad en metros por segundo. Si estás quieta, puede ser null.
                     let velocidad_ms = posicion.coords.speed; 
+                    let kmh_real = (velocidad_ms !== null && velocidad_ms > 0) ? (velocidad_ms * 3.6) : 0;
                     
-                    if (velocidad_ms !== null && velocidad_ms > 0) {
-                        // Convertimos a km/h
-                        let kmh_real = velocidad_ms * 3.6;
-                        
-                        document.getElementById('estado').innerText = "¡Corriendo!";
-                        document.getElementById('velocidad').innerText = kmh_real.toFixed(1) + " km/h";
-                        
-                        // Enviamos tu velocidad real por GPS al gráfico del computador
+                    // Actualizamos la pantalla de inmediato para dar tranquilidad al usuario
+                    document.getElementById('estado').innerText = kmh_real > 0 ? "¡CORRIENDO!" : "GPS Conectado. ¡Empieza a moverte!";
+                    document.getElementById('velocidad').innerText = kmh_real.toFixed(1) + " km/h";
+                    
+                    // Solo mandamos el dato al computador si de verdad te estás moviendo
+                    if (kmh_real > 0) {
                         Protobject.Core.send({ evento: "paso_dado", velocidad_real: kmh_real });
                     }
 
                 }, (error) => {
                     document.getElementById('estado').innerText = "Error de GPS: " + error.message;
                 }, { 
-                    enableHighAccuracy: true, // Fuerza a usar el chip GPS real, no solo la red Wi-Fi
+                    enableHighAccuracy: true, 
                     maximumAge: 0 
                 });
             } else {
