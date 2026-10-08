@@ -5,12 +5,13 @@
     <script src="https://app.protobject.com/framework/p.js"></script>
     <script src="config.js"></script>
     <style>
-        body { font-family: sans-serif; text-align: center; padding: 20px; margin: 0; background-color: #2ecc71; color: white;}
+        body { font-family: sans-serif; text-align: center; padding: 20px; margin: 0; background-color: #2ecc71; color: white; transition: 0.3s;}
         h1 { font-size: 22px; margin-top: 30px; }
         #velocidad { font-size: 60px; font-weight: bold; margin: 10px 0; }
         button { width: 90vw; padding: 20px; font-size: 22px; background-color: #fff; color: #2ecc71; border: none; border-radius: 10px; font-weight: bold; margin-top: 10px;}
         #btn-carrera { display: none; background-color: #e74c3c; color: white; margin-top: 20px; }
         #contador { font-size: 80px; font-weight: bold; color: #f1c40f; display: none; margin-top: 10px;}
+        #resultado { font-size: 40px; font-weight: bold; margin-top: 20px; color: #fff; display: none; background: rgba(0,0,0,0.2); padding: 20px; border-radius: 15px;}
     </style>
 </head>
 <body>
@@ -18,53 +19,51 @@
     <h1 id="estado">Esperando...</h1>
     <div id="velocidad">0.0 km/h</div>
 
-    <!-- Botón mágico que controla el computador -->
-    <button id="btn-carrera">🏁 INICIAR CARRERA (10s)</button>
+    <button id="btn-carrera">🏁 INICIAR CARRERA 10s</button>
     <div id="contador">10</div>
+    
+    <!-- Aquí aparecerá el animal al que le ganaste -->
+    <div id="resultado"></div>
 
     <script>
         let gpsActivo = false;
 
         document.getElementById('btn-empezar').onclick = function() {
             this.style.display = 'none';
-            document.getElementById('estado').innerText = "Buscando señal satelital (Sal afuera)...";
+            document.getElementById('estado').innerText = "Buscando señal (Camina un poco)...";
 
             if ("geolocation" in navigator) {
                 navigator.geolocation.watchPosition((posicion) => {
                     let velocidad_ms = posicion.coords.speed;
                     let kmh_real = (velocidad_ms !== null && velocidad_ms > 0) ? (velocidad_ms * 3.6) : 0;
 
+                    // Muestra la velocidad en tu pantalla
                     document.getElementById('velocidad').innerText = kmh_real.toFixed(1) + " km/h";
 
-                    // Cuando agarra señal por primera vez, mostramos el botón de Iniciar
+                    // LE MANDA LA VELOCIDAD AL PC EN VIVO TODO EL TIEMPO
+                    Protobject.Core.send({ evento: "velocidad_en_vivo", kmh: kmh_real });
+
                     if (!gpsActivo) {
                         gpsActivo = true;
-                        document.getElementById('estado').innerText = "¡GPS Listo! Prepárate...";
+                        document.getElementById('estado').innerText = "¡GPS Listo!";
                         document.getElementById('btn-carrera').style.display = "inline-block";
                     }
-
-                    // Enviamos la velocidad constantemente
-                    Protobject.Core.send({ evento: "paso_dado", velocidad_real: kmh_real });
-
                 }, (error) => {
                     document.getElementById('estado').innerText = "Error GPS: " + error.message;
-                }, {
-                    enableHighAccuracy: true,
-                    maximumAge: 0
-                });
+                }, { enableHighAccuracy: true, maximumAge: 0 });
             }
         };
 
-        // Lógica para que el celular inicie la carrera
         document.getElementById('btn-carrera').onclick = function() {
             this.style.display = 'none';
+            document.getElementById('resultado').style.display = 'none';
+            document.body.style.backgroundColor = "#e67e22"; // Cambia a naranjo al correr
             document.getElementById('estado').innerText = "¡CORRE CON TODO!";
             document.getElementById('contador').style.display = "block";
 
-            // Le avisamos al computador que active los sonidos y su cronómetro
+            // Le avisa al PC que empiece a grabar la velocidad máxima
             Protobject.Core.send({ evento: "iniciar_carrera" });
 
-            // Cuenta regresiva visual en tu mano
             let tiempo = 10;
             document.getElementById('contador').innerText = tiempo;
 
@@ -73,11 +72,27 @@
                 document.getElementById('contador').innerText = tiempo;
                 if (tiempo <= 0) {
                     clearInterval(intervalo);
-                    document.getElementById('estado').innerText = "¡TIEMPO TERMINADO!";
-                    document.getElementById('contador').innerText = "Mira el PC 👀";
+                    document.body.style.backgroundColor = "#34495e"; // Gris al terminar
+                    document.getElementById('estado').innerText = "¡TIEMPO! Calculando...";
+                    document.getElementById('contador').style.display = "none";
                 }
             }, 1000);
         };
+
+        // ESCUCHAMOS LA RESPUESTA QUE MANDA EL COMPUTADOR
+        Protobject.Core.onReceived((msg) => {
+            if (msg.evento === "resultado_final") {
+                document.getElementById('estado').innerText = "Tu récord: " + msg.vel + " km/h";
+                document.getElementById('velocidad').innerText = "";
+                
+                let divRes = document.getElementById('resultado');
+                divRes.style.display = "block";
+                divRes.innerHTML = "¡Le ganaste a:<br><br>🏆 " + msg.animal + "!";
+                
+                document.getElementById('btn-carrera').style.display = "inline-block";
+                document.getElementById('btn-carrera').innerText = "🔄 CORRER DE NUEVO";
+            }
+        });
     </script>
 </body>
 </html>
