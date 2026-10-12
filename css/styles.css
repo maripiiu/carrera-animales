@@ -208,3 +208,22 @@
 .row.on .vl{color:var(--ink)}
 @media(max-width:560px){.intro-explain>.intro-key{grid-template-columns:1fr}.intro-selected{font-size:12px}.intro-actions .intro-status{width:100%}}
 
+/* ---------- Carrera real con GPS ---------- */
+.race-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:18px}
+.race-steps span{background:var(--surface);border:1px solid var(--line-soft);padding:10px;border-radius:4px;font-size:12px;color:var(--ink-2)}
+.race-steps b{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;margin-right:5px;background:var(--tu);color:#190b10}
+.gps-panel{border:1px solid var(--line-soft);border-radius:5px;background:var(--surface-2);padding:12px;margin-bottom:12px;text-align:left}
+.gps-tag{display:flex;gap:9px;align-items:center;margin:0;font-size:13px}
+.gps-light{display:inline-block;flex:none;width:10px;height:10px;border-radius:50%;background:var(--ink-3)}
+.gps-light.searching{background:#e7ad58}
+.gps-light.ready{background:#80d5a8}
+.gps-light.tracking{background:var(--tu);box-shadow:0 0 0 4px rgba(232,93,117,.13)}
+.gps-guidance{color:var(--ink-2);font-size:12px;margin:8px 0 0}
+.gps-metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:13px}
+.gps-metrics>div{border-top:1px solid var(--line);padding-top:8px;display:grid;gap:3px}
+.gps-metrics span{font-size:11px;color:var(--ink-3)}
+.gps-metrics strong{font-size:16px}
+.gps-cancel{margin-top:12px;background:transparent;color:var(--ink-2);padding:5px 9px}
+.race-disclaimer{background:var(--surface);border-left:3px solid var(--tu);border-radius:3px;padding:12px 15px;margin-top:18px;font-size:12.5px;color:var(--ink-2);line-height:1.55}
+.race-disclaimer strong{color:var(--ink)}
+@media(max-width:560px){.race-steps{grid-template-columns:1fr}.gps-metrics strong{font-size:14px}}
