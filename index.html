@@ -1,184 +1,210 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>¿Le ganas al animal?</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap">
-<link rel="stylesheet" href="css/styles.css?v=2-20261012">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
+<title>¿A quién podrías superar? · Carrera animal</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Anton&amp;family=Archivo:wght@400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="css/styles.css?v=3-20261013" rel="stylesheet"/>
 </head>
 <body>
-
-
 <div class="wrap">
-
-  <header class="hero">
-    <p class="eyebrow">Descubre · Mide · Compara</p>
-    <h1 class="display">¿Le ganas<br>al <em>animal</em>?</h1>
-    <p class="lead">¿Qué tan rápido eres? Explora la velocidad de distintos animales, sal a correr con tu celular y descubre a cuáles podrías superar según tu rapidez estimada por GPS.</p>
-  </header>
-
-  <section class="intro-section" id="pista" aria-labelledby="intro-title">
-    <div class="sec-head"><h2 class="display" id="intro-title">La pista</h2><span class="eyebrow">Explora</span><span class="intro-time mono" id="intro-time">0,0 s</span></div>
-    <p class="sec-note">Seis competidores parten juntos. La pista muestra a los seis competidores en carriles paralelos. Todos parten juntos y avanzan según su velocidad máxima aproximada durante ocho segundos. Después podrás cambiar los participantes desde el ranking.</p>
-    <div class="intro-viz">
-      <div class="intro-chart-shell">
-        <svg id="intro-svg" viewBox="0 0 900 410" role="img" aria-label="Pista de atletismo interactiva con hasta seis competidores corriendo en carriles paralelos durante ocho segundos"></svg>
-      </div>
-      <div id="intro-legend" class="intro-legend" aria-label="Competidores representados"></div>
-      <div class="intro-selected" id="intro-selected" aria-live="polite"></div>
-      <div class="controls intro-actions">
-        <button class="btn-go" id="intro-replay">▶ Iniciar simulación</button>
-        <button id="intro-reset">↺ Restablecer animales</button>
-        <button id="intro-sound" aria-pressed="false">🔇 Activar sonido</button>
-        <span class="intro-status" id="intro-status" role="status">6 de 6 competidores</span>
-      </div>
-      <div class="intro-winner" id="intro-winner" hidden aria-live="polite"></div>
-      <div class="intro-explain">
-        <strong>Cómo leer La pista</strong>
-        <div class="intro-key"><span><b>→ Avance:</b> más adelante significa más distancia recorrida.</span><span><b>Tiempo:</b> los segundos que pasan, de 0 a 8.</span><span><b>Carriles:</b> todos parten alineados y corren uno al lado del otro.</span><span><b>Colores:</b> identifican a cada participante en la leyenda.</span></div>
-        <p>Haz clic en un participante para destacarlo. El halcón alcanza su máxima velocidad en picada; las velocidades de esta comparación se mantienen constantes solo en la simulación.</p>
-      </div>
-    </div>
-  </section>
-
-  <section>
-    <div class="sec-head"><h2 class="display">Tu turno</h2><p class="eyebrow">Mide tu rapidez</p></div>
-    <p class="sec-note">La experiencia principal se hace <strong>corriendo de verdad al aire libre con el GPS del celular</strong>. También hay dos modos de demostración para explorar la página sin salir.</p>
-
-    <div class="race-steps" aria-label="Cómo participar">
-      <div class="race-step"><span class="race-step-n">1</span><div><strong>Abre la página</strong><small>Desde tu celular, al aire libre</small></div></div>
-      <div class="race-step"><span class="race-step-n">2</span><div><strong>Prepara el GPS y corre</strong><small>Inicia y termina la medición</small></div></div>
-      <div class="race-step"><span class="race-step-n">3</span><div><strong>Descubre tus rivales</strong><small>Compara tu rapidez con animales</small></div></div>
-    </div>
-    <div class="modes" id="modes">
-      <button class="mode" data-mode="gps" aria-pressed="true">
-        <span class="mi">📍</span><span class="mt">Carrera real · GPS</span>
-        <span class="md">Corre al aire libre. El navegador estima la rapidez de desplazamiento con tu ubicación. <b>Modo recomendado.</b></span>
-      </button>
-      <button class="mode" data-mode="motion" aria-pressed="false">
-        <span class="mi">📱</span><span class="mt">Movimiento · demo</span>
-        <span class="md">Detecta impulsos del celular al moverte; no mide la rapidez real de tu carrera.</span>
-      </button>
-      <button class="mode" data-mode="tap" aria-pressed="false">
-        <span class="mi">⌨️</span><span class="mt">Teclado · demo</span>
-        <span class="md">Simula una rapidez pulsando la barra espaciadora; no mide tus pasos.</span>
-      </button>
-    </div>
-
-    <div class="duel">
-      <div class="tapbox">
-        <div class="gps-panel" id="gpsPanel">
-          <p class="gps-tag"><span class="gps-light" id="gpsLight"></span><strong id="gpsSignal">GPS sin iniciar</strong></p>
-          <p class="gps-guidance" id="gpsHint">En un lugar abierto y seguro, prepara la señal antes de empezar a correr.</p>
-          <div class="gps-metrics">
-            <div><span>Distancia estimada</span><strong class="mono" id="gpsDistance">0 m</strong></div>
-            <div><span>Rapidez media</span><strong class="mono" id="gpsAverage">0,0 km/h</strong></div>
-          </div>
-          <p class="gps-count" id="gpsCount">Lecturas válidas: 0 · Aún no se ha registrado desplazamiento.</p>
-          <button type="button" id="gpsCancel" class="gps-cancel" hidden>Cancelar preparación</button>
-        </div>
-        <button class="tapbtn" id="tap">Preparar GPS</button>
-        <div class="tapmeta"><span id="tapCount">— pasos</span><span id="tapTime">10,0 s</span></div>
-        <div class="live-read" id="liveRead">
-          <div><span class="lk" id="lkA">Cadencia</span><span class="lv mono" id="lvA">0,0</span><span class="lu" id="luA">pasos/s</span></div>
-          <div><span class="lk" id="lkB">Ahora</span><span class="lv mono" id="lvB">0,0</span><span class="lu" id="luB">km/h</span></div>
-        </div>
-        <label class="stride" id="strideWrap" for="stride">
-          <span>Zancada supuesta: <b class="mono" id="strideVal">0,90</b> m</span>
-          <input type="range" id="stride" min="0.4" max="2.6" step="0.05" value="0.9">
-        </label>
-        <details class="diag"><summary>¿No funciona el GPS o el sensor?</summary>
-          <div class="body">
-            <button id="diagRun" style="width:100%">Revisar este aparato</button>
-            <ul id="diagList"></ul>
-            <div class="fix" id="diagFix" hidden></div>
-          </div>
-        </details>
-        <p class="status" id="status" role="status" aria-live="polite">Para tu carrera real usa el GPS desde un celular al aire libre.</p>
-      </div>
-      <div class="verdict" id="verdict">
-        <div class="eyebrow">Tu resultado · rapidez media de la carrera</div>
-        <div class="big" id="myspeed">— km/h</div>
-        <p class="beat" id="beatmsg">¡Todavía no corres! Prepara el GPS, completa tu carrera y aparecerán los animales que podrías superar.</p>
-        <div id="result-rival" class="result-rival" hidden></div>
-        <ul id="beatlist"></ul>
-      </div>
-    </div>
-    <details class="mode-explainer">
-      <summary>¿Qué mide cada modo? ¿Por qué mover la mano cuenta?</summary>
-      <div class="mode-explainer-body">
-        <p><b>📍 Carrera real · GPS:</b> estima la distancia recorrida mediante la ubicación del celular y calcula tu rapidez media. No cuenta pasos.</p>
-        <p><b>📱 Movimiento · demo:</b> el acelerómetro detecta impulsos o sacudidas. Al mover la mano puede contar un movimiento aunque no hayas dado un paso. Multiplica movimientos por segundo × una zancada <em>supuesta</em> × 3,6. Es una simulación, no tu velocidad real.</p>
-        <p><b>⌨️ Teclado · demo:</b> cuenta pulsaciones para simular el funcionamiento desde el computador.</p>
-      </div>
-    </details>
-    <p class="race-disclaimer"><strong>Importante:</strong> el GPS del celular es aproximado, sobre todo en carreras cortas o donde hay edificios. Comienza con una prueba de 100–200 m en un lugar despejado. En iPhone, abre la página directamente en Safari (no dentro de WhatsApp), concede ubicación precisa y comprueba que la señal esté lista antes de empezar. Prepara e inicia la medición antes de correr, detente en un lugar seguro y recién entonces presiona «Terminar carrera». Mantén abierta la página y la pantalla activa. Esta página no guarda coordenadas ni envía tu recorrido a un servidor propio. La comparación es ilustrativa: tu rapidez media se contrasta con velocidades máximas aproximadas de los animales.</p>
-  </section>
-
-  <section>
-    <div class="sec-head"><h2 class="display">El ranking</h2><p class="eyebrow">Filtra y compara</p></div>
-    <p class="sec-note">Explora las velocidades y haz clic en una barra para agregar o quitar ese participante de La pista (máximo 6). Después de tu prueba, «Tú» se agregará automáticamente a La pista. Cambia entre escala lineal y logarítmica para comparar.</p>
-
-    <div class="controls" id="filters">
-      <button class="chip" data-medio="tierra" aria-pressed="true" style="color:var(--tierra)"><span class="dot"></span>Tierra</button>
-      <button class="chip" data-medio="aire" aria-pressed="true" style="color:var(--aire)"><span class="dot"></span>Aire</button>
-      <button class="chip" data-medio="agua" aria-pressed="true" style="color:var(--agua)"><span class="dot"></span>Agua</button>
-      <span class="spacer"></span>
-      <span class="eyebrow">Escala</span>
-      <div class="seg" id="scale">
-        <button data-scale="lin" aria-pressed="true">Lineal</button>
-        <button data-scale="log" aria-pressed="false">Logarítmica</button>
-      </div>
-    </div>
-
-    <div class="legend">
-      <span><i style="background:var(--tierra)"></i> Tierra</span>
-      <span><i style="background:var(--aire)"></i> Aire</span>
-      <span><i style="background:var(--agua)"></i> Agua</span>
-      <span><i style="background:var(--tu)"></i> Tú</span>
-      <span style="color:var(--ink-3)">· en La pista: borde claro</span>
-    </div>
-
-    <div class="axis" id="axis"></div>
-    <div class="bars" id="bars"><div class="grid" id="grid"></div></div>
-    <p class="empty" id="empty" hidden>No queda ningún animal con esos filtros.</p>
-
-    <div class="callout" id="callout"><b>Escala lineal.</b> El halcón se come todo el ancho y los últimos veinte animales son una raya de un píxel. No es un problema de diseño gráfico: es que 389 y 0,048 no caben en la misma regla. Cambia a logarítmica y mira lo que pasa.</div>
-
-    <details>
-      <summary>Ver los datos en tabla</summary>
-      <div class="tablewrap">
-        <table>
-          <thead><tr><th>Animal</th><th>Medio</th><th>Clase</th><th style="text-align:right">km/h</th><th style="text-align:right">m/s</th><th style="text-align:right">Pasos/s</th></tr></thead>
-          <tbody id="tbody"></tbody>
-        </table>
-      </div>
-    </details>
-  </section>
-
-  <section>
-    <div class="sec-head"><h2 class="display">Cómo suena</h2></div>
-    <p class="sec-note">La sonificación representa la velocidad mediante altura, ritmo y timbre. Son sonidos sintéticos asociados a los datos, no grabaciones de animales.</p>
-    <dl class="map">
-      <dt>Tono → velocidad</dt>
-      <dd>La velocidad se mapea en escala logarítmica a cuatro octavas: 80 Hz para el caracol, 1.280 Hz para el halcón. Un animal grave es un animal lento.</dd>
-      <dt>Ritmo → rapidez relativa</dt>
-      <dd>Las pulsaciones se vuelven más frecuentes a medida que aumenta la velocidad. Es una codificación de los datos, no la frecuencia real de pasos del animal.</dd>
-      <dt>Timbre → medio</dt>
-      <dd>Se emplean sonidos distintos para tierra, aire y agua. El timbre permite reconocer el tipo de desplazamiento sin mirar el color.</dd>
-      <dt>Durante la simulación</dt>
-      <dd>El sonido es opcional y permite escuchar el animal seleccionado mientras avanza su línea de distancia recorrida.</dd>
-    </dl>
-  </section><footer>
-    <p>IIC2026 · Visualización de Información. Las velocidades de animales son máximos aproximados y requieren fuentes verificadas antes de la entrega. La rapidez humana por GPS es estimada y no equivale a una medición profesional. No uses el celular mientras corres.</p>
-  </footer>
-
+<nav aria-label="Navegación principal" class="top-nav">
+<a class="brand" href="#inicio"><span aria-hidden="true">↗</span> RAPIDEZ ANIMAL <small>/ LABORATORIO</small></a>
+<div class="top-links"><a href="#descubre">Descubre</a><a href="#carrera">Corre de verdad</a><a href="#datos">Los datos</a></div>
+</nav>
+<header class="hero" id="inicio">
+<p class="eyebrow hero-kicker"><span aria-hidden="true" class="pulse-dot"></span> UN EXPERIMENTO SOBRE LA RAPIDEZ</p>
+<h1 class="display">¿QUÉ ANIMAL<br/><em>TE GANARÍA?</em></h1>
+<p class="lead">Un dato sorprende más cuando te incluye. Descubre a qué animales <strong>podrías acercarte corriendo</strong>, compara distancias y reemplaza la simulación por tu carrera real.</p>
+<div class="hero-actions"><a class="hero-btn" href="#descubre">Explorar mi rapidez <span aria-hidden="true">↘</span></a><a class="hero-link" href="#carrera">Quiero correr afuera →</a></div>
+</header>
+<section aria-labelledby="discovery-title" class="discovery" id="descubre">
+<div class="sec-head discovery-title-row"><h2 class="display" id="discovery-title">TU RAPIDEZ CAMBIA LA HISTORIA</h2><span class="eyebrow">01 / Descubre</span></div>
+<p class="sec-note">Empieza con una <strong>rapidez de ejemplo</strong>: mueve el control y observa qué animal se convierte en tu próximo rival. Luego mide tu carrera real para personalizarlo.</p>
+<div class="discovery-shell">
+<div class="discovery-control">
+<div class="speed-heading"><div><span class="eyebrow" id="speed-source">SIMULACIÓN · NO ES TU MEDICIÓN</span><div class="speed-value"><span id="explore-speed">12</span><span class="speed-unit">km/h</span></div></div><span aria-hidden="true" class="speed-symbol">↗</span></div>
+<label class="control-caption" for="explore-slider">Cambia tu rapidez de referencia</label>
+<input aria-describedby="slider-legend" id="explore-slider" max="35" min="1" step="0.5" type="range" value="12"/>
+<div class="speed-range" id="slider-legend"><span>1 km/h</span><span>35 km/h</span></div>
+<div class="preset-heading">PRUEBA UN ESCENARIO</div>
+<div aria-label="Escenarios de rapidez" class="speed-presets" id="speed-presets">
+<button data-speed="5" type="button">Caminar · 5</button>
+<button aria-pressed="true" data-speed="12" type="button">Trotar · 12</button>
+<button data-speed="20" type="button">Rápido · 20</button>
+<button data-speed="30" type="button">Sprint · 30</button>
 </div>
+<div class="speed-context"><span class="marker-sim"></span><span id="speed-context-text">Rapidez hipotética para explorar, no medida.</span></div>
+</div>
+<div aria-atomic="true" aria-live="polite" class="insight">
+<div class="insight-top"><span class="eyebrow">EL DATO QUE CAMBIA CON TU RAPIDEZ</span><span class="insight-no">02 / COMPARA</span></div>
+<div class="insight-animal"><span aria-hidden="true" id="rival-emoji">🐁</span><span id="rival-name">Ratón</span></div>
+<p class="insight-claim" id="rival-claim">Tu próximo rival está a solo 1 km/h.</p>
+<div class="gap-stat"><strong id="rival-gap">2,8 m</strong><span id="gap-description">de ventaja hipotética para el animal tras 10 segundos</span></div>
+<p class="insight-context" id="rival-context">Si ambos mantuvieran esa rapidez durante 10 segundos.</p>
+<button aria-label="Escuchar comparación entre tu rapidez y el animal seleccionado" class="compare-sound" id="compare-sound" type="button"><span aria-hidden="true">♪</span> Escuchar la diferencia <span aria-hidden="true" class="compare-arrow">↗</span></button>
+<p class="sound-caption" id="sound-caption" role="status">Dos tonos, uno después del otro: grave = más lento; agudo = más rápido.</p>
+</div>
+</div>
+<div aria-labelledby="distance-title" class="distance-viz">
+<div class="distance-viz-head"><div><h3 id="distance-title">EN UNA MISMA REGLA</h3><p>Distancia hipotética recorrida en <strong>10 segundos</strong> a rapidez constante. Todos parten desde 0 m.</p></div><span class="eyebrow">03 / OBSERVA</span></div>
+<div aria-hidden="true" class="distance-axis" id="distance-axis"></div>
+<div aria-label="Barras horizontales de distancias hipotéticas durante diez segundos para ti y animales de rapidez cercana" class="distance-rows" id="distance-rows" role="img"></div>
+<p class="distance-note"><span aria-hidden="true" class="note-dot"></span> Rosa = tú · Lila = animal de referencia. Se muestra una selección cercana a tu rapidez para evitar que los extremos oculten las diferencias.</p>
+</div>
+<div class="discovery-foot"><span><strong>¿Te sorprendió?</strong> Haz que el dato sea tuyo: mide una carrera al aire libre.</span><a class="mini-cta" href="#carrera">Medir mi carrera →</a></div>
+<p class="dataset-alert"><strong>Lectura responsable:</strong> estos valores animales provienen de un conjunto exploratorio de velocidades máximas aproximadas, todavía pendiente de verificación bibliográfica por especie. La comparación de 10 segundos es matemática e hipotética: no garantiza que un animal mantenga esa rapidez. Tu medición GPS, en cambio, es una rapidez media estimada.</p>
+</section>
 
-<script src="js/velocidad.js?v=2-20261012" defer></script>
-
+<section class="run-section" id="carrera">
+<div class="sec-head"><h2 class="display">Corre de verdad</h2><p class="eyebrow">Mide tu rapidez</p></div>
+<p class="sec-note">Cuando termines tu carrera real, tu rapidez media estimada por GPS <strong>reemplazará la referencia de ejemplo de arriba</strong>. Puedes volver a explorar escenarios cuando quieras. Para correr usa Safari y mantén el celular guardado durante el recorrido.</p>
+<div aria-label="Cómo participar" class="race-steps">
+<div class="race-step"><span class="race-step-n">1</span><div><strong>Abre la página</strong><small>Desde tu celular, al aire libre</small></div></div>
+<div class="race-step"><span class="race-step-n">2</span><div><strong>Prepara el GPS y corre</strong><small>Inicia y termina la medición</small></div></div>
+<div class="race-step"><span class="race-step-n">3</span><div><strong>Descubre tus rivales</strong><small>Compara tu rapidez con animales</small></div></div>
+</div>
+<div class="modes" id="modes">
+<button aria-pressed="true" class="mode" data-mode="gps">
+<span class="mi">📍</span><span class="mt">Carrera real · GPS</span>
+<span class="md">Corre al aire libre. El navegador estima la rapidez de desplazamiento con tu ubicación. <b>Modo recomendado.</b></span>
+</button>
+<button aria-pressed="false" class="mode" data-mode="motion">
+<span class="mi">📱</span><span class="mt">Movimiento · demo</span>
+<span class="md">Detecta impulsos del celular al moverte; no mide la rapidez real de tu carrera.</span>
+</button>
+<button aria-pressed="false" class="mode" data-mode="tap">
+<span class="mi">⌨️</span><span class="mt">Teclado · demo</span>
+<span class="md">Simula una rapidez pulsando la barra espaciadora; no mide tus pasos.</span>
+</button>
+</div>
+<div class="duel">
+<div class="tapbox">
+<div class="gps-panel" id="gpsPanel">
+<p class="gps-tag"><span class="gps-light" id="gpsLight"></span><strong id="gpsSignal">GPS sin iniciar</strong></p>
+<p class="gps-guidance" id="gpsHint">En un lugar abierto y seguro, prepara la señal antes de empezar a correr.</p>
+<div class="gps-metrics">
+<div><span>Distancia estimada</span><strong class="mono" id="gpsDistance">0 m</strong></div>
+<div><span>Rapidez media</span><strong class="mono" id="gpsAverage">0,0 km/h</strong></div>
+</div>
+<p class="gps-count" id="gpsCount">Lecturas válidas: 0 · Aún no se ha registrado desplazamiento.</p>
+<button class="gps-cancel" hidden="" id="gpsCancel" type="button">Cancelar preparación</button>
+</div>
+<button class="tapbtn" id="tap">Preparar GPS</button>
+<div class="tapmeta"><span id="tapCount">— pasos</span><span id="tapTime">10,0 s</span></div>
+<div class="live-read" id="liveRead">
+<div><span class="lk" id="lkA">Cadencia</span><span class="lv mono" id="lvA">0,0</span><span class="lu" id="luA">pasos/s</span></div>
+<div><span class="lk" id="lkB">Ahora</span><span class="lv mono" id="lvB">0,0</span><span class="lu" id="luB">km/h</span></div>
+</div>
+<label class="stride" for="stride" id="strideWrap">
+<span>Zancada supuesta: <b class="mono" id="strideVal">0,90</b> m</span>
+<input id="stride" max="2.6" min="0.4" step="0.05" type="range" value="0.9"/>
+</label>
+<details class="diag"><summary>¿No funciona el GPS o el sensor?</summary>
+<div class="body">
+<button id="diagRun" style="width:100%">Revisar este aparato</button>
+<ul id="diagList"></ul>
+<div class="fix" hidden="" id="diagFix"></div>
+</div>
+</details>
+<p aria-live="polite" class="status" id="status" role="status">Para tu carrera real usa el GPS desde un celular al aire libre.</p>
+</div>
+<div class="verdict" id="verdict">
+<div class="eyebrow">Tu resultado · rapidez media de la carrera</div>
+<div class="big" id="myspeed">— km/h</div>
+<p class="beat" id="beatmsg">¡Todavía no corres! Prepara el GPS, completa tu carrera y aparecerán los animales que podrías superar.</p>
+<div class="result-rival" hidden="" id="result-rival"></div>
+<ul id="beatlist"></ul>
+</div>
+</div>
+<details class="mode-explainer">
+<summary>¿Qué mide cada modo? ¿Por qué mover la mano cuenta?</summary>
+<div class="mode-explainer-body">
+<p><b>📍 Carrera real · GPS:</b> estima la distancia recorrida mediante la ubicación del celular y calcula tu rapidez media. No cuenta pasos.</p>
+<p><b>📱 Movimiento · demo:</b> el acelerómetro detecta impulsos o sacudidas. Al mover la mano puede contar un movimiento aunque no hayas dado un paso. Multiplica movimientos por segundo × una zancada <em>supuesta</em> × 3,6. Es una simulación, no tu velocidad real.</p>
+<p><b>⌨️ Teclado · demo:</b> cuenta pulsaciones para simular el funcionamiento desde el computador.</p>
+</div>
+</details>
+<p class="race-disclaimer"><strong>Importante:</strong> el GPS del celular es aproximado, sobre todo en carreras cortas o donde hay edificios. Comienza con una prueba de 100–200 m en un lugar despejado. En iPhone, abre la página directamente en Safari (no dentro de WhatsApp), concede ubicación precisa y comprueba que la señal esté lista antes de empezar. Prepara e inicia la medición antes de correr, detente en un lugar seguro y recién entonces presiona «Terminar carrera». Mantén abierta la página y la pantalla activa. Esta página no guarda coordenadas ni envía tu recorrido a un servidor propio. La comparación es ilustrativa: tu rapidez media se contrasta con velocidades máximas aproximadas de los animales.</p>
+</section><section aria-labelledby="intro-title" class="intro-section" id="pista">
+<div class="sec-head"><h2 class="display" id="intro-title">La pista</h2><span class="eyebrow">Explora</span><span class="intro-time mono" id="intro-time">0,0 s</span></div>
+<p class="sec-note">Una metáfora de carrera: seis participantes avanzan a rapidez constante durante ocho segundos. No es una carrera biológica real; compara distancias hipotéticas y permite explorar extremos.</p>
+<div class="intro-viz">
+<div class="intro-chart-shell">
+<svg aria-label="Pista de atletismo interactiva con hasta seis competidores corriendo en carriles paralelos durante ocho segundos" id="intro-svg" role="img" viewbox="0 0 900 410"></svg>
+</div>
+<div aria-label="Competidores representados" class="intro-legend" id="intro-legend"></div>
+<div aria-live="polite" class="intro-selected" id="intro-selected"></div>
+<div class="controls intro-actions">
+<button class="btn-go" id="intro-replay">▶ Iniciar simulación</button>
+<button id="intro-reset">↺ Restablecer animales</button>
+<button aria-pressed="false" id="intro-sound">🔇 Activar sonido</button>
+<span class="intro-status" id="intro-status" role="status">6 de 6 competidores</span>
+</div>
+<div aria-live="polite" class="intro-winner" hidden="" id="intro-winner"></div>
+<div class="intro-explain">
+<strong>Cómo leer La pista</strong>
+<div class="intro-key"><span><b>→ Avance:</b> más adelante significa más distancia recorrida.</span><span><b>Tiempo:</b> los segundos que pasan, de 0 a 8.</span><span><b>Carriles:</b> todos parten alineados y corren uno al lado del otro.</span><span><b>Colores:</b> identifican a cada participante en la leyenda.</span></div>
+<p>Haz clic en un participante para destacarlo. El halcón alcanza su máxima velocidad en picada; las velocidades de esta comparación se mantienen constantes solo en la simulación.</p>
+</div>
+</div>
+</section>
+<section class="ranking-section" id="datos">
+<div class="sec-head"><h2 class="display">Laboratorio de datos</h2><p class="eyebrow">Filtra y compara</p></div>
+<p class="sec-note">Vista avanzada: filtra las referencias por medio, cambia la escala y selecciona hasta seis participantes para observarlos en la pista. El valor de «Tú» aparece después de completar una medición o una demo. <strong>Las fuentes de los 41 animales todavía deben verificarse.</strong></p>
+<div class="controls" id="filters">
+<button aria-pressed="true" class="chip" data-medio="tierra" style="color:var(--tierra)"><span class="dot"></span>Tierra</button>
+<button aria-pressed="true" class="chip" data-medio="aire" style="color:var(--aire)"><span class="dot"></span>Aire</button>
+<button aria-pressed="true" class="chip" data-medio="agua" style="color:var(--agua)"><span class="dot"></span>Agua</button>
+<span class="spacer"></span>
+<span class="eyebrow">Escala</span>
+<div class="seg" id="scale">
+<button aria-pressed="true" data-scale="lin">Lineal</button>
+<button aria-pressed="false" data-scale="log">Logarítmica</button>
+</div>
+</div>
+<div class="legend">
+<span><i style="background:var(--tierra)"></i> Tierra</span>
+<span><i style="background:var(--aire)"></i> Aire</span>
+<span><i style="background:var(--agua)"></i> Agua</span>
+<span><i style="background:var(--tu)"></i> Tú</span>
+<span style="color:var(--ink-3)">· en La pista: borde claro</span>
+</div>
+<div class="axis" id="axis"></div>
+<div class="bars" id="bars"><div class="grid" id="grid"></div></div>
+<p class="empty" hidden="" id="empty">No queda ningún animal con esos filtros.</p>
+<div class="callout" id="callout"><b>Escala lineal.</b> El halcón se come todo el ancho y los últimos veinte animales son una raya de un píxel. No es un problema de diseño gráfico: es que 389 y 0,048 no caben en la misma regla. Cambia a logarítmica y mira lo que pasa.</div>
+<details>
+<summary>Ver los datos en tabla</summary>
+<div class="tablewrap">
+<table>
+<thead><tr><th>Animal</th><th>Medio</th><th>Clase</th><th style="text-align:right">km/h</th><th style="text-align:right">m/s</th><th style="text-align:right">m / 10 s*</th></tr></thead>
+<tbody id="tbody"></tbody>
+</table>
+</div>
+</details>
+</section>
+<section>
+<div class="sec-head"><h2 class="display">Escuchar también es comparar</h2></div>
+<p class="sec-note">La comparación principal presenta dos tonos secuenciales: uno representa tu rapidez y el otro la del animal elegido. Es un sonido sintético, no el sonido que hace el animal. La pista mantiene una sonificación opcional para explorar.</p>
+<dl class="map">
+<dt>Tono → velocidad</dt>
+<dd>La velocidad se mapea en escala logarítmica a cuatro octavas: 80 Hz para el caracol, 1.280 Hz para el halcón. Un animal grave es un animal lento.</dd>
+<dt>Ritmo → rapidez relativa</dt>
+<dd>Solo en la pista, las pulsaciones se vuelven más frecuentes con mayor rapidez. No representan los pasos reales de ninguna especie.</dd>
+<dt>Timbre → medio</dt>
+<dd>En la sonificación exploratoria de la pista, se usan timbres distintos para tierra, aire y agua. La comparación principal usa el mismo timbre para aislar la diferencia de tono.</dd>
+<dt>Durante la simulación</dt>
+<dd>El sonido es opcional y permite escuchar el animal seleccionado mientras avanza su línea de distancia recorrida.</dd>
+</dl>
+</section><footer>
+<p>IIC2026 · Visualización de Información. Prototipo de diseño: las velocidades animales deben validarse y citarse antes de presentar conclusiones. La rapidez humana por GPS es estimada y no equivale a una medición profesional. No uses el celular mientras corres.</p>
+</footer>
+</div>
+<script defer="" src="js/velocidad.js?v=3-20261013"></script>
 </body>
 </html>
