@@ -50,7 +50,7 @@
    .sort((a,b) => b.kmh - a.kmh);
 
   const V_MIN = 0.048, V_MAX = 389;
-  const COLOR = {tierra:"#c4821f", aire:"#9b7bf0", agua:"#1f97a6", tu:"#e85d75"};
+  const COLOR = {tierra:"#e6af70", aire:"#9b7bf0", agua:"#1f97a6", tu:"#ff6d92"};
 
   // pasos por segundo estimados
   const stride = v => 0.5 * Math.pow(v, 0.4);
@@ -67,6 +67,122 @@
     if (s < 86400*365) return nf(s/86400,1) + " días";
     return nf(s/(86400*365),1) + " años";
   }
+
+  /* ---------------- descubrir primero: comparación personal ---------------- */
+  const discoverSpeedEl = document.getElementById("explore-speed");
+  const exploreSlider = document.getElementById("explore-slider");
+  const speedSourceEl = document.getElementById("speed-source");
+  const speedContextEl = document.getElementById("speed-context-text");
+  const rivalNameEl = document.getElementById("rival-name");
+  const rivalEmojiEl = document.getElementById("rival-emoji");
+  const rivalClaimEl = document.getElementById("rival-claim");
+  const rivalGapEl = document.getElementById("rival-gap");
+  const gapDescEl = document.getElementById("gap-description");
+  const rivalContextEl = document.getElementById("rival-context");
+  const distanceRowsEl = document.getElementById("distance-rows");
+  const distanceAxisEl = document.getElementById("distance-axis");
+  const soundCaptionEl = document.getElementById("sound-caption");
+  const discoveryAnimals = DATA.filter(d => d.medio === "tierra" && d.clase !== "humano");
+  let currentExplore = 12;
+  let currentRival = null;
+  let sourceOfSpeed = "example";
+  let sonicVoices = [];
+  let compareAudioTimer = null;
+  const distInTen = speed => speed * 10 / 3.6;
+  const nearestNext = speed => [...discoveryAnimals].filter(d => d.kmh > speed).sort((a,b) => a.kmh - b.kmh)[0] || null;
+  function updateDiscovery(value, source="example"){
+    currentExplore = Math.max(0, Math.min(389, Number(value)||0));
+    sourceOfSpeed = source;
+    currentRival = nearestNext(currentExplore) || [...discoveryAnimals].sort((a,b)=>b.kmh-a.kmh)[0];
+    discoverSpeedEl.textContent = fmtSpeed(currentExplore);
+    speedSourceEl.textContent = source === "gps" ? "TU CARRERA · ESTIMACIÓN GPS" : source === "demo" ? "DEMOSTRACIÓN · NO ES TU RAPIDEZ REAL" : "SIMULACIÓN · NO ES TU MEDICIÓN";
+    speedContextEl.textContent = source === "gps" ? "Medición de tu carrera: rapidez media estimada por GPS. Revisa su precisión." : source === "demo" ? "Resultado ficticio del sensor o teclado, no una carrera real." : "Rapidez hipotética: mueve el control para explorar.";
+    if (source === "example"){
+      exploreSlider.value = String(currentExplore);
+    }else{
+      // El control permite 1–35 km/h. La medición real no se recorta en los indicadores.
+      exploreSlider.value = String(Math.max(1,Math.min(35,currentExplore)));
+    }
+    document.querySelectorAll("#speed-presets button").forEach(b=>{
+      b.setAttribute("aria-pressed",String(source==="example"&&Number(b.dataset.speed)===currentExplore));
+    });
+    if (currentRival){
+      const delta = currentRival.kmh - currentExplore;
+      rivalEmojiEl.textContent = currentRival.emoji;
+      rivalNameEl.textContent = currentRival.nombre;
+      if(delta>0){
+        rivalClaimEl.textContent = `Tu siguiente rival terrestre: ${fmtSpeed(currentRival.kmh)} km/h. Te faltan ${fmtSpeed(delta)} km/h para igualarlo.`;
+        rivalGapEl.textContent = nf(distInTen(delta),1)+" m";
+        gapDescEl.textContent = "de ventaja hipotética para ese animal tras 10 segundos";
+      }else{
+        rivalClaimEl.textContent = "¡Superarías las referencias terrestres más rápidas del conjunto!";
+        rivalGapEl.textContent = nf(distInTen(Math.abs(delta)),1)+" m";
+        gapDescEl.textContent = "de ventaja hipotética para ti tras 10 segundos";
+      }
+      rivalContextEl.textContent = `En un escenario matemático a velocidad constante: tú ${fmtSpeed(currentExplore)} km/h y ${currentRival.nombre.toLowerCase()} ${fmtSpeed(currentRival.kmh)} km/h.`;
+    }
+    renderDistanceComparison();
+    soundCaptionEl.textContent = "Pulsa para escuchar dos tonos consecutivos: tú y después el animal. Grave = más lento; agudo = más rápido.";
+  }
+  function renderDistanceComparison(){
+    // Vecinos más cercanos, separados por velocidad, dan una historia legible.
+    const slower = [...discoveryAnimals].filter(d=>d.kmh<=currentExplore).sort((a,b)=>b.kmh-a.kmh).slice(0,2);
+    const faster = [...discoveryAnimals].filter(d=>d.kmh>currentExplore).sort((a,b)=>a.kmh-b.kmh).slice(0,2);
+    const chosen = [...slower,...faster];
+    if(currentRival && !chosen.includes(currentRival)) chosen.push(currentRival);
+    const series = [{nombre:"Tú",emoji:"🏃",kmh:currentExplore,tu:true},...chosen].sort((a,b)=>b.kmh-a.kmh);
+    const maxDistance = Math.max(...series.map(d=>distInTen(d.kmh)),1);
+    const cap = Math.ceil(maxDistance/10)*10 || 10;
+    distanceAxisEl.innerHTML = "";
+    for(let t=0;t<=4;t++){
+      const el=document.createElement("span");el.textContent=nf(cap*t/4,0)+" m";distanceAxisEl.appendChild(el);
+    }
+    distanceRowsEl.innerHTML="";
+    series.forEach(d=>{
+      const row=document.createElement("div");row.className="distance-row"+(d.tu?" is-you":"")+(d===currentRival?" is-rival":"");
+      const who=document.createElement("span");who.className="distance-name";who.textContent = d.emoji+" "+d.nombre;
+      const graph=document.createElement("div");graph.className="distance-bar-track";
+      const bar=document.createElement("div");bar.className="distance-bar";bar.style.width=(distInTen(d.kmh)/cap*100).toFixed(3)+"%";
+      graph.appendChild(bar);
+      const amount=document.createElement("strong");amount.className="distance-amount mono";amount.textContent=nf(distInTen(d.kmh),1)+" m";
+      row.append(who,graph,amount);distanceRowsEl.appendChild(row);
+    });
+    distanceRowsEl.setAttribute("aria-label",series.map(d=>d.nombre+": "+nf(distInTen(d.kmh),1)+" metros hipotéticos en diez segundos").join("; "));
+  }
+  function stopCompareSound(){
+    if(compareAudioTimer!==null){clearTimeout(compareAudioTimer); compareAudioTimer=null;}
+    sonicVoices.forEach(v=>{try{v.gain.gain.cancelScheduledValues(0);v.gain.gain.setValueAtTime(0.00001, v.context.currentTime);v.osc.stop();}catch(e){}});
+    sonicVoices=[];
+  }
+  function compareSound(){
+    const c=actx(); if(!c||!currentRival){soundCaptionEl.textContent="El audio no está disponible en este navegador.";return;}
+    stopCompareSound();
+    // Dos tonos con EL MISMO timbre y volumen, para no crear confusión.
+    // La escala de tono usa log de rapidez; los valores y distancias siguen visibles.
+    const p = v => 165*Math.pow(2,Math.log2(Math.max(v,0.3)/0.3)*0.27);
+    const time=c.currentTime+.06;
+    [{v:currentExplore,t:0},{v:currentRival.kmh,t:.68}].forEach(item=>{
+      const osc=c.createOscillator(),gain=c.createGain();
+      osc.type="sine";osc.frequency.setValueAtTime(Math.min(p(item.v),1100),time+item.t);
+      gain.gain.setValueAtTime(.0001,time+item.t);
+      gain.gain.linearRampToValueAtTime(.075,time+item.t+.045);
+      gain.gain.setValueAtTime(.075,time+item.t+.36);
+      gain.gain.linearRampToValueAtTime(.0001,time+item.t+.48);
+      osc.connect(gain);gain.connect(c.destination);
+      osc.start(time+item.t);osc.stop(time+item.t+.51);
+      sonicVoices.push({osc,gain,context:c});
+    });
+    const direction = currentExplore < currentRival.kmh ? "más agudo" : currentExplore > currentRival.kmh ? "más grave" : "del mismo tono";
+    soundCaptionEl.textContent = `Primero tú (${fmtSpeed(currentExplore)} km/h), después ${currentRival.nombre} (${fmtSpeed(currentRival.kmh)} km/h): el segundo tono es ${direction}.`;
+    compareAudioTimer=setTimeout(()=>{sonicVoices=[];compareAudioTimer=null;},1550);
+  }
+  exploreSlider.addEventListener("input",e=>{stopCompareSound();updateDiscovery(e.target.value,"example");});
+  document.getElementById("speed-presets").addEventListener("click",e=>{
+    const b=e.target.closest("button[data-speed]");if(!b)return;
+    stopCompareSound();updateDiscovery(Number(b.dataset.speed),"example");
+  });
+  document.getElementById("compare-sound").addEventListener("click",compareSound);
+  updateDiscovery(12,"example");
 
   /* ---------------- audio ---------------- */
   let ac = null, soundOn = true;
@@ -160,10 +276,8 @@
         `<span class="nm"><span class="em">${d.emoji}</span>${d.nombre}</span>` +
         `<span class="plot"><span class="fill" style="background:${c};width:${(pos(d.kmh)*100).toFixed(3)}%"></span></span>` +
         `<span class="vl">${fmtSpeed(d.kmh)}</span>`;
-      row.addEventListener("mouseenter", () => preview(d.kmh, d.medio));
-      row.addEventListener("focus", () => preview(d.kmh, d.medio));
       row.setAttribute("aria-pressed", String(chartParticipants.includes(d)));
-      row.addEventListener("click", () => { toggleIntroParticipant(d); preview(d.kmh, d.medio); });
+      row.addEventListener("click", () => { toggleIntroParticipant(d); });
       barsEl.appendChild(row);
     });
     drawAxis();
@@ -178,7 +292,7 @@
     tbody.innerHTML = DATA.map(d =>
       `<tr><td>${d.emoji} ${d.nombre}</td><td>${d.medio}</td><td>${d.clase}</td>` +
       `<td class="n">${fmtSpeed(d.kmh)}</td><td class="n">${nf(d.kmh/3.6, 2)}</td>` +
-      `<td class="n">${nf(stride(d.kmh), 2)}</td></tr>`).join("");
+      `<td class="n">${nf(d.kmh*10/3.6, 1)}</td></tr>`).join("");
   }
 
   document.getElementById("filters").addEventListener("click", e => {
@@ -513,6 +627,7 @@
     chartParticipants=[me,...chartParticipants.filter(d=>d!==me)].slice(0,6);
     rebuildIntro();
     render();
+    updateDiscovery(kmh, simulated ? "demo" : "gps");
   }
 
   /* --- diagnóstico --- */
