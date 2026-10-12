@@ -193,7 +193,12 @@
   border-radius: 3px;
   overflow-x: auto;
 }
-#intro-svg{display:block;width:100%;min-width:540px;height:auto}
+#intro-svg {
+  display: block;
+  width: 100%;
+  min-width: 540px;
+  height: 410px; /* Alto fijo para que coincida con los carriles */
+}
 .intro-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 .intro-chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;border:1px solid var(--line);border-radius:3px;background:var(--surface-2);color:var(--ink-2);padding:7px 9px}
 .intro-chip[data-active="true"]{border-color:var(--intro-color);color:var(--ink);background:#292e37}
