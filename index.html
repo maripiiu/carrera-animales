@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap">
-<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/styles.css?v=2-20261012">
 </head>
 <body>
 
@@ -49,9 +49,9 @@
     <p class="sec-note">La experiencia principal se hace <strong>corriendo de verdad al aire libre con el GPS del celular</strong>. También hay dos modos de demostración para explorar la página sin salir.</p>
 
     <div class="race-steps" aria-label="Cómo participar">
-      <span><b>1</b> Abre esta página en tu celular</span>
-      <span><b>2</b> Prepara el GPS y corre</span>
-      <span><b>3</b> Compara tu rapidez con los animales</span>
+      <div class="race-step"><span class="race-step-n">1</span><div><strong>Abre la página</strong><small>Desde tu celular, al aire libre</small></div></div>
+      <div class="race-step"><span class="race-step-n">2</span><div><strong>Prepara el GPS y corre</strong><small>Inicia y termina la medición</small></div></div>
+      <div class="race-step"><span class="race-step-n">3</span><div><strong>Descubre tus rivales</strong><small>Compara tu rapidez con animales</small></div></div>
     </div>
     <div class="modes" id="modes">
       <button class="mode" data-mode="gps" aria-pressed="true">
@@ -60,11 +60,11 @@
       </button>
       <button class="mode" data-mode="motion" aria-pressed="false">
         <span class="mi">📱</span><span class="mt">Movimiento · demo</span>
-        <span class="md">Corre en el lugar con el celular. Estima cadencia, no velocidad real.</span>
+        <span class="md">Detecta impulsos del celular al moverte; no mide la rapidez real de tu carrera.</span>
       </button>
       <button class="mode" data-mode="tap" aria-pressed="false">
         <span class="mi">⌨️</span><span class="mt">Teclado · demo</span>
-        <span class="md">Prueba la interfaz desde tu computador sin correr.</span>
+        <span class="md">Simula una rapidez pulsando la barra espaciadora; no mide tus pasos.</span>
       </button>
     </div>
 
@@ -77,6 +77,7 @@
             <div><span>Distancia estimada</span><strong class="mono" id="gpsDistance">0 m</strong></div>
             <div><span>Rapidez media</span><strong class="mono" id="gpsAverage">0,0 km/h</strong></div>
           </div>
+          <p class="gps-count" id="gpsCount">Lecturas válidas: 0 · Aún no se ha registrado desplazamiento.</p>
           <button type="button" id="gpsCancel" class="gps-cancel" hidden>Cancelar preparación</button>
         </div>
         <button class="tapbtn" id="tap">Preparar GPS</button>
@@ -86,10 +87,10 @@
           <div><span class="lk" id="lkB">Ahora</span><span class="lv mono" id="lvB">0,0</span><span class="lu" id="luB">km/h</span></div>
         </div>
         <label class="stride" id="strideWrap" for="stride">
-          <span>Zancada supuesta: <b class="mono" id="strideVal">1,80</b> m</span>
-          <input type="range" id="stride" min="0.4" max="2.6" step="0.05" value="1.8">
+          <span>Zancada supuesta: <b class="mono" id="strideVal">0,90</b> m</span>
+          <input type="range" id="stride" min="0.4" max="2.6" step="0.05" value="0.9">
         </label>
-        <details class="diag"><summary>No me funciona el sensor</summary>
+        <details class="diag"><summary>¿No funciona el GPS o el sensor?</summary>
           <div class="body">
             <button id="diagRun" style="width:100%">Revisar este aparato</button>
             <ul id="diagList"></ul>
@@ -106,7 +107,15 @@
         <ul id="beatlist"></ul>
       </div>
     </div>
-    <p class="race-disclaimer"><strong>Importante:</strong> el GPS del celular es aproximado, sobre todo en carreras cortas o donde hay edificios. Comienza con una prueba de 100–200 m en un lugar despejado. Prepara e inicia la medición antes de correr, detente en un lugar seguro y recién entonces presiona «Terminar carrera». Mantén abierta la página y la pantalla activa. Esta página no guarda coordenadas ni envía tu recorrido a un servidor propio. La comparación es ilustrativa: tu rapidez media se contrasta con velocidades máximas aproximadas de los animales.</p>
+    <details class="mode-explainer">
+      <summary>¿Qué mide cada modo? ¿Por qué mover la mano cuenta?</summary>
+      <div class="mode-explainer-body">
+        <p><b>📍 Carrera real · GPS:</b> estima la distancia recorrida mediante la ubicación del celular y calcula tu rapidez media. No cuenta pasos.</p>
+        <p><b>📱 Movimiento · demo:</b> el acelerómetro detecta impulsos o sacudidas. Al mover la mano puede contar un movimiento aunque no hayas dado un paso. Multiplica movimientos por segundo × una zancada <em>supuesta</em> × 3,6. Es una simulación, no tu velocidad real.</p>
+        <p><b>⌨️ Teclado · demo:</b> cuenta pulsaciones para simular el funcionamiento desde el computador.</p>
+      </div>
+    </details>
+    <p class="race-disclaimer"><strong>Importante:</strong> el GPS del celular es aproximado, sobre todo en carreras cortas o donde hay edificios. Comienza con una prueba de 100–200 m en un lugar despejado. En iPhone, abre la página directamente en Safari (no dentro de WhatsApp), concede ubicación precisa y comprueba que la señal esté lista antes de empezar. Prepara e inicia la medición antes de correr, detente en un lugar seguro y recién entonces presiona «Terminar carrera». Mantén abierta la página y la pantalla activa. Esta página no guarda coordenadas ni envía tu recorrido a un servidor propio. La comparación es ilustrativa: tu rapidez media se contrasta con velocidades máximas aproximadas de los animales.</p>
   </section>
 
   <section>
@@ -169,7 +178,7 @@
 
 </div>
 
-<script src="js/velocidad.js" defer></script>
+<script src="js/velocidad.js?v=2-20261012" defer></script>
 
 </body>
 </html>
