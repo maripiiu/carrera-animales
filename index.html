@@ -8,7 +8,412 @@
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Anton&amp;family=Archivo:wght@400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet"/>
-<link href="css/styles.css?v=3-20261013" rel="stylesheet"/>
+<!-- CSS integrado: versión autocontenida para GitHub Pages -->
+<style>
+:root{
+    --ground:#111318;
+    --surface:#191c23;
+    --surface-2:#1f232b;
+    --line:#2a2f3a;
+    --line-soft:#21252d;
+    --ink:#edeef2;
+    --ink-2:#a3a8b5;
+    --ink-3:#6e7482;
+    --tierra:#c4821f;
+    --aire:#9b7bf0;
+    --agua:#1f97a6;
+    --tu:#e85d75;
+    --track:#15181e;
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-size:15px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:980px;margin:0 auto;padding-inline:20px;padding-block:0 64px}
+  h1,h2,h3{margin:0;text-wrap:balance}
+  .display{font-family:"Anton",Impact,"Arial Narrow",sans-serif;font-weight:400;letter-spacing:.01em;text-transform:uppercase}
+  .mono{font-family:"Space Mono",ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums}
+  .eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+
+  /* ---------- hero ---------- */
+  .hero{padding-block:48px 28px;border-bottom:1px solid var(--line)}
+  .hero h1{font-size:clamp(42px,9vw,86px);line-height:.92;margin-block:14px 0}
+  .hero h1 em{font-style:normal;color:var(--tu)}
+  .lead{color:var(--ink-2);max-width:56ch;margin-block:16px 0;font-size:16px}
+  .stats{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+  .stat{flex:1 1 150px;background:var(--surface);border:1px solid var(--line-soft);border-radius:3px;padding:12px 14px}
+  .stat .k{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+  .stat .v{font-family:"Space Mono",monospace;font-variant-numeric:tabular-nums;font-size:21px;font-weight:700;margin-top:4px;line-height:1.1}
+  .stat .u{font-size:12px;color:var(--ink-2);margin-top:2px}
+
+  section{padding-block:40px;border-bottom:1px solid var(--line)}
+  section:last-of-type{border-bottom:0}
+  .sec-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+  .sec-head h2{font-size:clamp(24px,4.4vw,34px)}
+  .sec-note{color:var(--ink-2);max-width:62ch;margin-block:8px 22px;font-size:14.5px}
+
+  /* ---------- controls ---------- */
+  .controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:20px}
+  button,select{font-family:inherit;font-size:13px;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:3px;padding:8px 13px;cursor:pointer}
+  button:hover,select:hover{border-color:var(--ink-3)}
+  button:focus-visible,select:focus-visible,.chip:focus-visible,.row:focus-visible{outline:2px solid var(--tu);outline-offset:2px}
+  .btn-go{background:var(--tu);border-color:var(--tu);color:#15070b;font-weight:700;padding:9px 20px;letter-spacing:.02em}
+  .btn-go:hover{filter:brightness(1.1)}
+  .btn-go[disabled]{opacity:.45;cursor:default;filter:none}
+  .chip{font-family:inherit;font-size:12.5px;background:transparent;border:1px solid var(--line);color:var(--ink-2);border-radius:99px;padding:5px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+  .chip .dot{width:9px;height:9px;border-radius:2px;background:currentColor;flex:none}
+  .chip[aria-pressed="true"]{color:var(--ink);border-color:currentColor;background:var(--surface-2)}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:3px;overflow:hidden}
+  .seg button{border:0;border-radius:0;background:transparent;padding:8px 14px;color:var(--ink-3)}
+  .seg button[aria-pressed="true"]{background:var(--surface-2);color:var(--ink);font-weight:600}
+  .spacer{flex:1 1 auto}
+
+  /* ---------- pista ---------- */
+  .lanes{background:var(--track);border:1px solid var(--line-soft);border-radius:4px;padding:10px 26px 12px 12px;position:relative;overflow:hidden}
+  .finish{position:absolute;top:0;bottom:0;right:7px;width:5px;background:repeating-linear-gradient(0deg,var(--ink-3) 0 6px,transparent 6px 12px);opacity:.5}
+  .lane{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;padding-block:7px;border-bottom:1px dashed var(--line-soft)}
+  .lane:last-child{border-bottom:0}
+  .lane-top{display:flex;align-items:baseline;gap:8px;font-size:12.5px;color:var(--ink-2);min-width:0}
+  .lane-name{color:var(--ink);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lane-time{margin-left:auto;font-family:"Space Mono",monospace;font-variant-numeric:tabular-nums;font-size:12px;color:var(--ink-3);white-space:nowrap}
+  .lane-track{position:relative;height:26px}
+  .lane-rule{position:absolute;left:0;right:0;top:50%;height:1px;background:var(--line-soft)}
+  .runner{position:absolute;top:50%;left:0;transform:translate(0,-50%);font-size:20px;line-height:1;will-change:transform;filter:drop-shadow(0 0 6px rgba(0,0,0,.6))}
+  .clockbar{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .clockbar .lbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+  .clockbar .val{font-family:"Space Mono",monospace;font-variant-numeric:tabular-nums;font-size:26px;font-weight:700}
+  .hint{font-size:13px;color:var(--ink-3);margin-top:12px}
+
+  /* ---------- tu turno ---------- */
+  .duel{display:grid;grid-template-columns:1fr;gap:18px}
+  @media(min-width:680px){.duel{grid-template-columns:minmax(0,260px) minmax(0,1fr);align-items:start}}
+  .modes{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:18px}
+  @media(min-width:680px){.modes{grid-template-columns:repeat(3,minmax(0,1fr))}}
+  .mode{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;gap:2px 10px;text-align:left;padding:12px 14px;background:var(--surface);border:1px solid var(--line);border-radius:3px;align-items:center}
+  .mode .mi{font-size:18px;grid-row:span 2;align-self:start}
+  .mode .mt{font-weight:700;font-size:14px;color:var(--ink-2)}
+  .mode .md{font-size:12px;color:var(--ink-3);line-height:1.35}
+  .mode[aria-pressed="true"]{border-color:var(--tu);background:var(--surface-2)}
+  .mode[aria-pressed="true"] .mt{color:var(--ink)}
+  .tapbox{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:18px;text-align:center}
+  .live-read{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line-soft)}
+  .live-read>div{display:flex;flex-direction:column;gap:1px}
+  .live-read .lk{font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+  .live-read .lv{font-size:24px;font-weight:700;line-height:1.05}
+  .live-read .lu{font-size:11px;color:var(--ink-3)}
+  .stride{display:block;margin-top:14px;font-size:12px;color:var(--ink-3);text-align:left}
+  .stride b{color:var(--ink-2)}
+  .stride input{width:100%;margin-top:6px;accent-color:var(--tu)}
+  .status{font-size:12px;line-height:1.4;color:var(--ink-3);margin:12px 0 0;text-align:left;min-height:1em}
+  .status.warn{color:var(--tierra)}
+  .diag{margin-top:14px;text-align:left;background:var(--surface-2)}
+  .diag summary{font-size:12px;padding:9px 12px;font-weight:600;color:var(--ink-2)}
+  .diag .body{padding:0 12px 12px}
+  .diag ul{list-style:none;margin:10px 0 0;padding:0;font-size:12px}
+  .diag li{display:grid;grid-template-columns:18px 1fr;gap:6px;padding-block:4px;border-top:1px solid var(--line-soft);align-items:start}
+  .diag li:first-child{border-top:0}
+  .diag .k{color:var(--ink-2)}
+  .diag .v{color:var(--ink-3);font-family:"Space Mono",monospace;font-size:11px;display:block}
+  .diag .fix{margin-top:10px;font-size:12px;line-height:1.45;color:var(--ink);background:var(--surface);border-left:2px solid var(--tu);padding:9px 11px}
+  .status code{font-family:"Space Mono",monospace;font-size:11px;background:var(--surface-2);padding:1px 4px;border-radius:2px}
+  .tapbtn{width:100%;padding:26px 12px;font-family:"Anton",Impact,sans-serif;font-size:26px;letter-spacing:.03em;text-transform:uppercase;background:var(--surface-2);border:1px dashed var(--line);color:var(--ink);border-radius:3px;touch-action:manipulation;user-select:none}
+  .tapbtn.live{background:var(--tu);color:#15070b;border-style:solid;border-color:var(--tu)}
+  .tapmeta{display:flex;justify-content:space-between;gap:10px;margin-top:12px;font-family:"Space Mono",monospace;font-variant-numeric:tabular-nums;font-size:12.5px;color:var(--ink-3)}
+  .verdict{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--tu);border-radius:3px;padding:18px}
+  .verdict .big{font-family:"Space Mono",monospace;font-variant-numeric:tabular-nums;font-size:34px;font-weight:700;line-height:1.05}
+  .verdict .beat{margin-top:12px;font-size:14px;color:var(--ink-2)}
+  .verdict ul{margin:10px 0 0;padding-left:18px;font-size:13.5px;color:var(--ink-2)}
+  .verdict li{margin-block:3px}
+
+  /* ---------- ranking ---------- */
+  .legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12.5px;color:var(--ink-2);margin-bottom:14px}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend i{width:12px;height:12px;border-radius:2px;display:inline-block}
+  .axis{display:grid;position:relative;height:18px;margin-left:var(--namecol);font-size:10.5px;color:var(--ink-3);font-family:"Space Mono",monospace}
+  .tick{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap}
+  .bars{--namecol:152px;position:relative}
+  @media(max-width:560px){.bars{--namecol:112px}}
+  .grid{position:absolute;left:var(--namecol);right:56px;top:0;bottom:0;pointer-events:none}
+  .gline{position:absolute;top:0;bottom:0;width:1px;background:var(--line-soft)}
+  .row{display:grid;grid-template-columns:var(--namecol) minmax(0,1fr) 56px;align-items:center;gap:0;height:25px;position:relative;cursor:pointer;background:none;border:0;padding:0;width:100%;text-align:left;font:inherit;color:inherit}
+  .row:hover .nm,.row.on .nm{color:var(--ink)}
+  .row:hover .vl,.row.on .vl{color:var(--ink)}
+  .nm{font-size:12.5px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:10px;display:flex;align-items:center;gap:6px}
+  .nm .em{font-size:13px;flex:none}
+  .plot{position:relative;height:13px}
+  .fill{position:absolute;left:0;top:0;height:100%;border-radius:0 4px 4px 0;min-width:3px;transition:width .35s cubic-bezier(.2,.7,.3,1)}
+  .row.on .fill{box-shadow:0 0 0 2px var(--ground),0 0 0 3px var(--ink)}
+  .vl{font-family:"Space Mono",monospace;font-variant-numeric:tabular-nums;font-size:11.5px;color:var(--ink-3);text-align:right;padding-left:8px}
+  .callout{margin-top:18px;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--tierra);border-radius:3px;padding:14px 16px;font-size:13.5px;color:var(--ink-2)}
+  .callout b{color:var(--ink)}
+  .empty{color:var(--ink-3);font-size:13.5px;padding:20px 0}
+
+  /* ---------- tabla + notas ---------- */
+  details{border:1px solid var(--line);border-radius:3px;background:var(--surface);margin-top:8px}
+  summary{cursor:pointer;padding:12px 16px;font-size:13.5px;font-weight:600;list-style:none}
+  summary::-webkit-details-marker{display:none}
+  summary::before{content:"▸ ";color:var(--ink-3)}
+  details[open] summary::before{content:"▾ "}
+  .tablewrap{overflow-x:auto;padding:0 16px 16px}
+  table{border-collapse:collapse;width:100%;font-size:12.5px;min-width:440px}
+  th,td{text-align:left;padding:6px 10px 6px 0;border-bottom:1px solid var(--line-soft);white-space:nowrap}
+  th{color:var(--ink-3);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+  td.n{font-family:"Space Mono",monospace;font-variant-numeric:tabular-nums;text-align:right;padding-right:16px}
+
+  .steps{display:grid;gap:12px;margin-top:6px;counter-reset:s}
+  @media(min-width:760px){.steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  .step{background:var(--surface);border:1px solid var(--line-soft);border-radius:3px;padding:14px 16px;position:relative}
+  .step .n{font-family:"Space Mono",monospace;font-size:11px;color:var(--tu);font-weight:700;letter-spacing:.1em}
+  .step h3{font-size:15px;margin-top:6px}
+  .step p{margin:6px 0 0;font-size:13.5px;color:var(--ink-2)}
+  .map{margin-top:8px;font-size:13.5px;color:var(--ink-2)}
+  .map dt{font-weight:600;color:var(--ink);margin-top:10px;font-size:13px}
+  .map dd{margin:2px 0 0}
+  footer{padding-block:34px 0;font-size:12.5px;color:var(--ink-3);border-top:1px solid var(--line)}
+  footer a{color:var(--ink-2)}
+
+  @media (prefers-reduced-motion:reduce){
+    .fill{transition:none}
+  }
+
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+  img{max-width:100%} [hidden]{display:none!important}
+
+.intro-section{padding-top:34px}
+.intro-section .sec-head{align-items:baseline}
+.intro-time{margin-left:auto;font-size:21px;font-weight:700;color:var(--ink);white-space:nowrap}
+.intro-viz{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:15px}
+.intro-chart-shell{background:var(--track);border:1px solid var(--line-soft);border-radius:3px;overflow-x:auto}
+#intro-svg{display:block;width:100%;min-width:540px;height:auto}
+.intro-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.intro-chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;border:1px solid var(--line);border-radius:3px;background:var(--surface-2);color:var(--ink-2);padding:7px 9px}
+.intro-chip[data-active="true"]{border-color:var(--intro-color);color:var(--ink);background:#292e37}
+.intro-chip-dot{width:8px;height:8px;flex:none;border-radius:50%;background:var(--intro-color)}
+.intro-chip strong{font-family:"Space Mono",monospace;font-size:10px;font-weight:400;color:var(--ink-2)}
+.intro-actions{margin:16px 0 0}
+.intro-explain{color:var(--ink-3);font-size:12.5px;line-height:1.6;margin:14px 0 0;max-width:80ch}
+.intro-explain strong{color:var(--ink-2)}
+.intro-status{color:var(--ink-3);font-size:12px;margin-left:auto}
+@media(max-width:560px){.intro-viz{padding:10px}.intro-time{font-size:17px}.intro-chip{font-size:11px}.intro-chip strong{font-size:9px}.intro-status{width:100%;margin-left:0}}
+
+.intro-selected{margin-top:12px;padding:10px 12px;background:var(--surface-2);border:1px solid var(--line-soft);border-left:3px solid var(--tu);border-radius:3px;font-size:12.5px;color:var(--ink-2);line-height:1.65}
+.intro-selected strong{color:var(--ink);font-weight:700}
+.intro-selected .mono{font-size:12px}
+.intro-winner{background:var(--surface-2);border:1px solid var(--line);border-left:3px solid var(--tierra);border-radius:3px;padding:12px 15px;margin-top:14px;font-size:13.5px;color:var(--ink-2)}
+.intro-winner strong{color:var(--ink)}
+.intro-winner .mono{color:var(--ink)}
+.intro-explain{max-width:none}
+.intro-explain>.intro-key{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 14px;margin-top:9px}
+.intro-key>span{display:block;border-left:2px solid var(--line);padding:3px 10px;color:var(--ink-2)}
+.intro-key b{color:var(--ink);font-weight:600}
+.intro-explain p{font-size:12px;color:var(--ink-3);margin:11px 0 0}
+.result-rival{margin-top:14px;padding:11px 13px;background:var(--surface-2);border:1px solid var(--line-soft);font-size:13px;line-height:1.6;color:var(--ink-2)}
+.result-rival strong{color:var(--ink)}
+.row.on .nm{color:var(--ink)}
+.row.on .vl{color:var(--ink)}
+@media(max-width:560px){.intro-explain>.intro-key{grid-template-columns:1fr}.intro-selected{font-size:12px}.intro-actions .intro-status{width:100%}}
+
+/* ---------- Carrera real con GPS ---------- */
+.race-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:18px}
+.gps-panel{border:1px solid var(--line-soft);border-radius:5px;background:var(--surface-2);padding:12px;margin-bottom:12px;text-align:left}
+.gps-tag{display:flex;gap:9px;align-items:center;margin:0;font-size:13px}
+.gps-light{display:inline-block;flex:none;width:10px;height:10px;border-radius:50%;background:var(--ink-3)}
+.gps-light.searching{background:#e7ad58}
+.gps-light.ready{background:#80d5a8}
+.gps-light.tracking{background:var(--tu);box-shadow:0 0 0 4px rgba(232,93,117,.13)}
+.gps-guidance{color:var(--ink-2);font-size:12px;margin:8px 0 0}
+.gps-metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:13px}
+.gps-metrics>div{border-top:1px solid var(--line);padding-top:8px;display:grid;gap:3px}
+.gps-metrics span{font-size:11px;color:var(--ink-3)}
+.gps-metrics strong{font-size:16px}
+.gps-cancel{margin-top:12px;background:transparent;color:var(--ink-2);padding:5px 9px}
+.race-disclaimer{background:var(--surface);border-left:3px solid var(--tu);border-radius:3px;padding:12px 15px;margin-top:18px;font-size:12.5px;color:var(--ink-2);line-height:1.55}
+.race-disclaimer strong{color:var(--ink)}
+@media(max-width:560px){.race-steps{grid-template-columns:1fr}.gps-metrics strong{font-size:14px}}
+
+
+/* V2: recorrido visual, visible también en escritorio */
+.race-steps{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:16px;
+  margin:0 0 24px;
+}
+.race-step{
+  position:relative;
+  min-width:0;
+  min-height:92px;
+  padding:16px 14px;
+  display:flex;
+  align-items:center;
+  gap:13px;
+  background:linear-gradient(120deg,#27212b 0%,#1b1e26 100%);
+  border:1px solid #4a3240;
+  border-radius:10px;
+}
+.race-step:not(:last-child)::after{
+  content:"";
+  position:absolute;
+  width:16px;
+  left:100%;
+  top:50%;
+  border-top:2px dashed var(--tu);
+  opacity:.8;
+}
+.race-step-n{
+  display:grid;
+  flex:0 0 38px;
+  width:38px;height:38px;
+  place-items:center;
+  background:var(--tu);
+  color:#170a0f;
+  border-radius:50%;
+  font:700 17px "Space Mono",monospace;
+  box-shadow:0 0 0 5px rgba(232,93,117,.1);
+}
+.race-step strong{display:block;font-size:14px;line-height:1.3;color:var(--ink)}
+.race-step small{display:block;margin-top:5px;color:var(--ink-2);font-size:12px;line-height:1.4}
+.mode{min-height:106px;align-content:center;border-radius:7px;gap:5px 10px}
+.mode .md{line-height:1.45}
+.gps-count{margin:10px 0 0;font-size:11px;color:var(--ink-3);line-height:1.5}
+.mode-explainer{margin-top:18px;border-radius:6px;border-color:#47313b;background:var(--surface)}
+.mode-explainer summary{color:var(--ink);padding:13px 15px}
+.mode-explainer-body{padding:0 16px 14px;font-size:13px;color:var(--ink-2)}
+.mode-explainer-body p{margin:10px 0;line-height:1.6}
+.mode-explainer-body b{color:var(--ink)}
+@media(min-width:820px){
+  .duel{grid-template-columns:minmax(0,330px) minmax(0,1fr);gap:18px}
+  .tapbox,.verdict{padding:20px}
+}
+@media(min-width:680px) and (max-width:819px){
+  .duel{grid-template-columns:1fr}
+}
+@media(max-width:679px){
+  .race-steps{grid-template-columns:1fr;gap:9px}
+  .race-step{min-height:66px;padding:10px 14px}
+  .race-step:not(:last-child)::after{left:31px;top:100%;height:9px;width:0;border-top:0;border-left:2px dashed var(--tu)}
+  .race-step-n{width:33px;height:33px;flex-basis:33px;font-size:14px}
+  .modes{grid-template-columns:1fr}
+  .mode{min-height:92px}
+}
+@media(min-width:680px) and (max-width:950px){
+  .modes{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .mode{padding:12px 11px;gap:4px 8px}
+  .mode .md{font-size:11.5px}
+}
+@media(max-width:400px){
+  .wrap{padding-inline:14px}
+  .mode{min-height:88px}
+}
+
+/* V3 / La rapidez del usuario es la puerta de entrada a los datos. */
+html{scroll-behavior:smooth}
+:root{--tu:#ff6d92;--ink:#f1eef2;--ink-2:#b5b2c0;--ink-3:#858493;--ground:#101116;--surface:#1c1d26;--surface-2:#242530;--line:#34343f;--line-soft:#2b2b35;--tierra:#e6af70}
+.top-nav{padding:21px 0 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px}
+.top-nav a{text-decoration:none}
+.brand{font:700 13px "Space Mono",monospace;color:var(--ink);letter-spacing:-.02em;white-space:nowrap}
+.brand>span{color:var(--tu);font-size:22px;vertical-align:middle}
+.brand small{font:500 10px "Archivo",sans-serif;color:var(--ink-3)}
+.top-links{display:flex;flex-wrap:wrap;gap:16px;font-size:12px}
+.top-links a{color:var(--ink-2)}.top-links a:hover{color:var(--tu)}
+.hero{padding-top:49px;padding-bottom:48px;position:relative}
+.hero .hero-kicker{display:flex;align-items:center;gap:9px;color:#d7aec0}
+.pulse-dot{width:8px;height:8px;background:var(--tu);border-radius:50%;box-shadow:0 0 0 5px rgba(255,109,146,.08)}
+.hero h1{font-size:clamp(48px,9vw,94px);line-height:1.01;letter-spacing:-.013em;margin-top:19px}
+.hero h1 em{color:var(--tu)}
+.hero .lead{max-width:53ch;font-size:17px;line-height:1.65;color:var(--ink-2)}
+.hero .lead strong{color:var(--ink);font-weight:600}
+.hero-actions{display:flex;flex-wrap:wrap;align-items:center;gap:20px;margin-top:25px}
+.hero-btn{background:var(--tu);color:#240813;border-radius:5px;padding:13px 18px;text-decoration:none;font-size:14px;font-weight:700;display:inline-flex;justify-content:space-between;min-width:204px;gap:14px}
+.hero-btn:hover{filter:brightness(1.13)}
+.hero-link{color:var(--ink-2);font-size:13px;text-decoration:none}
+.hero-link:hover{color:var(--ink)}
+.discovery{padding-top:50px;padding-bottom:50px}
+.discovery-title-row{justify-content:space-between;align-items:baseline}
+.discovery .sec-note{max-width:75ch;margin-bottom:22px}
+.discovery .sec-note strong{color:var(--ink)}
+.discovery-shell{display:grid;grid-template-columns:minmax(0, .82fr) minmax(0,1.18fr);gap:14px}
+.discovery-control,.insight{border:1px solid var(--line);border-radius:11px;padding:23px;min-width:0}
+.discovery-control{background:linear-gradient(155deg,#25202d 0%,#1c1e27 70%)}
+.insight{background:linear-gradient(130deg,#2b202a,#181b24 80%);border-color:#63424f}
+.speed-heading{display:flex;justify-content:space-between;align-items:flex-start}
+.speed-value{display:flex;align-items:baseline;gap:8px;font:700 clamp(58px,7vw,80px) "Space Mono",monospace;line-height:1.2;letter-spacing:-.07em;color:var(--ink)}
+.speed-unit{font:500 14px "Archivo",sans-serif;letter-spacing:0;color:var(--ink-2)}
+.speed-symbol{font:400 46px "Space Mono",monospace;color:var(--tu);line-height:1}
+.control-caption{display:block;font-size:13px;font-weight:600;color:var(--ink);margin-top:12px}
+#explore-slider{display:block;width:100%;margin:15px 0 3px;accent-color:var(--tu);cursor:pointer;min-height:20px}
+.speed-range{display:flex;justify-content:space-between;color:var(--ink-3);font:11px "Space Mono",monospace}
+.preset-heading{font-size:10px;letter-spacing:.12em;font-weight:700;color:var(--ink-3);margin:24px 0 10px}
+.speed-presets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.speed-presets button{padding:10px 7px;border-radius:6px;text-align:center;font-size:11.5px;min-width:0}
+.speed-presets button[aria-pressed="true"]{border-color:var(--tu);background:#432b3b;color:var(--ink)}
+.speed-context{display:flex;gap:8px;margin-top:20px;align-items:flex-start;line-height:1.45;font-size:11.5px;color:var(--ink-3)}
+.marker-sim{width:8px;height:8px;background:var(--tu);border-radius:50%;margin-top:4px;flex:none}
+.insight-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.insight-no{color:var(--tu);font:11px "Space Mono",monospace;white-space:nowrap}
+.insight-animal{font-family:"Anton",Impact,sans-serif;font-size:clamp(31px,4vw,50px);line-height:1.25;display:flex;align-items:center;gap:12px;margin:23px 0 6px;text-transform:uppercase}
+#rival-emoji{font-family:system-ui;font-size:35px}
+.insight-claim{color:var(--ink-2);font-size:15px;line-height:1.55;min-height:48px;margin:8px 0 16px}
+.gap-stat{display:flex;align-items:baseline;gap:13px;border-top:1px solid #59404d;padding-top:16px}
+.gap-stat strong{font:700 clamp(35px,5vw,50px) "Space Mono",monospace;white-space:nowrap;letter-spacing:-.065em;color:var(--tu)}
+.gap-stat span{max-width:220px;font-size:12px;color:var(--ink-2)}
+.insight-context{font-size:11.5px;color:var(--ink-3);margin:8px 0 20px}
+.compare-sound{width:100%;background:#f0d2df;border-color:#f0d2df;color:#321b26;border-radius:6px;font-weight:700;padding:12px 16px;text-align:left}
+.compare-arrow{float:right}
+.sound-caption{color:var(--ink-2);font-size:11.5px;line-height:1.5;margin:10px 0 0}
+.distance-viz{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:22px;margin-top:14px}
+.distance-viz-head{display:flex;justify-content:space-between;gap:14px;align-items:start;margin-bottom:22px}
+.distance-viz-head h3{font:400 23px "Anton",Impact,sans-serif;letter-spacing:.015em}
+.distance-viz-head p{margin:5px 0 0;font-size:12px;color:var(--ink-2)}
+.distance-viz-head p strong{color:var(--ink)}
+.distance-axis{display:flex;justify-content:space-between;margin:0 75px 12px 154px;color:var(--ink-3);font:10px "Space Mono",monospace}
+.distance-rows{display:grid;gap:8px}
+.distance-row{display:grid;grid-template-columns:154px minmax(0,1fr) 75px;gap:0;align-items:center;min-height:31px}
+.distance-name{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:8px;color:var(--ink-2)}
+.distance-bar-track{background:repeating-linear-gradient(90deg,transparent 0,transparent calc(25% - 1px),#41404b calc(25% - 1px),#41404b 25%);height:18px;position:relative;border-left:1px solid #777381}
+.distance-bar{height:100%;background:#8870b2;border-radius:0 4px 4px 0;min-width:1px;transition:width .19s ease-out}
+.distance-row.is-you .distance-bar{background:var(--tu)}
+.distance-row.is-you .distance-name,.distance-row.is-rival .distance-name{color:var(--ink);font-weight:700}
+.distance-row.is-rival .distance-bar{background:#b9a5e6}
+.distance-amount{font-size:11px;color:var(--ink-2);text-align:right;white-space:nowrap}
+.distance-note{font-size:11.5px;color:var(--ink-2);margin:18px 0 0;line-height:1.5}
+.note-dot{display:inline-block;background:var(--tu);width:7px;height:7px;border-radius:50%;margin-right:5px}
+.discovery-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:#2a222e;border:1px solid #563947;border-radius:8px;margin-top:15px;padding:16px 20px;font-size:13px;color:var(--ink-2)}
+.discovery-foot strong{color:var(--ink)}
+.mini-cta{background:var(--tu);color:#260914;text-decoration:none;font-weight:700;padding:9px 12px;border-radius:4px;white-space:nowrap}
+.dataset-alert{font-size:11.5px;color:var(--ink-3);line-height:1.7;margin:15px 0 0}
+.dataset-alert strong{color:var(--ink-2)}
+.run-section{padding-top:48px}
+.run-section .sec-note{max-width:75ch}
+.run-section .sec-note strong{color:var(--ink)}
+.ranking-section{padding-top:48px}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--tu);outline-offset:3px}
+@media(max-width:700px){
+ .top-nav{align-items:start}.top-links{gap:8px;justify-content:end;font-size:10px}
+ .brand small{display:none}.hero{padding-top:34px;padding-bottom:35px}.hero h1{font-size:clamp(43px,11vw,66px)}
+ .hero .lead{font-size:15px}
+ .discovery-shell{grid-template-columns:1fr}
+ .discovery-control,.insight{padding:18px}
+ .speed-value{font-size:65px}
+ .insight-animal{margin-top:14px;font-size:38px}
+ .distance-viz{padding:15px 10px}
+ .distance-viz-head{padding:0 4px}
+ .distance-axis{margin-left:112px;margin-right:62px;font-size:8px}
+ .distance-row{grid-template-columns:112px minmax(0,1fr) 62px}
+ .distance-name{font-size:10px}.distance-amount{font-size:9px}
+ .distance-bar-track{height:16px}
+}
+@media(max-width:390px){.top-links{gap:7px}.top-links a{font-size:9px}.distance-viz-head .eyebrow{display:none}.gap-stat strong{font-size:35px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.distance-bar{transition:none}}
+
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -25,6 +430,7 @@
 <section aria-labelledby="discovery-title" class="discovery" id="descubre">
 <div class="sec-head discovery-title-row"><h2 class="display" id="discovery-title">TU RAPIDEZ CAMBIA LA HISTORIA</h2><span class="eyebrow">01 / Descubre</span></div>
 <p class="sec-note">Empieza con una <strong>rapidez de ejemplo</strong>: mueve el control y observa qué animal se convierte en tu próximo rival. Luego mide tu carrera real para personalizarlo.</p>
+<div id="runtime-banner" role="alert" style="margin:14px 0;padding:12px 16px;border:1px solid #ff7990;border-radius:8px;background:#30202b;color:#fff;line-height:1.5"><strong>Activando la comparación…</strong> Si este mensaje permanece, la página no pudo iniciar las interacciones. Vuelve a cargarla en Safari y comprueba que JavaScript esté activado.</div>
 <div class="discovery-shell">
 <div class="discovery-control">
 <div class="speed-heading"><div><span class="eyebrow" id="speed-source">SIMULACIÓN · NO ES TU MEDICIÓN</span><div class="speed-value"><span id="explore-speed">12</span><span class="speed-unit">km/h</span></div></div><span aria-hidden="true" class="speed-symbol">↗</span></div>
@@ -205,6 +611,993 @@
 <p>IIC2026 · Visualización de Información. Prototipo de diseño: las velocidades animales deben validarse y citarse antes de presentar conclusiones. La rapidez humana por GPS es estimada y no equivale a una medición profesional. No uses el celular mientras corres.</p>
 </footer>
 </div>
-<script defer="" src="js/velocidad.js?v=3-20261013"></script>
+<!-- JavaScript integrado: misma versión que js/velocidad.js; sin caché de archivos externos -->
+<script>
+(() => {
+  "use strict";
+
+  // nombre, km/h, medio, clase, emoji
+  const DATA = [
+    ["Halcón peregrino",389,"aire","ave","🦅"],
+    ["Águila real",320,"aire","ave","🦅"],
+    ["Vencejo real",169,"aire","ave","🐦"],
+    ["Murciélago",160,"aire","mamífero","🦇"],
+    ["Fragata",153,"aire","ave","🐦"],
+    ["Paloma mensajera",148,"aire","ave","🕊️"],
+    ["Pez vela",110,"agua","pez","🐟"],
+    ["Pez espada",97,"agua","pez","🐠"],
+    ["Guepardo",120,"tierra","mamífero","🐆"],
+    ["Berrendo",88,"tierra","mamífero","🦌"],
+    ["Caballo de carrera",88,"tierra","mamífero","🐎"],
+    ["León",80,"tierra","mamífero","🦁"],
+    ["Ñu",80,"tierra","mamífero","🐃"],
+    ["Tiburón mako",74,"agua","pez","🦈"],
+    ["Galgo",74,"tierra","mamífero","🐕"],
+    ["Canguro rojo",71,"tierra","mamífero","🦘"],
+    ["Avestruz",70,"tierra","ave","🐦"],
+    ["Liebre",70,"tierra","mamífero","🐇"],
+    ["Cebra",64,"tierra","mamífero","🦓"],
+    ["Delfín",60,"agua","mamífero","🐬"],
+    ["Jirafa",60,"tierra","mamífero","🦒"],
+    ["Orca",56,"agua","mamífero","🐋"],
+    ["Conejo",56,"tierra","mamífero","🐰"],
+    ["Oso pardo",56,"tierra","mamífero","🐻"],
+    ["Gato doméstico",48,"tierra","mamífero","🐈"],
+    ["Usain Bolt",44.7,"tierra","humano","🏃"],
+    ["Elefante",40,"tierra","mamífero","🐘"],
+    ["Pingüino papúa",36,"agua","ave","🐧"],
+    ["Tortuga marina",35,"agua","reptil","🐢"],
+    ["Abeja",29,"aire","insecto","🐝"],
+    ["Ardilla",20,"tierra","mamífero","🐿️"],
+    ["Mariposa monarca",20,"aire","insecto","🦋"],
+    ["Cocodrilo",17,"tierra","reptil","🐊"],
+    ["Gallina",14,"tierra","ave","🐔"],
+    ["Ratón",13,"tierra","mamífero","🐁"],
+    ["Humano trotando",12,"tierra","humano","🚶"],
+    ["Mosca doméstica",8,"aire","insecto","🪰"],
+    ["Araña",1.9,"tierra","arácnido","🕷️"],
+    ["Hormiga",0.3,"tierra","insecto","🐜"],
+    ["Tortuga terrestre",0.3,"tierra","reptil","🐢"],
+    ["Perezoso",0.27,"tierra","mamífero","🦥"],
+    ["Estrella de mar",0.09,"agua","equinodermo","⭐"],
+    ["Caracol",0.048,"tierra","molusco","🐌"]
+  ].map(([nombre,kmh,medio,clase,emoji]) => ({nombre,kmh,medio,clase,emoji}))
+   .sort((a,b) => b.kmh - a.kmh);
+
+  const V_MIN = 0.048, V_MAX = 389;
+  const COLOR = {tierra:"#e6af70", aire:"#9b7bf0", agua:"#1f97a6", tu:"#ff6d92"};
+
+  // pasos por segundo estimados
+  const stride = v => 0.5 * Math.pow(v, 0.4);
+  // tono: cuatro octavas desde 80 Hz, logarítmico en velocidad
+  const pitch = v => 80 * Math.pow(2, 4 * (Math.log10(Math.max(v,0.001)) - Math.log10(V_MIN)) / (Math.log10(V_MAX) - Math.log10(V_MIN)));
+
+  const nf = (n, d) => n.toLocaleString("es-CL", {minimumFractionDigits:d, maximumFractionDigits:d});
+  const fmtSpeed = v => Number.isInteger(v) ? nf(v,0) : v >= 1 ? nf(v,1) : nf(v,3);
+
+  function fmtTime(s){
+    if (s < 60) return nf(s, s < 10 ? 1 : 0) + " s";
+    if (s < 3600) return Math.floor(s/60) + " min " + nf(s%60,0) + " s";
+    if (s < 86400) return Math.floor(s/3600) + " h " + nf((s%3600)/60,0) + " min";
+    if (s < 86400*365) return nf(s/86400,1) + " días";
+    return nf(s/(86400*365),1) + " años";
+  }
+
+  /* ---------------- descubrir primero: comparación personal ---------------- */
+  const discoverSpeedEl = document.getElementById("explore-speed");
+  const exploreSlider = document.getElementById("explore-slider");
+  const speedSourceEl = document.getElementById("speed-source");
+  const speedContextEl = document.getElementById("speed-context-text");
+  const rivalNameEl = document.getElementById("rival-name");
+  const rivalEmojiEl = document.getElementById("rival-emoji");
+  const rivalClaimEl = document.getElementById("rival-claim");
+  const rivalGapEl = document.getElementById("rival-gap");
+  const gapDescEl = document.getElementById("gap-description");
+  const rivalContextEl = document.getElementById("rival-context");
+  const distanceRowsEl = document.getElementById("distance-rows");
+  const distanceAxisEl = document.getElementById("distance-axis");
+  const soundCaptionEl = document.getElementById("sound-caption");
+  const discoveryAnimals = DATA.filter(d => d.medio === "tierra" && d.clase !== "humano");
+  let currentExplore = 12;
+  let currentRival = null;
+  let sourceOfSpeed = "example";
+  let sonicVoices = [];
+  let compareAudioTimer = null;
+  const distInTen = speed => speed * 10 / 3.6;
+  const nearestNext = speed => [...discoveryAnimals].filter(d => d.kmh > speed).sort((a,b) => a.kmh - b.kmh)[0] || null;
+  function updateDiscovery(value, source="example"){
+    currentExplore = Math.max(0, Math.min(389, Number(value)||0));
+    sourceOfSpeed = source;
+    currentRival = nearestNext(currentExplore) || [...discoveryAnimals].sort((a,b)=>b.kmh-a.kmh)[0];
+    discoverSpeedEl.textContent = fmtSpeed(currentExplore);
+    speedSourceEl.textContent = source === "gps" ? "TU CARRERA · ESTIMACIÓN GPS" : source === "demo" ? "DEMOSTRACIÓN · NO ES TU RAPIDEZ REAL" : "SIMULACIÓN · NO ES TU MEDICIÓN";
+    speedContextEl.textContent = source === "gps" ? "Medición de tu carrera: rapidez media estimada por GPS. Revisa su precisión." : source === "demo" ? "Resultado ficticio del sensor o teclado, no una carrera real." : "Rapidez hipotética: mueve el control para explorar.";
+    if (source === "example"){
+      exploreSlider.value = String(currentExplore);
+    }else{
+      // El control permite 1–35 km/h. La medición real no se recorta en los indicadores.
+      exploreSlider.value = String(Math.max(1,Math.min(35,currentExplore)));
+    }
+    document.querySelectorAll("#speed-presets button").forEach(b=>{
+      b.setAttribute("aria-pressed",String(source==="example"&&Number(b.dataset.speed)===currentExplore));
+    });
+    if (currentRival){
+      const delta = currentRival.kmh - currentExplore;
+      rivalEmojiEl.textContent = currentRival.emoji;
+      rivalNameEl.textContent = currentRival.nombre;
+      if(delta>0){
+        rivalClaimEl.textContent = `Tu siguiente rival terrestre: ${fmtSpeed(currentRival.kmh)} km/h. Te faltan ${fmtSpeed(delta)} km/h para igualarlo.`;
+        rivalGapEl.textContent = nf(distInTen(delta),1)+" m";
+        gapDescEl.textContent = "de ventaja hipotética para ese animal tras 10 segundos";
+      }else{
+        rivalClaimEl.textContent = "¡Superarías las referencias terrestres más rápidas del conjunto!";
+        rivalGapEl.textContent = nf(distInTen(Math.abs(delta)),1)+" m";
+        gapDescEl.textContent = "de ventaja hipotética para ti tras 10 segundos";
+      }
+      rivalContextEl.textContent = `En un escenario matemático a velocidad constante: tú ${fmtSpeed(currentExplore)} km/h y ${currentRival.nombre.toLowerCase()} ${fmtSpeed(currentRival.kmh)} km/h.`;
+    }
+    renderDistanceComparison();
+    soundCaptionEl.textContent = "Pulsa para escuchar dos tonos consecutivos: tú y después el animal. Grave = más lento; agudo = más rápido.";
+  }
+  function renderDistanceComparison(){
+    // Vecinos más cercanos, separados por velocidad, dan una historia legible.
+    const slower = [...discoveryAnimals].filter(d=>d.kmh<=currentExplore).sort((a,b)=>b.kmh-a.kmh).slice(0,2);
+    const faster = [...discoveryAnimals].filter(d=>d.kmh>currentExplore).sort((a,b)=>a.kmh-b.kmh).slice(0,2);
+    const chosen = [...slower,...faster];
+    if(currentRival && !chosen.includes(currentRival)) chosen.push(currentRival);
+    const series = [{nombre:"Tú",emoji:"🏃",kmh:currentExplore,tu:true},...chosen].sort((a,b)=>b.kmh-a.kmh);
+    const maxDistance = Math.max(...series.map(d=>distInTen(d.kmh)),1);
+    const cap = Math.ceil(maxDistance/10)*10 || 10;
+    distanceAxisEl.innerHTML = "";
+    for(let t=0;t<=4;t++){
+      const el=document.createElement("span");el.textContent=nf(cap*t/4,0)+" m";distanceAxisEl.appendChild(el);
+    }
+    distanceRowsEl.innerHTML="";
+    series.forEach(d=>{
+      const row=document.createElement("div");row.className="distance-row"+(d.tu?" is-you":"")+(d===currentRival?" is-rival":"");
+      const who=document.createElement("span");who.className="distance-name";who.textContent = d.emoji+" "+d.nombre;
+      const graph=document.createElement("div");graph.className="distance-bar-track";
+      const bar=document.createElement("div");bar.className="distance-bar";bar.style.width=(distInTen(d.kmh)/cap*100).toFixed(3)+"%";
+      graph.appendChild(bar);
+      const amount=document.createElement("strong");amount.className="distance-amount mono";amount.textContent=nf(distInTen(d.kmh),1)+" m";
+      row.append(who,graph,amount);distanceRowsEl.appendChild(row);
+    });
+    distanceRowsEl.setAttribute("aria-label",series.map(d=>d.nombre+": "+nf(distInTen(d.kmh),1)+" metros hipotéticos en diez segundos").join("; "));
+  }
+  function stopCompareSound(){
+    if(compareAudioTimer!==null){clearTimeout(compareAudioTimer); compareAudioTimer=null;}
+    sonicVoices.forEach(v=>{try{v.gain.gain.cancelScheduledValues(0);v.gain.gain.setValueAtTime(0.00001, v.context.currentTime);v.osc.stop();}catch(e){}});
+    sonicVoices=[];
+  }
+  async function compareSound(){
+    // La llamada a actx() sucede durante el clic, no tras un temporizador: iOS Safari
+    // solo permite desbloquear el audio como consecuencia de una acción del usuario.
+    const c=actx();
+    if(!c||!currentRival){soundCaptionEl.textContent="⚠️ Tu navegador no permite reproducir este audio.";return;}
+    stopCompareSound();
+    try {
+      if(c.state === "suspended") await c.resume();
+      if(c.state !== "running") {
+        soundCaptionEl.textContent="⚠️ El audio está bloqueado. Revisa el volumen y vuelve a pulsar Escuchar.";
+        return;
+      }
+    } catch(error) {
+      soundCaptionEl.textContent="⚠️ No se pudo activar el audio; comprueba el volumen y los permisos de Safari.";
+      return;
+    }
+    // Dos tonos con EL MISMO timbre y volumen, para no crear confusión.
+    // La escala de tono usa log de rapidez; los valores y distancias siguen visibles.
+    const p = v => 165*Math.pow(2,Math.log2(Math.max(v,0.3)/0.3)*0.27);
+    const time=c.currentTime+.06;
+    [{v:currentExplore,t:0},{v:currentRival.kmh,t:.68}].forEach(item=>{
+      const osc=c.createOscillator(),gain=c.createGain();
+      osc.type="sine";osc.frequency.setValueAtTime(Math.min(p(item.v),1100),time+item.t);
+      gain.gain.setValueAtTime(.0001,time+item.t);
+      gain.gain.linearRampToValueAtTime(.075,time+item.t+.045);
+      gain.gain.setValueAtTime(.075,time+item.t+.36);
+      gain.gain.linearRampToValueAtTime(.0001,time+item.t+.48);
+      osc.connect(gain);gain.connect(c.destination);
+      osc.start(time+item.t);osc.stop(time+item.t+.51);
+      sonicVoices.push({osc,gain,context:c});
+    });
+    const direction = currentExplore < currentRival.kmh ? "más agudo" : currentExplore > currentRival.kmh ? "más grave" : "del mismo tono";
+    soundCaptionEl.textContent = `Primero tú (${fmtSpeed(currentExplore)} km/h), después ${currentRival.nombre} (${fmtSpeed(currentRival.kmh)} km/h): el segundo tono es ${direction}.`;
+    compareAudioTimer=setTimeout(()=>{sonicVoices=[];compareAudioTimer=null;},1550);
+  }
+  exploreSlider.addEventListener("input",e=>{stopCompareSound();updateDiscovery(e.target.value,"example");});
+  document.getElementById("speed-presets").addEventListener("click",e=>{
+    const b=e.target.closest("button[data-speed]");if(!b)return;
+    stopCompareSound();updateDiscovery(Number(b.dataset.speed),"example");
+  });
+  document.getElementById("compare-sound").addEventListener("click",compareSound);
+  updateDiscovery(12,"example");
+
+  /* ---------------- audio ---------------- */
+  let ac = null, soundOn = true;
+  function actx(){
+    if (!ac) { try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){ return null; } }
+    if (ac.state === "suspended") ac.resume();
+    return ac;
+  }
+  function blip(freq, at, dur, vol){
+    const c = actx(); if (!c || !soundOn) return;
+    const t = at ?? c.currentTime;
+    const o = c.createOscillator(), g = c.createGain();
+    o.type = "triangle"; o.frequency.setValueAtTime(freq, t);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol ?? 0.13, t + 0.006);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + (dur ?? 0.07));
+    o.connect(g); g.connect(c.destination);
+    o.start(t); o.stop(t + (dur ?? 0.07) + 0.02);
+  }
+  let previewStop = null;
+  function preview(v, medio="tierra"){
+    const c = actx(); if (!c || !soundOn) return;
+    if (previewStop) previewStop();
+    const f = pitch(v), now = c.currentTime, LEN = 1.5;
+    // drone: la altura ya lleva el dato aunque no alcance ni un paso
+    const o = c.createOscillator(), g = c.createGain();
+    o.type = ({tierra:"triangle",aire:"sine",agua:"sawtooth"})[medio] || "triangle"; o.frequency.setValueAtTime(f/2, now);
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.exponentialRampToValueAtTime(0.05, now + 0.05);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + LEN);
+    o.connect(g); g.connect(c.destination); o.start(now); o.stop(now + LEN + 0.05);
+    // golpes a la cadencia real
+    const sps = stride(v), gap = 1 / sps, n = Math.min(Math.floor(LEN / gap) + 1, 24);
+    for (let i = 0; i < n; i++) blip(f, now + i * gap, 0.06, 0.1);
+    previewStop = () => { try { o.stop(); } catch(e){} previewStop = null; };
+  }
+
+  /* ---------------- ranking ---------------- */
+  const barsEl = document.getElementById("bars");
+  const gridEl = document.getElementById("grid");
+  const axisEl = document.getElementById("axis");
+  const emptyEl = document.getElementById("empty");
+  const calloutEl = document.getElementById("callout");
+  const tbody = document.getElementById("tbody");
+
+  let scaleMode = "lin";
+  const medios = new Set(["tierra","aire","agua"]);
+  let selectedRanking = null;
+  let chartParticipants = [];
+  let me = null;              // {nombre, kmh, ...} del jugador
+
+  const pos = v => scaleMode === "lin"
+    ? v / V_MAX
+    : (Math.log10(Math.max(v, V_MIN)) - Math.log10(V_MIN)) / (Math.log10(V_MAX) - Math.log10(V_MIN));
+
+  function visible(){
+    const list = DATA.filter(d => medios.has(d.medio));
+    return me ? [...list, me].sort((a,b) => b.kmh - a.kmh) : list;
+  }
+
+  function drawAxis(){
+    const ticks = scaleMode === "lin" ? [0,100,200,300,389] : [0.048,0.1,1,10,100,389];
+    axisEl.innerHTML = "";
+    gridEl.innerHTML = "";
+    axisEl.style.marginLeft = getComputedStyle(barsEl).getPropertyValue("--namecol");
+    axisEl.style.marginRight = "56px";
+    axisEl.style.position = "relative";
+    ticks.forEach(t => {
+      const p = (t === 0 ? 0 : pos(t)) * 100;
+      const s = document.createElement("span");
+      s.className = "tick"; s.style.left = p + "%";
+      s.textContent = t === 0 ? "0" : fmtSpeed(t);
+      axisEl.appendChild(s);
+      const g = document.createElement("div");
+      g.className = "gline"; g.style.left = p + "%";
+      gridEl.appendChild(g);
+    });
+  }
+
+  function render(){
+    const list = visible();
+    emptyEl.hidden = list.length > 0;
+    [...barsEl.querySelectorAll(".row")].forEach(r => r.remove());
+    list.forEach(d => {
+      const row = document.createElement("button");
+      row.className = "row" + (chartParticipants.includes(d) ? " on" : "");
+      row.type = "button";
+      row.setAttribute("aria-label", `${d.nombre}, ${fmtSpeed(d.kmh)} kilómetros por hora`);
+      const c = d.tu ? COLOR.tu : COLOR[d.medio];
+      row.innerHTML =
+        `<span class="nm"><span class="em">${d.emoji}</span>${d.nombre}</span>` +
+        `<span class="plot"><span class="fill" style="background:${c};width:${(pos(d.kmh)*100).toFixed(3)}%"></span></span>` +
+        `<span class="vl">${fmtSpeed(d.kmh)}</span>`;
+      row.setAttribute("aria-pressed", String(chartParticipants.includes(d)));
+      row.addEventListener("click", () => { toggleIntroParticipant(d); });
+      barsEl.appendChild(row);
+    });
+    drawAxis();
+    calloutEl.innerHTML = scaleMode === "lin"
+      ? "<b>Escala lineal.</b> El halcón se come todo el ancho y los últimos veinte animales son una raya de un píxel. No es un problema de diseño gráfico: es que 389 y 0,048 no caben en la misma regla. Cambia a logarítmica y mira lo que pasa."
+      : "<b>Escala logarítmica.</b> Cada marca del eje multiplica por diez en vez de sumar, así que ahora se ven todos. El precio: las longitudes no representan proporciones lineales. Por eso puedes alternar las dos escalas.";
+    if (selectedRanking) calloutEl.innerHTML += ` <b>${selectedRanking.emoji} ${selectedRanking.nombre}:</b> ${fmtSpeed(selectedRanking.kmh)} km/h ${selectedRanking.tu ? "(resultado de tu prueba)" : "de velocidad máxima aproximada"}.`;
+    calloutEl.innerHTML += ` <b>En La pista:</b> ${chartParticipants.length} de 6 seleccionados.`;
+  }
+
+  function fillTable(){
+    tbody.innerHTML = DATA.map(d =>
+      `<tr><td>${d.emoji} ${d.nombre}</td><td>${d.medio}</td><td>${d.clase}</td>` +
+      `<td class="n">${fmtSpeed(d.kmh)}</td><td class="n">${nf(d.kmh/3.6, 2)}</td>` +
+      `<td class="n">${nf(d.kmh*10/3.6, 1)}</td></tr>`).join("");
+  }
+
+  document.getElementById("filters").addEventListener("click", e => {
+    const chip = e.target.closest(".chip[data-medio]");
+    if (!chip) return;
+    const m = chip.dataset.medio, on = chip.getAttribute("aria-pressed") === "true";
+    if (on && medios.size === 1) return;
+    on ? medios.delete(m) : medios.add(m);
+    chip.setAttribute("aria-pressed", String(!on));
+    render();
+  });
+
+  document.getElementById("scale").addEventListener("click", e => {
+    const b = e.target.closest("button[data-scale]"); if (!b) return;
+    scaleMode = b.dataset.scale;
+    [...e.currentTarget.children].forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    render();
+  });
+
+  /* ---------------- tu turno: sensores ---------------- */
+  const tapBtn   = document.getElementById("tap");
+  const tapCount = document.getElementById("tapCount");
+  const tapTime  = document.getElementById("tapTime");
+  const mySpeedEl= document.getElementById("myspeed");
+  const beatMsg  = document.getElementById("beatmsg");
+  const beatList = document.getElementById("beatlist");
+  const statusEl = document.getElementById("status");
+  const strideWrap = document.getElementById("strideWrap");
+  const strideIn = document.getElementById("stride");
+  const strideVal= document.getElementById("strideVal");
+  const lkA=document.getElementById("lkA"), lvA=document.getElementById("lvA"), luA=document.getElementById("luA");
+  const lkB=document.getElementById("lkB"), lvB=document.getElementById("lvB"), luB=document.getElementById("luB");
+
+  const COPY = {
+    motion: "El acelerómetro cuenta <b>impulsos del celular</b>, incluso si solo mueves la mano. La cifra en km/h es una <b>equivalencia simulada</b> con la zancada que elijas; no es tu rapidez al correr.",
+    gps:    "El GPS mide desplazamiento, no pasos. Desde Safari del celular, pulsa «Preparar GPS», concede ubicación precisa y espera la señal verde. Pulsa «Empezar carrera» antes de correr y «Terminar carrera» cuando te detengas.",
+    tap:    "Esto mide la frecuencia de tu dedo, no la de tus piernas. Sirve para probar la página desde el computador, pero no es una medición de nada."
+  };
+  const DUR = {motion: 10, tap: 10, gps: 0};   // 0 = hasta que pares
+
+  let mode = "gps";
+  let running = false, tStart = 0, tick = null;
+  let steps = 0, lastStep = 0, gravEMA = null, above = false, gotMotion = false, motionWatch = null;
+  let gpsId = null, gpsMax = 0, gpsNow = 0, lastFix = null;
+  let gpsStage = "idle", gpsAccuracy = null, gpsDistanceM = 0, gpsObservedTime = 0;
+  let gpsLastSampleAt = null, gpsSamples = 0, gpsSpeeds = [], gpsSession = 0, gpsFinalElapsed = 0;
+  const GPS_MAX_ACCURACY = 40; // precisión horizontal aproximada, en metros
+  const gpsPanel = document.getElementById("gpsPanel");
+  const gpsSignal = document.getElementById("gpsSignal");
+  const gpsLight = document.getElementById("gpsLight");
+  const gpsHint = document.getElementById("gpsHint");
+  const gpsDistanceEl = document.getElementById("gpsDistance");
+  const gpsAverageEl = document.getElementById("gpsAverage");
+  const gpsCountEl = document.getElementById("gpsCount");
+  const gpsCancelBtn = document.getElementById("gpsCancel");
+  let lastPerm = "no probado", motionEvents = 0, lastGpsErr = "no probado";
+  let strideM = 0.9;
+  let taps = 0;
+
+  const say = (html, warn) => { statusEl.innerHTML = html; statusEl.classList.toggle("warn", !!warn); };
+
+  /* --- acelerómetro: detección de pasos por picos --- */
+  function onMotion(e){
+    const a = e.accelerationIncludingGravity || e.acceleration;
+    if (!a || a.x === null || a.x === undefined) return;
+    gotMotion = true; motionEvents++;
+    const mag = Math.hypot(a.x, a.y, a.z);
+    gravEMA = gravEMA === null ? mag : gravEMA * 0.88 + mag * 0.12;   // pasa-altos: saca la gravedad
+    const dyn = mag - gravEMA;
+    const now = performance.now();
+    const TH = 2.2;                                                   // m/s² sobre el reposo
+    if (!above && dyn > TH && now - lastStep > 180){                  // 180 ms = tope de 5,5 pasos/s
+      above = true; steps++; lastStep = now;
+      blip(330 + Math.random()*40, null, 0.045, 0.09);
+    } else if (above && dyn < TH * 0.45){ above = false; }
+  }
+
+  async function askMotion(){
+    if (typeof DeviceMotionEvent === "undefined") return "nosensor";
+    if (typeof DeviceMotionEvent.requestPermission === "function"){
+      try { return (await DeviceMotionEvent.requestPermission()) === "granted" ? "ok" : "denied"; }
+      catch(err){ return "blocked"; }
+    }
+    return "ok";
+  }
+
+  /* --- GPS para carrera real --- */
+  const R = 6371000;
+  function haversine(a, b){
+    const dLat=(b.lat-a.lat)*Math.PI/180, dLon=(b.lon-a.lon)*Math.PI/180;
+    const la1=a.lat*Math.PI/180, la2=b.lat*Math.PI/180;
+    const h=Math.sin(dLat/2)**2 + Math.cos(la1)*Math.cos(la2)*Math.sin(dLon/2)**2;
+    return 2*R*Math.asin(Math.sqrt(h));
+  }
+  function gpsUi(){
+    const stage = gpsStage;
+    gpsPanel.hidden = mode !== "gps";
+    gpsCancelBtn.hidden = !(stage === "acquiring" || stage === "ready");
+    gpsLight.className = "gps-light " + (stage === "running" ? "tracking" : stage === "ready" ? "ready" : stage === "acquiring" ? "searching" : "");
+    gpsSignal.textContent = stage === "idle" ? "GPS sin iniciar" : stage === "acquiring" ? "Buscando una señal estable…" : stage === "ready" ? "Señal lista para correr" : "Registrando tu carrera";
+    if (mode !== "gps") return;
+    if (stage === "idle") gpsHint.textContent = "Sal a un espacio abierto y seguro. Prepara el GPS con el celular quieto.";
+    else if (stage === "acquiring") gpsHint.textContent = gpsAccuracy === null ? "Permite el acceso a tu ubicación y espera unos segundos." : `Precisión aproximada: ±${nf(gpsAccuracy,0)} m. Espera una señal de ±${GPS_MAX_ACCURACY} m o mejor.`;
+    else if (stage === "ready") gpsHint.textContent = `Precisión aproximada: ±${nf(gpsAccuracy,0)} m. Pulsa iniciar ANTES de correr y deja el celular guardado.`;
+    else gpsHint.textContent = `GPS activo${gpsAccuracy === null ? "" : ` · precisión ±${nf(gpsAccuracy,0)} m`}. Corre con cuidado; al terminar, detente antes de tocar la pantalla.`;
+    tapBtn.textContent = stage === "idle" ? "1 · Preparar GPS" : stage === "acquiring" ? "Buscando GPS…" : stage === "ready" ? "2 · ¡Empezar carrera!" : "3 · Terminar carrera";
+    tapBtn.disabled = stage === "acquiring";
+    gpsDistanceEl.textContent = nf(gpsDistanceM,0) + " m";
+    gpsCountEl.textContent = stage === "running" ?
+      `${gpsSamples} intervalos válidos · Si no aumenta la distancia al correr, el GPS no está entregando velocidad fiable.` :
+      stage === "acquiring" ? "Buscando ubicación precisa. Comprueba permiso de ubicación precisa y mantén la página abierta." :
+      stage === "ready" ? "Ubicación lista. Toca «Empezar carrera» ANTES de moverte." :
+      "Aún no se ha registrado desplazamiento.";
+    const elapsed = running ? (performance.now() - tStart) / 1000 : gpsFinalElapsed;
+    gpsAverageEl.textContent = nf(elapsed > 0 ? gpsDistanceM / elapsed * 3.6 : 0,1) + " km/h";
+  }
+  function resetGpsTracking(){
+    gpsMax=0; gpsNow=0; gpsDistanceM=0; gpsObservedTime=0; gpsSamples=0;
+    gpsSpeeds=[]; gpsLastSampleAt=null; lastFix=null;
+    gpsAccuracy=null; gpsFinalElapsed=0;
+    gpsDistanceEl.textContent="0 m";
+    gpsCountEl.textContent="Aún no se ha registrado desplazamiento.";
+    gpsAverageEl.textContent="0,0 km/h";
+  }
+  function clearGps(){
+    ++gpsSession; // ignora callbacks tardíos de una sesión anterior
+    if (gpsId !== null){navigator.geolocation.clearWatch(gpsId);gpsId=null;}
+    gpsStage="idle";
+  }
+  function prepareGps(){
+    if (!navigator.geolocation || !window.isSecureContext){
+      say("El GPS del navegador requiere un celular, permiso de ubicación y un sitio HTTPS (como GitHub Pages).",true);
+      return;
+    }
+    resetGpsTracking();
+    gpsStage="acquiring"; gpsUi();
+    say("Permite el acceso a la ubicación y espera una señal GPS estable. Todavía no corras.");
+    const session=++gpsSession;
+    gpsId = navigator.geolocation.watchPosition(pos=>{
+      if (session !== gpsSession || mode !== "gps") return;
+      const c=pos.coords;
+      const accuracy=Number(c.accuracy);
+      gpsAccuracy=Number.isFinite(accuracy)?accuracy:null;
+      const good = gpsAccuracy !== null && gpsAccuracy <= GPS_MAX_ACCURACY;
+      const fix={lat:c.latitude,lon:c.longitude,t:pos.timestamp,accuracy:gpsAccuracy};
+      if (gpsStage === "acquiring"){
+        if (good){gpsStage="ready"; lastFix=fix; say("¡Señal lista! Inicia la carrera antes de empezar a correr.");}
+        gpsUi(); return;
+      }
+      if (gpsStage === "ready"){
+        if (!good){gpsStage="acquiring"; say("La señal se debilitó. Espera a que se estabilice.",true);}
+        else lastFix=fix;
+        gpsUi(); return;
+      }
+      if (gpsStage !== "running") return;
+      // La incerteza horizontal puede superar el avance entre puntos.
+      // No convertimos saltos de ubicación ni lecturas poco precisas en récords.
+      if (!good){lastFix=null; gpsLastSampleAt=null; gpsNow=0; gpsUi(); return;}
+      let v=Number.isFinite(c.speed) && c.speed >= 0 ? c.speed : null;
+      if (v === null && lastFix){
+        const dt=(fix.t-lastFix.t)/1000;
+        if (dt>=1 && dt<=6){
+          const delta=haversine(lastFix,fix);
+          if (delta >= Math.max(3,(fix.accuracy+lastFix.accuracy)*0.3)) v=delta/dt;
+          else if (delta < 3) v=0;
+        }
+      }
+      lastFix=fix;
+      if (v === null || !Number.isFinite(v) || v < 0 || v > 16){gpsUi();return;}
+      gpsSpeeds.push(v);
+      if (gpsSpeeds.length>3) gpsSpeeds.shift();
+      const sorted=[...gpsSpeeds].sort((a,b)=>a-b);
+      const smooth=sorted[Math.floor(sorted.length/2)]; // reduce picos aislados
+      gpsNow=smooth*3.6;
+      gpsMax=Math.max(gpsNow,gpsMax);
+      if (gpsLastSampleAt !== null){
+        const dt=(fix.t-gpsLastSampleAt)/1000;
+        if (dt>0 && dt<=6){
+          gpsObservedTime+=dt;
+          gpsDistanceM+=smooth*dt;
+          gpsSamples++;
+        }
+      }
+      gpsLastSampleAt=fix.t;
+      gpsUi();
+    }, err=>{
+      if (session!==gpsSession) return;
+      lastGpsErr={1:"permiso denegado",2:"sin señal",3:"tiempo agotado"}[err.code]||("código "+err.code);
+      if (err.code === 3 && gpsStage === "acquiring"){
+        say("El GPS tarda en ubicarse. Prueba a cielo abierto; todavía estamos buscando señal.",true); return;
+      }
+      const wasRunning=gpsStage === "running";
+      const msg = err.code===1 ? "Ubicación denegada. Permítela en los ajustes de tu navegador y vuelve a intentar." :
+        "No es posible obtener una ubicación fiable. Prueba al aire libre con buena señal.";
+      if (wasRunning) finishGps(true);
+      else {clearGps();gpsUi();}
+      say(msg,true);
+    },{enableHighAccuracy:true,maximumAge:0,timeout:20000});
+  }
+  function beginGpsRun(){
+    resetGpsTracking();
+    gpsStage="running";
+    running=true; tStart=performance.now();
+    tapBtn.classList.add("live");
+    say("¡Carrera iniciada! Guarda el celular. Cuando termines, detente en un lugar seguro antes de pulsar «Terminar carrera».");
+    tick=setInterval(update,200);
+    gpsUi();
+  }
+  function finishGps(abort=false){
+    const elapsed=running?(performance.now()-tStart)/1000:0;
+    const kmh=elapsed>0?gpsDistanceM/elapsed*3.6:0;
+    const distance=gpsDistanceM, samples=gpsSamples, max=gpsMax, coverage=elapsed>0?gpsObservedTime/elapsed:0;
+    running=false; gpsFinalElapsed=elapsed; clearInterval(tick);tick=null;
+    tapBtn.classList.remove("live"); clearGps(); gpsUi();
+    if (abort) return;
+    if (samples<2 || distance<10 || elapsed<5 || coverage<0.35){
+      say(`No pudimos calcular tu carrera con suficiente confianza: ${samples} intervalos GPS válidos, ${nf(distance,0)} m estimados y ${nf(coverage*100,0)}% del tiempo cubierto. Comprueba la ubicación precisa, usa Safari directamente y prueba 100–200 m al aire libre con la pantalla activa.`,true);
+      return;
+    }
+    const detalle=`Recorriste aproximadamente ${nf(distance,0)} m en ${fmtTime(elapsed)}. Rapidez máxima observada (filtrada): ${nf(max,1)} km/h. ${coverage<0.7 ? "La señal fue intermitente; la medición puede subestimar tu rapidez." : ""}`;
+    verdict(Math.round(kmh*10)/10, detalle);
+    say("¡Carrera terminada! Tu rapidez es una estimación GPS. Mira a qué animales podrías superar.");
+  }
+
+  /* --- ciclo de medición --- */
+  function setMode(m){
+    if (mode === "gps" && gpsStage !== "idle") finishGps(true);
+    else if (running) stop(true);
+    mode = m;
+    [...document.getElementById("modes").children].forEach(b => b.setAttribute("aria-pressed", String(b.dataset.mode === m)));
+    strideWrap.hidden = (m === "gps");
+    lkA.textContent = m === "gps" ? "Máxima" : (m === "motion" ? "Impulsos/s" : "Toques/s");
+    luA.textContent = m === "gps" ? "km/h" : (m === "tap" ? "toques/s" : "movimientos/s");
+    lkB.textContent = m === "gps" ? "Ahora" : "Simulación";
+    tapBtn.disabled = false;
+    tapBtn.textContent = "Medir";
+    tapCount.textContent = m === "gps" ? "0,0 km/h máx." : (m === "motion" ? "— impulsos" : "— toques");
+    tapTime.textContent = DUR[m] ? nf(DUR[m],1) + " s" : "0,0 s";
+    lvA.textContent = "0,0"; lvB.textContent = "0,0";
+    say(COPY[m]);
+    gpsUi();
+  }
+
+  async function start(){
+    actx();
+    steps = 0; taps = 0; gravEMA = null; above = false; gotMotion = false; lastStep = 0;
+    if (mode === "motion"){
+      const r = await askMotion(); lastPerm = r; motionEvents = 0;
+      if (r === "nosensor"){ say("Este aparato no tiene acelerómetro (o es un computador de escritorio). Usa el modo teclado.", true); return; }
+      if (r === "denied" || r === "blocked"){ say("<b>El visor bloquea el sensor.</b> Esta página corre dentro de un marco que no tiene permiso de acelerómetro, así que el celular ni siquiera alcanza a preguntarte. No es tu teléfono. Sube el archivo <code>index.html</code> a GitHub Pages y ahí funciona. Mientras tanto: modo teclado.", true); return; }
+      window.addEventListener("devicemotion", onMotion);
+      motionWatch = setTimeout(() => {
+        if (!gotMotion){ say("<b>El visor bloquea el sensor.</b> El permiso pasó pero no llega ni un dato: el marco donde vive esta página filtra el acelerómetro. En tu propio sitio (GitHub Pages) funciona. Mientras tanto: modo teclado.", true); stop(true); }
+      }, 2000);
+      say("Demo activa. Se detectan sacudidas del celular: mover la mano también cuenta. Esto no mide tu velocidad real.");
+    } else {
+      say("Midiendo. Aprieta espacio o el botón lo más rápido que puedas.");
+    }
+    running = true; tStart = performance.now();
+    tapBtn.classList.add("live");
+    if (mode !== "gps") tapBtn.textContent = "¡Dale!";
+    tick = setInterval(update, 60);
+  }
+
+  function update(){
+    const el = (performance.now() - tStart) / 1000;
+    if (mode === "gps"){
+      lvA.textContent = nf(gpsMax, 1); lvB.textContent = nf(gpsNow, 1);
+      tapCount.textContent = nf(gpsMax,1) + " km/h máx.";
+      tapTime.textContent = fmtTime(el);
+      gpsUi();
+      return;
+    }
+    const n = mode === "tap" ? taps : steps;
+    const rate = el > 0.3 ? n / el : 0;
+    lvA.textContent = nf(rate, 1);
+    lvB.textContent = nf(rate * strideM * 3.6, 1);
+    tapCount.textContent = n + (mode === "tap" ? " toques" : " impulsos detectados");
+    tapTime.textContent = nf(Math.max(DUR[mode] - el, 0), 1) + " s";
+    if (el >= DUR[mode]) stop(false);
+  }
+
+  function stop(abort){
+    if (!running && !abort) return;
+    running = false;
+    clearInterval(tick); tick = null;
+    clearTimeout(motionWatch);
+    window.removeEventListener("devicemotion", onMotion);
+    tapBtn.classList.remove("live");
+    tapBtn.textContent = abort ? "Medir" : "Otra vez";
+    if (abort) return;
+
+    const el = (performance.now() - tStart) / 1000;
+    let kmh, detalle;
+    if (mode === "gps"){
+      finishGps(abort); return;
+    } else {
+      const n = mode === "tap" ? taps : steps;
+      const rate = n / Math.max(el, 0.1);
+      kmh = Math.round(rate * strideM * 3.6 * 10) / 10;
+      detalle = `${n} ${mode === "tap" ? "toques" : "impulsos detectados"} en ${nf(el,1)} s (${nf(rate,1)}/s) × ${nf(strideM,2)} m de zancada supuesta.`;
+    }
+    verdict(kmh, detalle);
+    say(COPY[mode]);
+  }
+
+  function verdict(kmh, detalle){
+    const simulated = mode !== "gps";
+    mySpeedEl.textContent = fmtSpeed(kmh) + " km/h";
+    const animals = DATA.filter(d => d.clase !== "humano");
+    const beaten = animals.filter(d => d.kmh < kmh);
+    const next = [...animals].reverse().find(d => d.kmh > kmh);
+    const qualifier = mode === "gps" ? "Rapidez media estimada por GPS, comparada con velocidades máximas aproximadas de animales." : mode === "motion" ? "DEMOSTRACIÓN: impulsos del celular, no pasos comprobados ni rapidez real al correr." : "DEMOSTRACIÓN: simulación desde el teclado, no tu rapidez real al correr.";
+    beatMsg.innerHTML = `${detalle} <b>${beaten.length} de ${animals.length}</b> animales quedarían por debajo de tu resultado. ${qualifier}`;
+    const rival = document.getElementById("result-rival");
+    rival.hidden = false;
+    if (next) {
+      const difference = next.kmh - kmh;
+      rival.innerHTML = `<strong>${next.emoji} Tu próximo rival: ${next.nombre}</strong><br>Alcanza ${fmtSpeed(next.kmh)} km/h. Te faltan <strong>${nf(difference,difference<0.1?2:1)} km/h</strong> para igualarlo.`;
+    } else if (kmh <= 0) {
+      rival.innerHTML = `<strong>🐌 Tu siguiente desafío:</strong> intenta registrar una velocidad para empezar a competir.`;
+    } else {
+      rival.innerHTML = `<strong>🏆 Tu resultado supera a todos los competidores de este ranking.</strong> Revisa la calibración de la prueba si la cifra te parece inusual.`;
+    }
+    beatList.innerHTML = beaten.slice(-4).reverse().map(d => `<li>${d.nombre} ${d.emoji} · ${fmtSpeed(d.kmh)} km/h</li>`).join("");
+
+    if (!me) me = {nombre:"Tú", kmh, medio:"tierra", clase:"humano", emoji:"🏃‍♂️", tu:true};
+    else me.kmh = kmh;
+    me.tipo = simulated ? "simulada" : "gps";
+    selectedRanking = me;
+    // Coloca al usuario en la pista automáticamente, con hasta seis participantes.
+    chartParticipants=[me,...chartParticipants.filter(d=>d!==me)].slice(0,6);
+    rebuildIntro();
+    render();
+    updateDiscovery(kmh, simulated ? "demo" : "gps");
+  }
+
+  /* --- diagnóstico --- */
+  document.getElementById("diagRun").addEventListener("click", async () => {
+    const list = document.getElementById("diagList"), fixEl = document.getElementById("diagFix");
+    const enMarco = window.self !== window.top;
+    const proto = location.protocol;
+    const httpsOk = proto === "https:" || location.hostname === "localhost";
+    const hayDM = typeof DeviceMotionEvent !== "undefined";
+    const pideiOS = hayDM && typeof DeviceMotionEvent.requestPermission === "function";
+    const hayGPS = "geolocation" in navigator;
+    let permGPS = "desconocido";
+    try { if (navigator.permissions) permGPS = (await navigator.permissions.query({name:"geolocation"})).state; } catch(e){}
+
+    const rows = [
+      [httpsOk, "Conexión segura (HTTPS)", proto + "//" + (location.hostname || "archivo local")],
+      [!enMarco, enMarco ? "Estás dentro de un marco (iframe)" : "Página dueña de la ventana", enMarco ? "los sensores no cruzan el marco" : "correcto"],
+      [hayDM, hayDM ? "El aparato reporta acelerómetro" : "Sin acelerómetro", pideiOS ? "pide permiso al estilo iPhone" : (hayDM ? "no necesita permiso explícito" : "típico de computador de escritorio")],
+      [lastPerm === "ok", "Permiso de movimiento", lastPerm],
+      [motionEvents > 0, "Datos recibidos del sensor", motionEvents + " lecturas en el último intento"],
+      [hayGPS, "El navegador ofrece GPS", "permiso: " + permGPS + " · último error: " + lastGpsErr]
+    ];
+    list.innerHTML = rows.map(([ok, k, v]) =>
+      `<li><span>${ok ? "✅" : "❌"}</span><span><span class="k">${k}</span><span class="v">${v}</span></span></li>`).join("");
+
+    let fix;
+    if (!httpsOk && proto === "file:")
+      fix = "Abriste el archivo con doble clic. Los sensores <b>nunca</b> funcionan así. Súbelo a GitHub Pages y entra por el link <code>https://…github.io/…</code>";
+    else if (enMarco)
+      fix = "La página está metida dentro de otra. Ábrela en su propia pestaña, con su URL directa en la barra de direcciones.";
+    else if (!hayDM)
+      fix = "Este aparato no tiene acelerómetro: casi seguro es un computador. Entra desde el celular.";
+    else if (lastPerm === "denied" && pideiOS)
+      fix = "iPhone: el permiso salió <b>denied</b> sin preguntarte. Anda a <b>Ajustes → Apps → Safari → Avanzado → Acceso a movimiento y orientación</b> y actívalo. Después recarga. Si usas Chrome o abriste el link desde Instagram/WhatsApp, prueba en Safari directamente.";
+    else if (lastPerm === "blocked")
+      fix = "La petición de permiso lanzó un error. Pasa casi siempre por no estar en HTTPS o por estar dentro de un marco.";
+    else if (lastPerm === "ok" && motionEvents === 0)
+      fix = "El permiso se dio pero no llega ni una lectura. Suele ser un navegador dentro de otra app (Instagram, WhatsApp, Gmail). Abre el link en Safari o Chrome de verdad.";
+    else if (lastPerm === "no probado")
+      fix = "Todavía no aprietas «Medir» en modo movimiento. Hazlo y vuelve a revisar: recién ahí se sabe qué contesta el permiso.";
+    else
+      fix = "Todo se ve en orden. Si igual no marca pasos, agita más fuerte: el umbral está en 2,2 m/s² sobre el reposo.";
+    fixEl.innerHTML = fix; fixEl.hidden = false;
+  });
+
+  document.getElementById("modes").addEventListener("click", e => {
+    const b = e.target.closest(".mode"); if (b){ setMode(b.dataset.mode); b.blur(); }
+  });
+  strideIn.addEventListener("input", e => {
+    strideM = +e.target.value; strideVal.textContent = nf(strideM, 2);
+  });
+  tapBtn.addEventListener("click", () => {
+    if (mode === "gps"){
+      if (gpsStage === "idle") prepareGps();
+      else if (gpsStage === "ready") beginGpsRun();
+      else if (gpsStage === "running") finishGps(false);
+      return;
+    }
+    if (mode === "tap"){ if (!running) start(); return; } // toques por pointerdown
+    running ? stop(false) : start();
+  });
+  gpsCancelBtn.addEventListener("click",()=>{finishGps(true);say("Preparación cancelada. Puedes volver a intentarlo cuando quieras.");});
+  tapBtn.addEventListener("pointerdown", e => { if (running && mode === "tap"){ e.preventDefault(); taps++; blip(320 + Math.random()*60, null, 0.04, 0.09); } });
+  document.addEventListener("keydown", e => {
+    if (e.code !== "Space" || mode !== "tap") return;
+    const a = document.activeElement;
+    if (a && /^(input|select|textarea)$/i.test(a.tagName)) return;
+    e.preventDefault();
+    if (!running) start(); else { taps++; blip(320 + Math.random()*60, null, 0.04, 0.09); }
+  });
+  setMode("gps");
+
+  fillTable(); render();
+  window.addEventListener("resize", () => drawAxis());
+
+
+  const initialNames = [
+    "Halcón peregrino", "Guepardo", "Pez vela",
+    "Galgo", "Gato doméstico", "Caracol"
+  ];
+  const chartColors = ["#9b7bf0", "#c4821f", "#1f97a6", "#e85d75", "#7fc4ad", "#c8ccd6"];
+  const introSvg = document.getElementById("intro-svg");
+  const introTime = document.getElementById("intro-time");
+  const introLegend = document.getElementById("intro-legend");
+  const introStatus = document.getElementById("intro-status");
+  const introSelectionInfo = document.getElementById("intro-selected");
+  const introWinner = document.getElementById("intro-winner");
+  const introReplay = document.getElementById("intro-replay");
+  const NS = "http://www.w3.org/2000/svg";
+  const graph = {left:104,right:822,top:52,bottom:356,duration:8,maxDistance:900,laneGap:48};
+  const trackX = d => graph.left + (Math.max(0,Math.min(d,graph.maxDistance)) / graph.maxDistance) * (graph.right-graph.left);
+  const laneY = i => graph.top + 28 + i * graph.laneGap;
+  let introAudio = false;
+  let introRAF = null;
+  let introStarted = 0;
+  let introElapsed = 0;
+  let introNextTone = 0;
+  let introLines = [];
+  let cursor = null;
+  let introRunning = false;
+
+  function svgNode(tag,attrs={},parent=introSvg){
+    const element = document.createElementNS(NS,tag);
+    for (const [key,value] of Object.entries(attrs)) element.setAttribute(key,String(value));
+    parent.appendChild(element);
+    return element;
+  }
+
+  function svgLabel(x,y,label,attrs={}){
+    const element = svgNode("text",{x,y,fill:"#a3a8b5","font-family":"Space Mono, monospace","font-size":11,...attrs});
+    element.textContent=label;
+    return element;
+  }
+
+  function niceStep(value){
+    const exponent=Math.floor(Math.log10(Math.max(value,0.000001)));
+    const power=10**exponent;
+    const fraction=value/power;
+    const nice=fraction<=1 ? 1 : fraction<=2 ? 2 : fraction<=2.5 ? 2.5 : fraction<=5 ? 5 : 10;
+    return nice*power;
+  }
+
+  function metresLabel(value){
+    if(value===0) return "0";
+    if(value>=10) return nf(value,value%1===0?0:1);
+    if(value>=1) return nf(value,value%1===0?0:2);
+    if(value>=0.1) return nf(value,2);
+    if(value>=0.01) return nf(value,3);
+    return nf(value,4);
+  }
+
+  function chartColor(animal,index){
+    if(animal.tu) return COLOR.tu;
+    const withoutPlayer=chartColors.filter(c=>c!==COLOR.tu);
+    return chartParticipants.some(d=>d.tu) ? withoutPlayer[index%withoutPlayer.length] : chartColors[index%chartColors.length];
+  }
+
+  function updateIntroFocus(){
+    if(!chartParticipants.includes(selectedRanking)) selectedRanking=chartParticipants[0];
+    introLines.forEach(({animal,group,line,chip})=>{
+      const active=animal===selectedRanking;
+      chip.dataset.active=String(active);
+      chip.setAttribute("aria-pressed",String(active));
+      group.setAttribute("opacity",active?1:.6);
+      group.setAttribute("data-focused",String(active));
+    });
+    const focused=introLines.find(d=>d.animal===selectedRanking);
+    if(focused) introSvg.appendChild(focused.group);
+    const animal=selectedRanking;
+    if(animal){
+      const distance=animal.kmh/3.6*8;
+      const note=animal.tu
+        ? (animal.tipo==="gps" ? "Tu resultado estimado por GPS" : "Tu equivalencia simulada")
+        : "Velocidad máxima aproximada";
+      introSelectionInfo.innerHTML=`${animal.emoji} <strong>${animal.nombre}</strong> · <span class="mono">${fmtSpeed(animal.kmh)} km/h</span> · <span class="mono">${metresLabel(distance)} m en 8 s</span> · ${note}`;
+    }
+  }
+
+  function setIntroTime(t){
+    introElapsed=t;
+    introTime.textContent=nf(t,1)+" s";
+    introLines.forEach(({animal,group,marker,index})=>{
+      const distance=animal.kmh/3.6*t;
+      const x=trackX(distance);
+      marker.setAttribute("x",x);
+      marker.setAttribute("y",laneY(index));
+      marker.setAttribute("opacity",1);
+      const shadow=group.querySelector("ellipse");
+      if(shadow) shadow.setAttribute("cx",x);
+    });
+  }
+
+  function rebuildIntro(){
+    if(introRAF!==null) cancelAnimationFrame(introRAF);
+    introRAF=null;
+    introRunning=false;
+    introWinner.hidden=true;
+    introReplay.textContent="▶ Iniciar simulación";
+    introLegend.replaceChildren();
+    introSvg.replaceChildren();
+    introLines=[];
+
+    const maxSpeed=Math.max(...chartParticipants.map(d=>d.kmh),0.01);
+    graph.maxDistance=maxSpeed*graph.duration/3.6;
+    const trackTop=graph.top;
+    const laneHeight=graph.laneGap;
+    const trackBottom=trackTop+chartParticipants.length*laneHeight+10;
+
+    // A subdued athletics track, viewed from above.
+    svgNode("rect",{x:14,y:12,width:872,height:386,rx:16,fill:"#263a32"});
+    svgNode("rect",{x:28,y:24,width:844,height:362,rx:18,fill:"#31483d",stroke:"#496254","stroke-width":1});
+    svgNode("rect",{x:graph.left-16,y:trackTop-18,width:graph.right-graph.left+32,height:trackBottom-trackTop+26,rx:10,fill:"#553940",stroke:"#92777a","stroke-width":2});
+    chartParticipants.forEach((animal,i)=>{
+      const y=laneY(i);
+      svgNode("rect",{x:graph.left-12,y:y-laneHeight/2+1,width:graph.right-graph.left+24,height:laneHeight,fill:i%2===0?"#624149":"#593a42",opacity:.72});
+      if(i>0) svgNode("line",{x1:graph.left-12,y1:y-laneHeight/2,x2:graph.right+12,y2:y-laneHeight/2,stroke:"#c4b4ad","stroke-width":1.4,opacity:.72});
+      svgNode("circle",{cx:graph.left-1,cy:y,r:10,fill:"#e2d7cb",opacity:.95});
+      svgLabel(graph.left-1,y+3,String(i+1),{fill:"#3e3033","font-size":10,"font-weight":700,"text-anchor":"middle"});
+    });
+    svgNode("line",{x1:graph.left+15,y1:trackTop-15,x2:graph.left+15,y2:trackBottom+8,stroke:"#e0d5c8","stroke-width":2,opacity:.9});
+    const finishWidth=10, finishCell=8;
+    for(let row=0;row<Math.ceil((trackBottom-trackTop+26)/finishCell);row++){
+      for(let col=0;col<2;col++){
+        svgNode("rect",{x:graph.right-5+col*finishWidth,y:trackTop-17+row*finishCell,width:finishWidth,height:finishCell,fill:(row+col)%2===0?"#d9d0c5":"#43373a",opacity:.92});
+      }
+    }
+    svgLabel(graph.left-2,trackTop-27,"PARTIDA",{fill:"#e0d5c8","font-size":10});
+    svgLabel(graph.right+2,trackTop-27,`${metresLabel(graph.maxDistance)} m · 8 s`,{fill:"#e0d5c8","font-size":10,"text-anchor":"end"});
+    for(let i=0;i<=4;i++){
+      const x=graph.left+(graph.right-graph.left)*i/4;
+      const metres=graph.maxDistance*i/4;
+      svgNode("line",{x1:x,y1:trackTop-15,x2:x,y2:trackBottom+8,stroke:"#c7b8b1","stroke-width":1,"stroke-dasharray":"2 7",opacity:.18});
+      svgLabel(x,trackBottom+24,`${metresLabel(metres)} m`,{fill:"#d2c4bc","font-size":10,"text-anchor":"middle"});
+    }
+    svgLabel(450,397,"TODOS PARTEN JUNTOS · CADA UNO EN SU CARRIL",{fill:"#a9b9ad","font-size":10,"text-anchor":"middle"});
+
+    introLines=chartParticipants.map((animal,index)=>{
+      const color=chartColor(animal,index);
+      const group=svgNode("g");
+      const shadow=svgNode("ellipse",{cx:graph.left,cy:laneY(index)+8,rx:13,ry:3,fill:"#1c2020",opacity:.58},group);
+      const marker=svgNode("text",{x:graph.left,y:laneY(index),"font-size":27,"text-anchor":"middle","dominant-baseline":"central","paint-order":"stroke","stroke":"#2b2427","stroke-width":.8},group);
+      marker.textContent=animal.emoji;
+      svgNode("circle",{cx:graph.left-16,cy:laneY(index),r:3.5,fill:color,stroke:"#f0e8de","stroke-width":.8},group);
+      const chip=document.createElement("button");
+      chip.type="button";
+      chip.className="intro-chip";
+      chip.style.setProperty("--intro-color",color);
+      chip.innerHTML=`<span class="intro-chip-dot"></span><span>${animal.emoji} ${animal.nombre}</span><strong>${fmtSpeed(animal.kmh)} km/h</strong>`;
+      chip.addEventListener("click",()=>{
+        selectedRanking=animal;
+        updateIntroFocus();
+        render();
+        if(introAudio) soundIntro(animal);
+      });
+      introLegend.appendChild(chip);
+      return {animal,group,marker,shadow,index,chip};
+    });
+    introStatus.textContent=`${chartParticipants.length} de 6 competidores · edita desde el ranking`;
+    setIntroTime(0);
+    updateIntroFocus();
+  }
+
+  function toggleIntroParticipant(animal){
+    const index=chartParticipants.indexOf(animal);
+    if(index>=0){
+      if(chartParticipants.length===1){
+        introStatus.textContent="La pista necesita al menos un participante";
+        selectedRanking=animal;
+        updateIntroFocus();
+        return;
+      }
+      chartParticipants.splice(index,1);
+      selectedRanking=chartParticipants[0];
+    }else{
+      if(chartParticipants.length===6) chartParticipants.shift();
+      chartParticipants.push(animal);
+      selectedRanking=animal;
+    }
+    rebuildIntro();
+    render();
+  }
+
+  function soundIntro(animal){
+    if(!introAudio) return;
+    const context=actx();
+    if(!context) return;
+    const oscillator=context.createOscillator(),gain=context.createGain();
+    oscillator.type=({tierra:"triangle",aire:"sine",agua:"sawtooth"})[animal.medio]||"triangle";
+    oscillator.frequency.setValueAtTime(pitch(Math.max(animal.kmh,V_MIN)),context.currentTime);
+    const now=context.currentTime;
+    gain.gain.setValueAtTime(.0001,now);
+    gain.gain.exponentialRampToValueAtTime(.045,now+.012);
+    gain.gain.exponentialRampToValueAtTime(.0001,now+.12);
+    oscillator.connect(gain);gain.connect(context.destination);
+    oscillator.start(now);oscillator.stop(now+.14);
+  }
+
+  function showIntroWinner(){
+    const maximum=Math.max(...chartParticipants.map(d=>d.kmh));
+    const winners=chartParticipants.filter(d=>d.kmh===maximum);
+    const name=winners.map(d=>`${d.emoji} ${d.nombre}`).join(" y ");
+    const distance=maximum*8/3.6;
+    introWinner.innerHTML=`<strong>🏆 ${winners.length>1?"Empataron":"Ganó"}: ${name}</strong> · <span class="mono">${fmtSpeed(maximum)} km/h</span> · <span class="mono">${metresLabel(distance)} metros en 8 segundos</span>`;
+    introWinner.hidden=false;
+  }
+
+  function introFrame(now){
+    const t=Math.min((now-introStarted)/1000,graph.duration);
+    setIntroTime(t);
+    if(introAudio&&t>=introNextTone){
+      const animal=selectedRanking;
+      if(animal){
+        soundIntro(animal);
+        const pulses=.4+3*Math.sqrt(Math.max(animal.kmh,0)/V_MAX);
+        introNextTone=t+1/pulses;
+      }
+    }
+    if(t<graph.duration){introRAF=requestAnimationFrame(introFrame);}
+    else{
+      introRAF=null;
+      introRunning=false;
+      introReplay.textContent="↻ Repetir simulación";
+      showIntroWinner();
+    }
+  }
+
+  function startIntro(){
+    if(introRAF!==null) cancelAnimationFrame(introRAF);
+    introStarted=performance.now();
+    introNextTone=0;
+    introWinner.hidden=true;
+    introRunning=true;
+    introReplay.textContent="↻ Reiniciar simulación";
+    setIntroTime(0);
+    introRAF=requestAnimationFrame(introFrame);
+  }
+
+  introReplay.addEventListener("click",startIntro);
+  document.getElementById("intro-reset").addEventListener("click",()=>{
+    chartParticipants=initialNames.map(name=>DATA.find(d=>d.nombre===name));
+    selectedRanking=chartParticipants[0];
+    rebuildIntro();
+    render();
+  });
+  document.getElementById("intro-sound").addEventListener("click",event=>{
+    introAudio=!introAudio;
+    if(introAudio) actx();
+    introNextTone=0;
+    event.currentTarget.setAttribute("aria-pressed",String(introAudio));
+    event.currentTarget.textContent=introAudio?"🔊 Desactivar sonido":"🔇 Activar sonido";
+  });
+
+  chartParticipants=initialNames.map(name=>DATA.find(d=>d.nombre===name));
+  selectedRanking=chartParticipants[0];
+  rebuildIntro();
+  render();
+  // Señal de arranque: si aparece el mensaje de fallo, el código no terminó de iniciar.
+  const runtimeBanner = document.getElementById("runtime-banner");
+  if (runtimeBanner) runtimeBanner.hidden = true;
+  document.documentElement.setAttribute("data-app-ready", "true");
+})();
+
+</script>
 </body>
 </html>
