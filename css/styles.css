@@ -178,7 +178,21 @@
 .intro-section .sec-head{align-items:baseline}
 .intro-time{margin-left:auto;font-size:21px;font-weight:700;color:var(--ink);white-space:nowrap}
 .intro-viz{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:15px}
-.intro-chart-shell{background:var(--track);border:1px solid var(--line-soft);border-radius:3px;overflow-x:auto}
+.intro-chart-shell {
+  /* Fondo color arcilla/tartán característico de las pistas */
+  background-color: #ba4a30; 
+  /* Crea las líneas blancas separadoras de los carriles */
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 45px,
+    rgba(255, 255, 255, 0.4) 45px,
+    rgba(255, 255, 255, 0.4) 47px
+  );
+  border: 1px solid var(--line-soft);
+  border-radius: 3px;
+  overflow-x: auto;
+}
 #intro-svg{display:block;width:100%;min-width:540px;height:auto}
 .intro-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 .intro-chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;border:1px solid var(--line);border-radius:3px;background:var(--surface-2);color:var(--ink-2);padding:7px 9px}
