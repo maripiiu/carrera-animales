@@ -179,15 +179,14 @@
 .intro-time{margin-left:auto;font-size:21px;font-weight:700;color:var(--ink);white-space:nowrap}
 .intro-viz{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:15px}
 .intro-chart-shell {
-  /* Fondo color arcilla/tartán característico de las pistas */
   background-color: #ba4a30; 
-  /* Crea las líneas blancas separadoras de los carriles */
+  /* Ajustamos la distancia de las líneas blancas a 68px para crear 6 carriles exactos */
   background-image: repeating-linear-gradient(
     to bottom,
     transparent,
-    transparent 45px,
-    rgba(255, 255, 255, 0.4) 45px,
-    rgba(255, 255, 255, 0.4) 47px
+    transparent 68px,
+    rgba(255, 255, 255, 0.5) 68px,
+    rgba(255, 255, 255, 0.5) 70px 
   );
   border: 1px solid var(--line-soft);
   border-radius: 3px;
