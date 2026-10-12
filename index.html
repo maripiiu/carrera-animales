@@ -17,7 +17,7 @@
   <header class="hero">
     <p class="eyebrow">Descubre · Mide · Compara</p>
     <h1 class="display">¿Le ganas<br>al <em>animal</em>?</h1>
-    <p class="lead">¿Qué tan rápido eres? Explora cómo se mueven distintos animales a su máxima velocidad y luego mide tu propia rapidez para descubrir a cuáles podrías superar.</p>
+    <p class="lead">¿Qué tan rápido eres? Explora la velocidad de distintos animales, sal a correr con tu celular y descubre a cuáles podrías superar según tu rapidez estimada por GPS.</p>
   </header>
 
   <section class="intro-section" id="pista" aria-labelledby="intro-title">
@@ -46,26 +46,40 @@
 
   <section>
     <div class="sec-head"><h2 class="display">Tu turno</h2><p class="eyebrow">Mide tu rapidez</p></div>
-    <p class="sec-note">Elige cómo probar tu rapidez: el teclado mide pulsaciones (una equivalencia lúdica), el acelerómetro estima cadencia y el GPS estima velocidad real de desplazamiento.</p>
+    <p class="sec-note">La experiencia principal se hace <strong>corriendo de verdad al aire libre con el GPS del celular</strong>. También hay dos modos de demostración para explorar la página sin salir.</p>
 
+    <div class="race-steps" aria-label="Cómo participar">
+      <span><b>1</b> Abre esta página en tu celular</span>
+      <span><b>2</b> Prepara el GPS y corre</span>
+      <span><b>3</b> Compara tu rapidez con los animales</span>
+    </div>
     <div class="modes" id="modes">
-      <button class="mode" data-mode="motion" aria-pressed="true">
-        <span class="mi">📱</span><span class="mt">Movimiento</span>
-        <span class="md">Celular en la mano y corre en el lugar. Mide tu cadencia con el acelerómetro. <b>Requiere abrir la página en tu propio sitio.</b></span>
+      <button class="mode" data-mode="gps" aria-pressed="true">
+        <span class="mi">📍</span><span class="mt">Carrera real · GPS</span>
+        <span class="md">Corre al aire libre. El navegador estima la rapidez de desplazamiento con tu ubicación. <b>Modo recomendado.</b></span>
       </button>
-      <button class="mode" data-mode="gps" aria-pressed="false">
-        <span class="mi">📍</span><span class="mt">GPS</span>
-        <span class="md">Sal a la calle y corre de verdad. Es la única que mide velocidad real. <b>Requiere abrir la página en tu propio sitio.</b></span>
+      <button class="mode" data-mode="motion" aria-pressed="false">
+        <span class="mi">📱</span><span class="mt">Movimiento · demo</span>
+        <span class="md">Corre en el lugar con el celular. Estima cadencia, no velocidad real.</span>
       </button>
       <button class="mode" data-mode="tap" aria-pressed="false">
-        <span class="mi">⌨️</span><span class="mt">Teclado</span>
-        <span class="md">Sin celular: aprieta espacio. Mide tu dedo, no tus piernas.</span>
+        <span class="mi">⌨️</span><span class="mt">Teclado · demo</span>
+        <span class="md">Prueba la interfaz desde tu computador sin correr.</span>
       </button>
     </div>
 
     <div class="duel">
       <div class="tapbox">
-        <button class="tapbtn" id="tap">Medir</button>
+        <div class="gps-panel" id="gpsPanel">
+          <p class="gps-tag"><span class="gps-light" id="gpsLight"></span><strong id="gpsSignal">GPS sin iniciar</strong></p>
+          <p class="gps-guidance" id="gpsHint">En un lugar abierto y seguro, prepara la señal antes de empezar a correr.</p>
+          <div class="gps-metrics">
+            <div><span>Distancia estimada</span><strong class="mono" id="gpsDistance">0 m</strong></div>
+            <div><span>Rapidez media</span><strong class="mono" id="gpsAverage">0,0 km/h</strong></div>
+          </div>
+          <button type="button" id="gpsCancel" class="gps-cancel" hidden>Cancelar preparación</button>
+        </div>
+        <button class="tapbtn" id="tap">Preparar GPS</button>
         <div class="tapmeta"><span id="tapCount">— pasos</span><span id="tapTime">10,0 s</span></div>
         <div class="live-read" id="liveRead">
           <div><span class="lk" id="lkA">Cadencia</span><span class="lv mono" id="lvA">0,0</span><span class="lu" id="luA">pasos/s</span></div>
@@ -82,21 +96,22 @@
             <div class="fix" id="diagFix" hidden></div>
           </div>
         </details>
-        <p class="status" id="status">Correr en el lugar no te mueve del suelo, así que el sensor solo puede darte la <em>cadencia</em>. La velocidad sale de multiplicarla por la zancada que elijas aquí abajo: es una estimación, igual que la de cualquier reloj deportivo.</p>
+        <p class="status" id="status" role="status" aria-live="polite">Para tu carrera real usa el GPS desde un celular al aire libre.</p>
       </div>
       <div class="verdict" id="verdict">
-        <div class="eyebrow">Tu velocidad</div>
+        <div class="eyebrow">Tu resultado · rapidez media de la carrera</div>
         <div class="big" id="myspeed">— km/h</div>
-        <p class="beat" id="beatmsg">Todavía no te mides. Un adulto trotando anda en 12 km/h; Usain Bolt tocó 44,7 km/h en 2009 y sigue siendo el récord humano.</p>
+        <p class="beat" id="beatmsg">¡Todavía no corres! Prepara el GPS, completa tu carrera y aparecerán los animales que podrías superar.</p>
         <div id="result-rival" class="result-rival" hidden></div>
         <ul id="beatlist"></ul>
       </div>
     </div>
+    <p class="race-disclaimer"><strong>Importante:</strong> el GPS del celular es aproximado, sobre todo en carreras cortas o donde hay edificios. Comienza con una prueba de 100–200 m en un lugar despejado. Prepara e inicia la medición antes de correr, detente en un lugar seguro y recién entonces presiona «Terminar carrera». Mantén abierta la página y la pantalla activa. Esta página no guarda coordenadas ni envía tu recorrido a un servidor propio. La comparación es ilustrativa: tu rapidez media se contrasta con velocidades máximas aproximadas de los animales.</p>
   </section>
 
   <section>
     <div class="sec-head"><h2 class="display">El ranking</h2><p class="eyebrow">Filtra y compara</p></div>
-    <p class="sec-note">Explora las velocidades y haz clic en una barra para agregar o quitar ese participante de La pista (máximo 6). Después de tu prueba también podrás elegir «Tú». Cambia entre escala lineal y logarítmica para comparar.</p>
+    <p class="sec-note">Explora las velocidades y haz clic en una barra para agregar o quitar ese participante de La pista (máximo 6). Después de tu prueba, «Tú» se agregará automáticamente a La pista. Cambia entre escala lineal y logarítmica para comparar.</p>
 
     <div class="controls" id="filters">
       <button class="chip" data-medio="tierra" aria-pressed="true" style="color:var(--tierra)"><span class="dot"></span>Tierra</button>
@@ -149,7 +164,7 @@
       <dd>El sonido es opcional y permite escuchar el animal seleccionado mientras avanza su línea de distancia recorrida.</dd>
     </dl>
   </section><footer>
-    <p>IIC2026 · Visualización de Información. Velocidades máximas aproximadas recopiladas de fuentes generales; algunas cifras son discutidas y requieren referencias específicas antes de la entrega. Las comparaciones de la demostración suponen velocidad máxima constante.</p>
+    <p>IIC2026 · Visualización de Información. Las velocidades de animales son máximos aproximados y requieren fuentes verificadas antes de la entrega. La rapidez humana por GPS es estimada y no equivale a una medición profesional. No uses el celular mientras corres.</p>
   </footer>
 
 </div>
