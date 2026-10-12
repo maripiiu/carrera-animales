@@ -481,9 +481,9 @@
   const introWinner = document.getElementById("intro-winner");
   const introReplay = document.getElementById("intro-replay");
   const NS = "http://www.w3.org/2000/svg";
-  const graph = {left:64,right:801,top:30,bottom:346,duration:8,maxDistance:900};
-  const timeX = t => graph.left + (t / graph.duration) * (graph.right-graph.left);
-  const distanceY = d => graph.bottom - (d / graph.maxDistance) * (graph.bottom-graph.top);
+  const graph = {left:104,right:822,top:52,bottom:356,duration:8,maxDistance:900,laneGap:48};
+  const trackX = d => graph.left + (Math.max(0,Math.min(d,graph.maxDistance)) / graph.maxDistance) * (graph.right-graph.left);
+  const laneY = i => graph.top + 28 + i * graph.laneGap;
   let introAudio = false;
   let introRAF = null;
   let introStarted = 0;
@@ -536,7 +536,7 @@
       chip.dataset.active=String(active);
       chip.setAttribute("aria-pressed",String(active));
       group.setAttribute("opacity",active?1:.6);
-      line.setAttribute("stroke-width",active?4.2:2.6);
+      group.setAttribute("data-focused",String(active));
     });
     const focused=introLines.find(d=>d.animal===selectedRanking);
     if(focused) introSvg.appendChild(focused.group);
@@ -553,19 +553,14 @@
   function setIntroTime(t){
     introElapsed=t;
     introTime.textContent=nf(t,1)+" s";
-    if(cursor){
-      cursor.setAttribute("x1",timeX(t));
-      cursor.setAttribute("x2",timeX(t));
-    }
-    introLines.forEach(({animal,line,dot,marker})=>{
-      const x=timeX(t), y=distanceY(animal.kmh/3.6*t);
-      line.setAttribute("d",`M ${graph.left} ${graph.bottom} L ${x} ${y}`);
-      dot.setAttribute("cx",x);
-      dot.setAttribute("cy",y);
-      dot.setAttribute("opacity",t>0.01?1:0);
-      marker.setAttribute("opacity",t>0.01?1:0);
-      marker.setAttribute("x",x+13);
-      marker.setAttribute("y",Math.max(y-12,18));
+    introLines.forEach(({animal,group,marker,index})=>{
+      const distance=animal.kmh/3.6*t;
+      const x=trackX(distance);
+      marker.setAttribute("x",x);
+      marker.setAttribute("y",laneY(index));
+      marker.setAttribute("opacity",1);
+      const shadow=group.querySelector("ellipse");
+      if(shadow) shadow.setAttribute("cx",x);
     });
   }
 
@@ -578,34 +573,48 @@
     introLegend.replaceChildren();
     introSvg.replaceChildren();
     introLines=[];
-    const topDistance=Math.max(...chartParticipants.map(d=>d.kmh*graph.duration/3.6),0.01)*1.08;
-    const step=niceStep(topDistance/5);
-    graph.maxDistance=Math.max(step,Math.ceil(topDistance/step)*step);
 
-    const divisions=Math.round(graph.maxDistance/step);
-    for(let i=0;i<=divisions;i++){
-      const metres=Number((i*step).toPrecision(10));
-      const y=distanceY(metres);
-      // svgNode("line",{x1:graph.left,y1:y,x2:graph.right,y2:y,stroke:"#30353e","stroke-dasharray":"3 6"});
-      svgLabel(graph.left-11,y+4,metresLabel(metres),{"text-anchor":"end"});
+    const maxSpeed=Math.max(...chartParticipants.map(d=>d.kmh),0.01);
+    graph.maxDistance=maxSpeed*graph.duration/3.6;
+    const trackTop=graph.top;
+    const laneHeight=graph.laneGap;
+    const trackBottom=trackTop+chartParticipants.length*laneHeight+10;
+
+    // A subdued athletics track, viewed from above.
+    svgNode("rect",{x:14,y:12,width:872,height:386,rx:16,fill:"#263a32"});
+    svgNode("rect",{x:28,y:24,width:844,height:362,rx:18,fill:"#31483d",stroke:"#496254","stroke-width":1});
+    svgNode("rect",{x:graph.left-16,y:trackTop-18,width:graph.right-graph.left+32,height:trackBottom-trackTop+26,rx:10,fill:"#553940",stroke:"#92777a","stroke-width":2});
+    chartParticipants.forEach((animal,i)=>{
+      const y=laneY(i);
+      svgNode("rect",{x:graph.left-12,y:y-laneHeight/2+1,width:graph.right-graph.left+24,height:laneHeight,fill:i%2===0?"#624149":"#593a42",opacity:.72});
+      if(i>0) svgNode("line",{x1:graph.left-12,y1:y-laneHeight/2,x2:graph.right+12,y2:y-laneHeight/2,stroke:"#c4b4ad","stroke-width":1.4,opacity:.72});
+      svgNode("circle",{cx:graph.left-1,cy:y,r:10,fill:"#e2d7cb",opacity:.95});
+      svgLabel(graph.left-1,y+3,String(i+1),{fill:"#3e3033","font-size":10,"font-weight":700,"text-anchor":"middle"});
+    });
+    svgNode("line",{x1:graph.left+15,y1:trackTop-15,x2:graph.left+15,y2:trackBottom+8,stroke:"#e0d5c8","stroke-width":2,opacity:.9});
+    const finishWidth=10, finishCell=8;
+    for(let row=0;row<Math.ceil((trackBottom-trackTop+26)/finishCell);row++){
+      for(let col=0;col<2;col++){
+        svgNode("rect",{x:graph.right-5+col*finishWidth,y:trackTop-17+row*finishCell,width:finishWidth,height:finishCell,fill:(row+col)%2===0?"#d9d0c5":"#43373a",opacity:.92});
+      }
     }
-    for(let t=0;t<=8;t+=2){
-      const x=timeX(t);
-      svgNode("line",{x1:x,y1:graph.top,x2:x,y2:graph.bottom,stroke:"#242931"});
-      svgLabel(x,graph.bottom+29,`${t} s`,{"text-anchor":"middle"});
+    svgLabel(graph.left-2,trackTop-27,"PARTIDA",{fill:"#e0d5c8","font-size":10});
+    svgLabel(graph.right+2,trackTop-27,`${metresLabel(graph.maxDistance)} m · 8 s`,{fill:"#e0d5c8","font-size":10,"text-anchor":"end"});
+    for(let i=0;i<=4;i++){
+      const x=graph.left+(graph.right-graph.left)*i/4;
+      const metres=graph.maxDistance*i/4;
+      svgNode("line",{x1:x,y1:trackTop-15,x2:x,y2:trackBottom+8,stroke:"#c7b8b1","stroke-width":1,"stroke-dasharray":"2 7",opacity:.18});
+      svgLabel(x,trackBottom+24,`${metresLabel(metres)} m`,{fill:"#d2c4bc","font-size":10,"text-anchor":"middle"});
     }
-    svgLabel(graph.left,17,"DISTANCIA (m)",{fill:"#c8ccd6"});
-    svgLabel(graph.right,397,"TIEMPO (s)",{"text-anchor":"end",fill:"#c8ccd6"});
-    svgLabel(graph.left+8,graph.bottom-12,"PARTIDA",{"font-size":10,fill:"#6e7482"});
-    cursor=svgNode("line",{x1:graph.left,y1:graph.top,x2:graph.left,y2:graph.bottom,stroke:"#7d8492","stroke-dasharray":"3 5"});
+    svgLabel(450,397,"TODOS PARTEN JUNTOS · CADA UNO EN SU CARRIL",{fill:"#a9b9ad","font-size":10,"text-anchor":"middle"});
 
     introLines=chartParticipants.map((animal,index)=>{
       const color=chartColor(animal,index);
       const group=svgNode("g");
-      const line=svgNode("path",{fill:"none",stroke:color,"stroke-width":5,"stroke-linecap":"round"},group);
-      const dot=svgNode("circle",{r:4,fill:color},group);
-      const marker=svgNode("text",{"font-size":22,"text-anchor":"middle","dominant-baseline":"middle"},group);
+      const shadow=svgNode("ellipse",{cx:graph.left,cy:laneY(index)+8,rx:13,ry:3,fill:"#1c2020",opacity:.58},group);
+      const marker=svgNode("text",{x:graph.left,y:laneY(index),"font-size":27,"text-anchor":"middle","dominant-baseline":"central","paint-order":"stroke","stroke":"#2b2427","stroke-width":.8},group);
       marker.textContent=animal.emoji;
+      svgNode("circle",{cx:graph.left-16,cy:laneY(index),r:3.5,fill:color,stroke:"#f0e8de","stroke-width":.8},group);
       const chip=document.createElement("button");
       chip.type="button";
       chip.className="intro-chip";
@@ -618,7 +627,7 @@
         if(introAudio) soundIntro(animal);
       });
       introLegend.appendChild(chip);
-      return {animal,group,line,dot,marker,chip};
+      return {animal,group,marker,shadow,index,chip};
     });
     introStatus.textContent=`${chartParticipants.length} de 6 competidores · edita desde el ranking`;
     setIntroTime(0);
