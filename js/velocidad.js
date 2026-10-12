@@ -154,9 +154,22 @@
     sonicVoices.forEach(v=>{try{v.gain.gain.cancelScheduledValues(0);v.gain.gain.setValueAtTime(0.00001, v.context.currentTime);v.osc.stop();}catch(e){}});
     sonicVoices=[];
   }
-  function compareSound(){
-    const c=actx(); if(!c||!currentRival){soundCaptionEl.textContent="El audio no está disponible en este navegador.";return;}
+  async function compareSound(){
+    // La llamada a actx() sucede durante el clic, no tras un temporizador: iOS Safari
+    // solo permite desbloquear el audio como consecuencia de una acción del usuario.
+    const c=actx();
+    if(!c||!currentRival){soundCaptionEl.textContent="⚠️ Tu navegador no permite reproducir este audio.";return;}
     stopCompareSound();
+    try {
+      if(c.state === "suspended") await c.resume();
+      if(c.state !== "running") {
+        soundCaptionEl.textContent="⚠️ El audio está bloqueado. Revisa el volumen y vuelve a pulsar Escuchar.";
+        return;
+      }
+    } catch(error) {
+      soundCaptionEl.textContent="⚠️ No se pudo activar el audio; comprueba el volumen y los permisos de Safari.";
+      return;
+    }
     // Dos tonos con EL MISMO timbre y volumen, para no crear confusión.
     // La escala de tono usa log de rapidez; los valores y distancias siguen visibles.
     const p = v => 165*Math.pow(2,Math.log2(Math.max(v,0.3)/0.3)*0.27);
@@ -964,4 +977,8 @@
   selectedRanking=chartParticipants[0];
   rebuildIntro();
   render();
+  // Señal de arranque: si aparece el mensaje de fallo, el código no terminó de iniciar.
+  const runtimeBanner = document.getElementById("runtime-banner");
+  if (runtimeBanner) runtimeBanner.hidden = true;
+  document.documentElement.setAttribute("data-app-ready", "true");
 })();
