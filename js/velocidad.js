@@ -213,8 +213,8 @@
   const lkB=document.getElementById("lkB"), lvB=document.getElementById("lvB"), luB=document.getElementById("luB");
 
   const COPY = {
-    motion: "Correr en el lugar no te mueve del suelo, así que el sensor solo puede darte la <em>cadencia</em>. La velocidad sale de multiplicarla por la zancada que elijas aquí abajo: es una estimación, igual que la de cualquier reloj deportivo.",
-    gps:    "Primero presiona «Preparar GPS», permite la ubicación y espera la señal. Luego inicia la carrera antes de correr. Cuando termines y estés detenido, presiona «Terminar carrera». El resultado usa una estimación de rapidez media, no un pico aislado.",
+    motion: "El acelerómetro cuenta <b>impulsos del celular</b>, incluso si solo mueves la mano. La cifra en km/h es una <b>equivalencia simulada</b> con la zancada que elijas; no es tu rapidez al correr.",
+    gps:    "El GPS mide desplazamiento, no pasos. Desde Safari del celular, pulsa «Preparar GPS», concede ubicación precisa y espera la señal verde. Pulsa «Empezar carrera» antes de correr y «Terminar carrera» cuando te detengas.",
     tap:    "Esto mide la frecuencia de tu dedo, no la de tus piernas. Sirve para probar la página desde el computador, pero no es una medición de nada."
   };
   const DUR = {motion: 10, tap: 10, gps: 0};   // 0 = hasta que pares
@@ -232,9 +232,10 @@
   const gpsHint = document.getElementById("gpsHint");
   const gpsDistanceEl = document.getElementById("gpsDistance");
   const gpsAverageEl = document.getElementById("gpsAverage");
+  const gpsCountEl = document.getElementById("gpsCount");
   const gpsCancelBtn = document.getElementById("gpsCancel");
   let lastPerm = "no probado", motionEvents = 0, lastGpsErr = "no probado";
-  let strideM = 1.8;
+  let strideM = 0.9;
   let taps = 0;
 
   const say = (html, warn) => { statusEl.innerHTML = html; statusEl.classList.toggle("warn", !!warn); };
@@ -286,6 +287,11 @@
     tapBtn.textContent = stage === "idle" ? "1 · Preparar GPS" : stage === "acquiring" ? "Buscando GPS…" : stage === "ready" ? "2 · ¡Empezar carrera!" : "3 · Terminar carrera";
     tapBtn.disabled = stage === "acquiring";
     gpsDistanceEl.textContent = nf(gpsDistanceM,0) + " m";
+    gpsCountEl.textContent = stage === "running" ?
+      `${gpsSamples} intervalos válidos · Si no aumenta la distancia al correr, el GPS no está entregando velocidad fiable.` :
+      stage === "acquiring" ? "Buscando ubicación precisa. Comprueba permiso de ubicación precisa y mantén la página abierta." :
+      stage === "ready" ? "Ubicación lista. Toca «Empezar carrera» ANTES de moverte." :
+      "Aún no se ha registrado desplazamiento.";
     const elapsed = running ? (performance.now() - tStart) / 1000 : gpsFinalElapsed;
     gpsAverageEl.textContent = nf(elapsed > 0 ? gpsDistanceM / elapsed * 3.6 : 0,1) + " km/h";
   }
@@ -294,6 +300,7 @@
     gpsSpeeds=[]; gpsLastSampleAt=null; lastFix=null;
     gpsAccuracy=null; gpsFinalElapsed=0;
     gpsDistanceEl.textContent="0 m";
+    gpsCountEl.textContent="Aún no se ha registrado desplazamiento.";
     gpsAverageEl.textContent="0,0 km/h";
   }
   function clearGps(){
@@ -388,7 +395,7 @@
     tapBtn.classList.remove("live"); clearGps(); gpsUi();
     if (abort) return;
     if (samples<2 || distance<10 || elapsed<5 || coverage<0.35){
-      say("No hubo suficientes datos fiables para evaluar la carrera. Prueba un recorrido más largo, a cielo abierto y con la pantalla activa.",true);
+      say(`No pudimos calcular tu carrera con suficiente confianza: ${samples} intervalos GPS válidos, ${nf(distance,0)} m estimados y ${nf(coverage*100,0)}% del tiempo cubierto. Comprueba la ubicación precisa, usa Safari directamente y prueba 100–200 m al aire libre con la pantalla activa.`,true);
       return;
     }
     const detalle=`Recorriste aproximadamente ${nf(distance,0)} m en ${fmtTime(elapsed)}. Rapidez máxima observada (filtrada): ${nf(max,1)} km/h. ${coverage<0.7 ? "La señal fue intermitente; la medición puede subestimar tu rapidez." : ""}`;
@@ -403,12 +410,12 @@
     mode = m;
     [...document.getElementById("modes").children].forEach(b => b.setAttribute("aria-pressed", String(b.dataset.mode === m)));
     strideWrap.hidden = (m === "gps");
-    lkA.textContent = m === "gps" ? "Máxima" : "Cadencia";
-    luA.textContent = m === "gps" ? "km/h" : (m === "tap" ? "toques/s" : "pasos/s");
-    lkB.textContent = m === "gps" ? "Ahora" : "Equivale a";
+    lkA.textContent = m === "gps" ? "Máxima" : (m === "motion" ? "Impulsos/s" : "Toques/s");
+    luA.textContent = m === "gps" ? "km/h" : (m === "tap" ? "toques/s" : "movimientos/s");
+    lkB.textContent = m === "gps" ? "Ahora" : "Simulación";
     tapBtn.disabled = false;
     tapBtn.textContent = "Medir";
-    tapCount.textContent = m === "gps" ? "0,0 km/h máx." : "— pasos";
+    tapCount.textContent = m === "gps" ? "0,0 km/h máx." : (m === "motion" ? "— impulsos" : "— toques");
     tapTime.textContent = DUR[m] ? nf(DUR[m],1) + " s" : "0,0 s";
     lvA.textContent = "0,0"; lvB.textContent = "0,0";
     say(COPY[m]);
@@ -426,7 +433,7 @@
       motionWatch = setTimeout(() => {
         if (!gotMotion){ say("<b>El visor bloquea el sensor.</b> El permiso pasó pero no llega ni un dato: el marco donde vive esta página filtra el acelerómetro. En tu propio sitio (GitHub Pages) funciona. Mientras tanto: modo teclado.", true); stop(true); }
       }, 2000);
-      say("Midiendo. Corre en el lugar levantando bien las rodillas, con el celular firme en la mano.");
+      say("Demo activa. Se detectan sacudidas del celular: mover la mano también cuenta. Esto no mide tu velocidad real.");
     } else {
       say("Midiendo. Aprieta espacio o el botón lo más rápido que puedas.");
     }
@@ -449,7 +456,7 @@
     const rate = el > 0.3 ? n / el : 0;
     lvA.textContent = nf(rate, 1);
     lvB.textContent = nf(rate * strideM * 3.6, 1);
-    tapCount.textContent = n + (mode === "tap" ? " toques" : " pasos");
+    tapCount.textContent = n + (mode === "tap" ? " toques" : " impulsos detectados");
     tapTime.textContent = nf(Math.max(DUR[mode] - el, 0), 1) + " s";
     if (el >= DUR[mode]) stop(false);
   }
@@ -472,7 +479,7 @@
       const n = mode === "tap" ? taps : steps;
       const rate = n / Math.max(el, 0.1);
       kmh = Math.round(rate * strideM * 3.6 * 10) / 10;
-      detalle = `${n} ${mode === "tap" ? "toques" : "pasos"} en ${nf(el,1)} s (${nf(rate,1)}/s) × ${nf(strideM,2)} m de zancada.`;
+      detalle = `${n} ${mode === "tap" ? "toques" : "impulsos detectados"} en ${nf(el,1)} s (${nf(rate,1)}/s) × ${nf(strideM,2)} m de zancada supuesta.`;
     }
     verdict(kmh, detalle);
     say(COPY[mode]);
@@ -484,7 +491,7 @@
     const animals = DATA.filter(d => d.clase !== "humano");
     const beaten = animals.filter(d => d.kmh < kmh);
     const next = [...animals].reverse().find(d => d.kmh > kmh);
-    const qualifier = mode === "gps" ? "Rapidez media estimada por GPS, comparada con velocidades máximas aproximadas de animales." : mode === "motion" ? "Equivalencia estimada a partir del movimiento." : "Equivalencia simulada desde el teclado; no es tu velocidad al correr.";
+    const qualifier = mode === "gps" ? "Rapidez media estimada por GPS, comparada con velocidades máximas aproximadas de animales." : mode === "motion" ? "DEMOSTRACIÓN: impulsos del celular, no pasos comprobados ni rapidez real al correr." : "DEMOSTRACIÓN: simulación desde el teclado, no tu rapidez real al correr.";
     beatMsg.innerHTML = `${detalle} <b>${beaten.length} de ${animals.length}</b> animales quedarían por debajo de tu resultado. ${qualifier}`;
     const rival = document.getElementById("result-rival");
     rival.hidden = false;
