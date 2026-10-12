@@ -214,15 +214,25 @@
 
   const COPY = {
     motion: "Correr en el lugar no te mueve del suelo, así que el sensor solo puede darte la <em>cadencia</em>. La velocidad sale de multiplicarla por la zancada que elijas aquí abajo: es una estimación, igual que la de cualquier reloj deportivo.",
-    gps:    "El GPS entrega la velocidad medida por el aparato, sin suposiciones. Necesita cielo abierto y unos segundos para fijar la señal; adentro de una casa no sirve. Nos quedamos con tu máxima.",
+    gps:    "Primero presiona «Preparar GPS», permite la ubicación y espera la señal. Luego inicia la carrera antes de correr. Cuando termines y estés detenido, presiona «Terminar carrera». El resultado usa una estimación de rapidez media, no un pico aislado.",
     tap:    "Esto mide la frecuencia de tu dedo, no la de tus piernas. Sirve para probar la página desde el computador, pero no es una medición de nada."
   };
   const DUR = {motion: 10, tap: 10, gps: 0};   // 0 = hasta que pares
 
-  let mode = "motion";
+  let mode = "gps";
   let running = false, tStart = 0, tick = null;
   let steps = 0, lastStep = 0, gravEMA = null, above = false, gotMotion = false, motionWatch = null;
   let gpsId = null, gpsMax = 0, gpsNow = 0, lastFix = null;
+  let gpsStage = "idle", gpsAccuracy = null, gpsDistanceM = 0, gpsObservedTime = 0;
+  let gpsLastSampleAt = null, gpsSamples = 0, gpsSpeeds = [], gpsSession = 0, gpsFinalElapsed = 0;
+  const GPS_MAX_ACCURACY = 40; // precisión horizontal aproximada, en metros
+  const gpsPanel = document.getElementById("gpsPanel");
+  const gpsSignal = document.getElementById("gpsSignal");
+  const gpsLight = document.getElementById("gpsLight");
+  const gpsHint = document.getElementById("gpsHint");
+  const gpsDistanceEl = document.getElementById("gpsDistance");
+  const gpsAverageEl = document.getElementById("gpsAverage");
+  const gpsCancelBtn = document.getElementById("gpsCancel");
   let lastPerm = "no probado", motionEvents = 0, lastGpsErr = "no probado";
   let strideM = 1.8;
   let taps = 0;
@@ -254,7 +264,7 @@
     return "ok";
   }
 
-  /* --- GPS --- */
+  /* --- GPS para carrera real --- */
   const R = 6371000;
   function haversine(a, b){
     const dLat=(b.lat-a.lat)*Math.PI/180, dLon=(b.lon-a.lon)*Math.PI/180;
@@ -262,49 +272,147 @@
     const h=Math.sin(dLat/2)**2 + Math.cos(la1)*Math.cos(la2)*Math.sin(dLon/2)**2;
     return 2*R*Math.asin(Math.sqrt(h));
   }
-  function startGps(){
-    if (!navigator.geolocation){ say("Este navegador no entrega GPS. Prueba con movimiento o teclado.", true); return false; }
-    say("Buscando señal… sal a un lugar despejado y empieza a moverte.");
-    gpsMax = 0; gpsNow = 0; lastFix = null;
-    gpsId = navigator.geolocation.watchPosition(pos => {
-      const c = pos.coords;
-      let v = (typeof c.speed === "number" && !isNaN(c.speed)) ? c.speed : null;  // m/s
-      const fix = {lat:c.latitude, lon:c.longitude, t:pos.timestamp};
+  function gpsUi(){
+    const stage = gpsStage;
+    gpsPanel.hidden = mode !== "gps";
+    gpsCancelBtn.hidden = !(stage === "acquiring" || stage === "ready");
+    gpsLight.className = "gps-light " + (stage === "running" ? "tracking" : stage === "ready" ? "ready" : stage === "acquiring" ? "searching" : "");
+    gpsSignal.textContent = stage === "idle" ? "GPS sin iniciar" : stage === "acquiring" ? "Buscando una señal estable…" : stage === "ready" ? "Señal lista para correr" : "Registrando tu carrera";
+    if (mode !== "gps") return;
+    if (stage === "idle") gpsHint.textContent = "Sal a un espacio abierto y seguro. Prepara el GPS con el celular quieto.";
+    else if (stage === "acquiring") gpsHint.textContent = gpsAccuracy === null ? "Permite el acceso a tu ubicación y espera unos segundos." : `Precisión aproximada: ±${nf(gpsAccuracy,0)} m. Espera una señal de ±${GPS_MAX_ACCURACY} m o mejor.`;
+    else if (stage === "ready") gpsHint.textContent = `Precisión aproximada: ±${nf(gpsAccuracy,0)} m. Pulsa iniciar ANTES de correr y deja el celular guardado.`;
+    else gpsHint.textContent = `GPS activo${gpsAccuracy === null ? "" : ` · precisión ±${nf(gpsAccuracy,0)} m`}. Corre con cuidado; al terminar, detente antes de tocar la pantalla.`;
+    tapBtn.textContent = stage === "idle" ? "1 · Preparar GPS" : stage === "acquiring" ? "Buscando GPS…" : stage === "ready" ? "2 · ¡Empezar carrera!" : "3 · Terminar carrera";
+    tapBtn.disabled = stage === "acquiring";
+    gpsDistanceEl.textContent = nf(gpsDistanceM,0) + " m";
+    const elapsed = running ? (performance.now() - tStart) / 1000 : gpsFinalElapsed;
+    gpsAverageEl.textContent = nf(elapsed > 0 ? gpsDistanceM / elapsed * 3.6 : 0,1) + " km/h";
+  }
+  function resetGpsTracking(){
+    gpsMax=0; gpsNow=0; gpsDistanceM=0; gpsObservedTime=0; gpsSamples=0;
+    gpsSpeeds=[]; gpsLastSampleAt=null; lastFix=null;
+    gpsAccuracy=null; gpsFinalElapsed=0;
+    gpsDistanceEl.textContent="0 m";
+    gpsAverageEl.textContent="0,0 km/h";
+  }
+  function clearGps(){
+    ++gpsSession; // ignora callbacks tardíos de una sesión anterior
+    if (gpsId !== null){navigator.geolocation.clearWatch(gpsId);gpsId=null;}
+    gpsStage="idle";
+  }
+  function prepareGps(){
+    if (!navigator.geolocation || !window.isSecureContext){
+      say("El GPS del navegador requiere un celular, permiso de ubicación y un sitio HTTPS (como GitHub Pages).",true);
+      return;
+    }
+    resetGpsTracking();
+    gpsStage="acquiring"; gpsUi();
+    say("Permite el acceso a la ubicación y espera una señal GPS estable. Todavía no corras.");
+    const session=++gpsSession;
+    gpsId = navigator.geolocation.watchPosition(pos=>{
+      if (session !== gpsSession || mode !== "gps") return;
+      const c=pos.coords;
+      const accuracy=Number(c.accuracy);
+      gpsAccuracy=Number.isFinite(accuracy)?accuracy:null;
+      const good = gpsAccuracy !== null && gpsAccuracy <= GPS_MAX_ACCURACY;
+      const fix={lat:c.latitude,lon:c.longitude,t:pos.timestamp,accuracy:gpsAccuracy};
+      if (gpsStage === "acquiring"){
+        if (good){gpsStage="ready"; lastFix=fix; say("¡Señal lista! Inicia la carrera antes de empezar a correr.");}
+        gpsUi(); return;
+      }
+      if (gpsStage === "ready"){
+        if (!good){gpsStage="acquiring"; say("La señal se debilitó. Espera a que se estabilice.",true);}
+        else lastFix=fix;
+        gpsUi(); return;
+      }
+      if (gpsStage !== "running") return;
+      // La incerteza horizontal puede superar el avance entre puntos.
+      // No convertimos saltos de ubicación ni lecturas poco precisas en récords.
+      if (!good){lastFix=null; gpsLastSampleAt=null; gpsNow=0; gpsUi(); return;}
+      let v=Number.isFinite(c.speed) && c.speed >= 0 ? c.speed : null;
       if (v === null && lastFix){
-        const dt = (fix.t - lastFix.t) / 1000;
-        if (dt > 0.3) v = haversine(lastFix, fix) / dt;
+        const dt=(fix.t-lastFix.t)/1000;
+        if (dt>=1 && dt<=6){
+          const delta=haversine(lastFix,fix);
+          if (delta >= Math.max(3,(fix.accuracy+lastFix.accuracy)*0.3)) v=delta/dt;
+          else if (delta < 3) v=0;
+        }
       }
-      lastFix = fix;
-      if (v !== null && isFinite(v) && v >= 0){
-        gpsNow = v * 3.6;
-        if (gpsNow > gpsMax) gpsMax = gpsNow;
-        say(`Señal fija, precisión ±${nf(c.accuracy || 0, 0)} m. Aprieta “Listo” cuando termines.`);
+      lastFix=fix;
+      if (v === null || !Number.isFinite(v) || v < 0 || v > 16){gpsUi();return;}
+      gpsSpeeds.push(v);
+      if (gpsSpeeds.length>3) gpsSpeeds.shift();
+      const sorted=[...gpsSpeeds].sort((a,b)=>a-b);
+      const smooth=sorted[Math.floor(sorted.length/2)]; // reduce picos aislados
+      gpsNow=smooth*3.6;
+      gpsMax=Math.max(gpsNow,gpsMax);
+      if (gpsLastSampleAt !== null){
+        const dt=(fix.t-gpsLastSampleAt)/1000;
+        if (dt>0 && dt<=6){
+          gpsObservedTime+=dt;
+          gpsDistanceM+=smooth*dt;
+          gpsSamples++;
+        }
       }
-    }, err => {
-      lastGpsErr = {1:"permiso denegado",2:"sin señal",3:"tiempo agotado"}[err.code] || ("código " + err.code);
-      const m = {1:"<b>El visor bloquea la ubicación.</b> El marco donde corre esta página no tiene permiso de GPS, así que el navegador rechaza la petición sin preguntarte. Sube <code>index.html</code> a GitHub Pages y ahí funciona.",
-                 2:"No hay señal de GPS. Tiene que ser al aire libre.",
-                 3:"El GPS tardó demasiado. Intenta de nuevo al aire libre."};
-      say((m[err.code] || "El GPS falló.") + " Mientras tanto: modo teclado.", true);
-      stop(true);
-    }, {enableHighAccuracy:true, maximumAge:0, timeout:12000});
-    return true;
+      gpsLastSampleAt=fix.t;
+      gpsUi();
+    }, err=>{
+      if (session!==gpsSession) return;
+      lastGpsErr={1:"permiso denegado",2:"sin señal",3:"tiempo agotado"}[err.code]||("código "+err.code);
+      if (err.code === 3 && gpsStage === "acquiring"){
+        say("El GPS tarda en ubicarse. Prueba a cielo abierto; todavía estamos buscando señal.",true); return;
+      }
+      const wasRunning=gpsStage === "running";
+      const msg = err.code===1 ? "Ubicación denegada. Permítela en los ajustes de tu navegador y vuelve a intentar." :
+        "No es posible obtener una ubicación fiable. Prueba al aire libre con buena señal.";
+      if (wasRunning) finishGps(true);
+      else {clearGps();gpsUi();}
+      say(msg,true);
+    },{enableHighAccuracy:true,maximumAge:0,timeout:20000});
+  }
+  function beginGpsRun(){
+    resetGpsTracking();
+    gpsStage="running";
+    running=true; tStart=performance.now();
+    tapBtn.classList.add("live");
+    say("¡Carrera iniciada! Guarda el celular. Cuando termines, detente en un lugar seguro antes de pulsar «Terminar carrera».");
+    tick=setInterval(update,200);
+    gpsUi();
+  }
+  function finishGps(abort=false){
+    const elapsed=running?(performance.now()-tStart)/1000:0;
+    const kmh=elapsed>0?gpsDistanceM/elapsed*3.6:0;
+    const distance=gpsDistanceM, samples=gpsSamples, max=gpsMax, coverage=elapsed>0?gpsObservedTime/elapsed:0;
+    running=false; gpsFinalElapsed=elapsed; clearInterval(tick);tick=null;
+    tapBtn.classList.remove("live"); clearGps(); gpsUi();
+    if (abort) return;
+    if (samples<2 || distance<10 || elapsed<5 || coverage<0.35){
+      say("No hubo suficientes datos fiables para evaluar la carrera. Prueba un recorrido más largo, a cielo abierto y con la pantalla activa.",true);
+      return;
+    }
+    const detalle=`Recorriste aproximadamente ${nf(distance,0)} m en ${fmtTime(elapsed)}. Rapidez máxima observada (filtrada): ${nf(max,1)} km/h. ${coverage<0.7 ? "La señal fue intermitente; la medición puede subestimar tu rapidez." : ""}`;
+    verdict(Math.round(kmh*10)/10, detalle);
+    say("¡Carrera terminada! Tu rapidez es una estimación GPS. Mira a qué animales podrías superar.");
   }
 
   /* --- ciclo de medición --- */
   function setMode(m){
-    if (running) stop(true);
+    if (mode === "gps" && gpsStage !== "idle") finishGps(true);
+    else if (running) stop(true);
     mode = m;
     [...document.getElementById("modes").children].forEach(b => b.setAttribute("aria-pressed", String(b.dataset.mode === m)));
     strideWrap.hidden = (m === "gps");
     lkA.textContent = m === "gps" ? "Máxima" : "Cadencia";
     luA.textContent = m === "gps" ? "km/h" : (m === "tap" ? "toques/s" : "pasos/s");
     lkB.textContent = m === "gps" ? "Ahora" : "Equivale a";
+    tapBtn.disabled = false;
     tapBtn.textContent = "Medir";
     tapCount.textContent = m === "gps" ? "0,0 km/h máx." : "— pasos";
-    tapTime.textContent = DUR[m] ? nf(DUR[m],1) + " s" : "libre";
+    tapTime.textContent = DUR[m] ? nf(DUR[m],1) + " s" : "0,0 s";
     lvA.textContent = "0,0"; lvB.textContent = "0,0";
     say(COPY[m]);
+    gpsUi();
   }
 
   async function start(){
@@ -319,9 +427,6 @@
         if (!gotMotion){ say("<b>El visor bloquea el sensor.</b> El permiso pasó pero no llega ni un dato: el marco donde vive esta página filtra el acelerómetro. En tu propio sitio (GitHub Pages) funciona. Mientras tanto: modo teclado.", true); stop(true); }
       }, 2000);
       say("Midiendo. Corre en el lugar levantando bien las rodillas, con el celular firme en la mano.");
-    } else if (mode === "gps"){
-      if (!startGps()) return;
-      tapBtn.textContent = "Listo";
     } else {
       say("Midiendo. Aprieta espacio o el botón lo más rápido que puedas.");
     }
@@ -337,6 +442,7 @@
       lvA.textContent = nf(gpsMax, 1); lvB.textContent = nf(gpsNow, 1);
       tapCount.textContent = nf(gpsMax,1) + " km/h máx.";
       tapTime.textContent = fmtTime(el);
+      gpsUi();
       return;
     }
     const n = mode === "tap" ? taps : steps;
@@ -354,7 +460,6 @@
     clearInterval(tick); tick = null;
     clearTimeout(motionWatch);
     window.removeEventListener("devicemotion", onMotion);
-    if (gpsId !== null){ navigator.geolocation.clearWatch(gpsId); gpsId = null; }
     tapBtn.classList.remove("live");
     tapBtn.textContent = abort ? "Medir" : "Otra vez";
     if (abort) return;
@@ -362,8 +467,7 @@
     const el = (performance.now() - tStart) / 1000;
     let kmh, detalle;
     if (mode === "gps"){
-      kmh = Math.round(gpsMax * 10) / 10;
-      detalle = `Tu máxima medida por GPS en ${fmtTime(el)}.`;
+      finishGps(abort); return;
     } else {
       const n = mode === "tap" ? taps : steps;
       const rate = n / Math.max(el, 0.1);
@@ -377,10 +481,11 @@
   function verdict(kmh, detalle){
     const simulated = mode !== "gps";
     mySpeedEl.textContent = fmtSpeed(kmh) + " km/h";
-    const beaten = DATA.filter(d => d.kmh < kmh);
-    const next = [...DATA].reverse().find(d => d.kmh > kmh);
-    const qualifier = mode === "gps" ? "Velocidad estimada por GPS." : mode === "motion" ? "Equivalencia estimada a partir del movimiento." : "Equivalencia simulada desde el teclado; no es tu velocidad al correr.";
-    beatMsg.innerHTML = `${detalle} <b>${beaten.length} de ${DATA.length}</b> competidores quedarían por debajo de tu resultado. ${qualifier}`;
+    const animals = DATA.filter(d => d.clase !== "humano");
+    const beaten = animals.filter(d => d.kmh < kmh);
+    const next = [...animals].reverse().find(d => d.kmh > kmh);
+    const qualifier = mode === "gps" ? "Rapidez media estimada por GPS, comparada con velocidades máximas aproximadas de animales." : mode === "motion" ? "Equivalencia estimada a partir del movimiento." : "Equivalencia simulada desde el teclado; no es tu velocidad al correr.";
+    beatMsg.innerHTML = `${detalle} <b>${beaten.length} de ${animals.length}</b> animales quedarían por debajo de tu resultado. ${qualifier}`;
     const rival = document.getElementById("result-rival");
     rival.hidden = false;
     if (next) {
@@ -397,7 +502,9 @@
     else me.kmh = kmh;
     me.tipo = simulated ? "simulada" : "gps";
     selectedRanking = me;
-    if (chartParticipants.includes(me)) rebuildIntro();
+    // Coloca al usuario en la pista automáticamente, con hasta seis participantes.
+    chartParticipants=[me,...chartParticipants.filter(d=>d!==me)].slice(0,6);
+    rebuildIntro();
     render();
   }
 
@@ -451,9 +558,16 @@
     strideM = +e.target.value; strideVal.textContent = nf(strideM, 2);
   });
   tapBtn.addEventListener("click", () => {
-    if (mode === "tap"){ if (!running) start(); return; }   // los toques los cuenta pointerdown
+    if (mode === "gps"){
+      if (gpsStage === "idle") prepareGps();
+      else if (gpsStage === "ready") beginGpsRun();
+      else if (gpsStage === "running") finishGps(false);
+      return;
+    }
+    if (mode === "tap"){ if (!running) start(); return; } // toques por pointerdown
     running ? stop(false) : start();
   });
+  gpsCancelBtn.addEventListener("click",()=>{finishGps(true);say("Preparación cancelada. Puedes volver a intentarlo cuando quieras.");});
   tapBtn.addEventListener("pointerdown", e => { if (running && mode === "tap"){ e.preventDefault(); taps++; blip(320 + Math.random()*60, null, 0.04, 0.09); } });
   document.addEventListener("keydown", e => {
     if (e.code !== "Space" || mode !== "tap") return;
@@ -462,7 +576,7 @@
     e.preventDefault();
     if (!running) start(); else { taps++; blip(320 + Math.random()*60, null, 0.04, 0.09); }
   });
-  setMode("motion");
+  setMode("gps");
 
   fillTable(); render();
   window.addEventListener("resize", () => drawAxis());
