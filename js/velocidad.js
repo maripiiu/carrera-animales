@@ -586,7 +586,7 @@
     for(let i=0;i<=divisions;i++){
       const metres=Number((i*step).toPrecision(10));
       const y=distanceY(metres);
-      //svgNode("line",{x1:graph.left,y1:y,x2:graph.right,y2:y,stroke:"#30353e","stroke-dasharray":"3 6"});
+      // svgNode("line",{x1:graph.left,y1:y,x2:graph.right,y2:y,stroke:"#30353e","stroke-dasharray":"3 6"});
       svgLabel(graph.left-11,y+4,metresLabel(metres),{"text-anchor":"end"});
     }
     for(let t=0;t<=8;t+=2){
