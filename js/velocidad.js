@@ -602,7 +602,7 @@
     introLines=chartParticipants.map((animal,index)=>{
       const color=chartColor(animal,index);
       const group=svgNode("g");
-      const line=svgNode("path",{fill:"none",stroke:color,"stroke-width":2.6,"stroke-linecap":"round"},group);
+      const line=svgNode("path",{fill:"none",stroke:color,"stroke-width":5,"stroke-linecap":"round"},group);
       const dot=svgNode("circle",{r:4,fill:color},group);
       const marker=svgNode("text",{"font-size":22,"text-anchor":"middle","dominant-baseline":"middle"},group);
       marker.textContent=animal.emoji;
