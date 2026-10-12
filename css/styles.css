@@ -210,8 +210,6 @@
 
 /* ---------- Carrera real con GPS ---------- */
 .race-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:18px}
-.race-steps span{background:var(--surface);border:1px solid var(--line-soft);padding:10px;border-radius:4px;font-size:12px;color:var(--ink-2)}
-.race-steps b{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;margin-right:5px;background:var(--tu);color:#190b10}
 .gps-panel{border:1px solid var(--line-soft);border-radius:5px;background:var(--surface-2);padding:12px;margin-bottom:12px;text-align:left}
 .gps-tag{display:flex;gap:9px;align-items:center;margin:0;font-size:13px}
 .gps-light{display:inline-block;flex:none;width:10px;height:10px;border-radius:50%;background:var(--ink-3)}
@@ -227,3 +225,78 @@
 .race-disclaimer{background:var(--surface);border-left:3px solid var(--tu);border-radius:3px;padding:12px 15px;margin-top:18px;font-size:12.5px;color:var(--ink-2);line-height:1.55}
 .race-disclaimer strong{color:var(--ink)}
 @media(max-width:560px){.race-steps{grid-template-columns:1fr}.gps-metrics strong{font-size:14px}}
+
+
+/* V2: recorrido visual, visible también en escritorio */
+.race-steps{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:16px;
+  margin:0 0 24px;
+}
+.race-step{
+  position:relative;
+  min-width:0;
+  min-height:92px;
+  padding:16px 14px;
+  display:flex;
+  align-items:center;
+  gap:13px;
+  background:linear-gradient(120deg,#27212b 0%,#1b1e26 100%);
+  border:1px solid #4a3240;
+  border-radius:10px;
+}
+.race-step:not(:last-child)::after{
+  content:"";
+  position:absolute;
+  width:16px;
+  left:100%;
+  top:50%;
+  border-top:2px dashed var(--tu);
+  opacity:.8;
+}
+.race-step-n{
+  display:grid;
+  flex:0 0 38px;
+  width:38px;height:38px;
+  place-items:center;
+  background:var(--tu);
+  color:#170a0f;
+  border-radius:50%;
+  font:700 17px "Space Mono",monospace;
+  box-shadow:0 0 0 5px rgba(232,93,117,.1);
+}
+.race-step strong{display:block;font-size:14px;line-height:1.3;color:var(--ink)}
+.race-step small{display:block;margin-top:5px;color:var(--ink-2);font-size:12px;line-height:1.4}
+.mode{min-height:106px;align-content:center;border-radius:7px;gap:5px 10px}
+.mode .md{line-height:1.45}
+.gps-count{margin:10px 0 0;font-size:11px;color:var(--ink-3);line-height:1.5}
+.mode-explainer{margin-top:18px;border-radius:6px;border-color:#47313b;background:var(--surface)}
+.mode-explainer summary{color:var(--ink);padding:13px 15px}
+.mode-explainer-body{padding:0 16px 14px;font-size:13px;color:var(--ink-2)}
+.mode-explainer-body p{margin:10px 0;line-height:1.6}
+.mode-explainer-body b{color:var(--ink)}
+@media(min-width:820px){
+  .duel{grid-template-columns:minmax(0,330px) minmax(0,1fr);gap:18px}
+  .tapbox,.verdict{padding:20px}
+}
+@media(min-width:680px) and (max-width:819px){
+  .duel{grid-template-columns:1fr}
+}
+@media(max-width:679px){
+  .race-steps{grid-template-columns:1fr;gap:9px}
+  .race-step{min-height:66px;padding:10px 14px}
+  .race-step:not(:last-child)::after{left:31px;top:100%;height:9px;width:0;border-top:0;border-left:2px dashed var(--tu)}
+  .race-step-n{width:33px;height:33px;flex-basis:33px;font-size:14px}
+  .modes{grid-template-columns:1fr}
+  .mode{min-height:92px}
+}
+@media(min-width:680px) and (max-width:950px){
+  .modes{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .mode{padding:12px 11px;gap:4px 8px}
+  .mode .md{font-size:11.5px}
+}
+@media(max-width:400px){
+  .wrap{padding-inline:14px}
+  .mode{min-height:88px}
+}
