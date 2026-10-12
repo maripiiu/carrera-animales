@@ -178,26 +178,8 @@
 .intro-section .sec-head{align-items:baseline}
 .intro-time{margin-left:auto;font-size:21px;font-weight:700;color:var(--ink);white-space:nowrap}
 .intro-viz{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:15px}
-.intro-chart-shell {
-  background-color: #ba4a30; 
-  /* Ajustamos la distancia de las líneas blancas a 68px para crear 6 carriles exactos */
-  background-image: repeating-linear-gradient(
-    to bottom,
-    transparent,
-    transparent 68px,
-    rgba(255, 255, 255, 0.5) 68px,
-    rgba(255, 255, 255, 0.5) 70px 
-  );
-  border: 1px solid var(--line-soft);
-  border-radius: 3px;
-  overflow-x: auto;
-}
-#intro-svg {
-  display: block;
-  width: 100%;
-  min-width: 540px;
-  height: 410px; /* Alto fijo para que coincida con los carriles */
-}
+.intro-chart-shell{background:var(--track);border:1px solid var(--line-soft);border-radius:3px;overflow-x:auto}
+#intro-svg{display:block;width:100%;min-width:540px;height:auto}
 .intro-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 .intro-chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;border:1px solid var(--line);border-radius:3px;background:var(--surface-2);color:var(--ink-2);padding:7px 9px}
 .intro-chip[data-active="true"]{border-color:var(--intro-color);color:var(--ink);background:#292e37}
@@ -225,3 +207,4 @@
 .row.on .nm{color:var(--ink)}
 .row.on .vl{color:var(--ink)}
 @media(max-width:560px){.intro-explain>.intro-key{grid-template-columns:1fr}.intro-selected{font-size:12px}.intro-actions .intro-status{width:100%}}
+
