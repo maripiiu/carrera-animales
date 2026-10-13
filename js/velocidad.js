@@ -50,6 +50,7 @@
    .sort((a,b) => b.kmh - a.kmh);
 
   const V_MIN = 0.048, V_MAX = 389;
+  const TAP_STEP_METRES = 1.20;
   const COLOR = {tierra:"#e6af70", aire:"#9b7bf0", agua:"#1f97a6", tu:"#ff6d92"};
 
   // pasos por segundo estimados
@@ -81,15 +82,12 @@
   const rivalContextEl = document.getElementById("rival-context");
   const distanceRowsEl = document.getElementById("distance-rows");
   const distanceAxisEl = document.getElementById("distance-axis");
-  const soundCaptionEl = document.getElementById("sound-caption");
   const discoveryAnimals = DATA.filter(d => d.medio === "tierra" && d.clase !== "humano");
   let currentExplore = 12;
   let currentRival = null;
   let sourceOfSpeed = "example";
-  let sonicVoices = [];
-  let compareAudioTimer = null;
   const distInTen = speed => speed * 10 / 3.6;
-  const nearestNext = speed => [...discoveryAnimals].filter(d => d.kmh > speed).sort((a,b) => a.kmh - b.kmh)[0] || null;
+  const nearestNext = speed => [...discoveryAnimals].sort((a,b) => Math.abs(a.kmh-speed)-Math.abs(b.kmh-speed))[0] || null;
   function updateDiscovery(value, source="example"){
     currentExplore = Math.max(0, Math.min(389, Number(value)||0));
     sourceOfSpeed = source;
@@ -103,26 +101,16 @@
       // El control permite 1–35 km/h. La medición real no se recorta en los indicadores.
       exploreSlider.value = String(Math.max(1,Math.min(35,currentExplore)));
     }
-    document.querySelectorAll("#speed-presets button").forEach(b=>{
-      b.setAttribute("aria-pressed",String(source==="example"&&Number(b.dataset.speed)===currentExplore));
-    });
-    if (currentRival){
-      const delta = currentRival.kmh - currentExplore;
-      rivalEmojiEl.textContent = currentRival.emoji;
-      rivalNameEl.textContent = currentRival.nombre;
-      if(delta>0){
-        rivalClaimEl.textContent = `Tu siguiente rival terrestre: ${fmtSpeed(currentRival.kmh)} km/h. Te faltan ${fmtSpeed(delta)} km/h para igualarlo.`;
-        rivalGapEl.textContent = nf(distInTen(delta),1)+" m";
-        gapDescEl.textContent = "de ventaja hipotética para ese animal tras 10 segundos";
-      }else{
-        rivalClaimEl.textContent = "¡Superarías las referencias terrestres más rápidas del conjunto!";
-        rivalGapEl.textContent = nf(distInTen(Math.abs(delta)),1)+" m";
-        gapDescEl.textContent = "de ventaja hipotética para ti tras 10 segundos";
-      }
-      rivalContextEl.textContent = `En un escenario matemático a velocidad constante: tú ${fmtSpeed(currentExplore)} km/h y ${currentRival.nombre.toLowerCase()} ${fmtSpeed(currentRival.kmh)} km/h.`;
+    if(currentRival){
+      const delta=currentExplore-currentRival.kmh;
+      rivalEmojiEl.textContent=currentRival.emoji;
+      rivalNameEl.textContent=currentRival.nombre;
+      rivalClaimEl.textContent=`${fmtSpeed(currentExplore)} km/h está cerca de la rapidez de ${currentRival.nombre.toLowerCase()} (${fmtSpeed(currentRival.kmh)} km/h).`;
+      rivalGapEl.textContent=fmtSpeed(Math.abs(delta))+' km/h';
+      gapDescEl.textContent=Math.abs(delta)<.001?'¡Misma rapidez de referencia!':delta>0?'más rápido que ese animal':'más lento que ese animal';
+      rivalContextEl.textContent='Compara tu resultado con otros animales después de medir tu rapidez.';
     }
     renderDistanceComparison();
-    soundCaptionEl.textContent = "Pulsa para escuchar dos tonos consecutivos: tú y después el animal. Grave = más lento; agudo = más rápido.";
   }
   function renderDistanceComparison(){
     // Vecinos más cercanos, separados por velocidad, dan una historia legible.
@@ -149,52 +137,7 @@
     });
     distanceRowsEl.setAttribute("aria-label",series.map(d=>d.nombre+": "+nf(distInTen(d.kmh),1)+" metros hipotéticos en diez segundos").join("; "));
   }
-  function stopCompareSound(){
-    if(compareAudioTimer!==null){clearTimeout(compareAudioTimer); compareAudioTimer=null;}
-    sonicVoices.forEach(v=>{try{v.gain.gain.cancelScheduledValues(0);v.gain.gain.setValueAtTime(0.00001, v.context.currentTime);v.osc.stop();}catch(e){}});
-    sonicVoices=[];
-  }
-  async function compareSound(){
-    // La llamada a actx() sucede durante el clic, no tras un temporizador: iOS Safari
-    // solo permite desbloquear el audio como consecuencia de una acción del usuario.
-    const c=actx();
-    if(!c||!currentRival){soundCaptionEl.textContent="⚠️ Tu navegador no permite reproducir este audio.";return;}
-    stopCompareSound();
-    try {
-      if(c.state === "suspended") await c.resume();
-      if(c.state !== "running") {
-        soundCaptionEl.textContent="⚠️ El audio está bloqueado. Revisa el volumen y vuelve a pulsar Escuchar.";
-        return;
-      }
-    } catch(error) {
-      soundCaptionEl.textContent="⚠️ No se pudo activar el audio; comprueba el volumen y los permisos de Safari.";
-      return;
-    }
-    // Dos tonos con EL MISMO timbre y volumen, para no crear confusión.
-    // La escala de tono usa log de rapidez; los valores y distancias siguen visibles.
-    const p = v => 165*Math.pow(2,Math.log2(Math.max(v,0.3)/0.3)*0.27);
-    const time=c.currentTime+.06;
-    [{v:currentExplore,t:0},{v:currentRival.kmh,t:.68}].forEach(item=>{
-      const osc=c.createOscillator(),gain=c.createGain();
-      osc.type="sine";osc.frequency.setValueAtTime(Math.min(p(item.v),1100),time+item.t);
-      gain.gain.setValueAtTime(.0001,time+item.t);
-      gain.gain.linearRampToValueAtTime(.075,time+item.t+.045);
-      gain.gain.setValueAtTime(.075,time+item.t+.36);
-      gain.gain.linearRampToValueAtTime(.0001,time+item.t+.48);
-      osc.connect(gain);gain.connect(c.destination);
-      osc.start(time+item.t);osc.stop(time+item.t+.51);
-      sonicVoices.push({osc,gain,context:c});
-    });
-    const direction = currentExplore < currentRival.kmh ? "más agudo" : currentExplore > currentRival.kmh ? "más grave" : "del mismo tono";
-    soundCaptionEl.textContent = `Primero tú (${fmtSpeed(currentExplore)} km/h), después ${currentRival.nombre} (${fmtSpeed(currentRival.kmh)} km/h): el segundo tono es ${direction}.`;
-    compareAudioTimer=setTimeout(()=>{sonicVoices=[];compareAudioTimer=null;},1550);
-  }
-  exploreSlider.addEventListener("input",e=>{stopCompareSound();updateDiscovery(e.target.value,"example");});
-  document.getElementById("speed-presets").addEventListener("click",e=>{
-    const b=e.target.closest("button[data-speed]");if(!b)return;
-    stopCompareSound();updateDiscovery(Number(b.dataset.speed),"example");
-  });
-  document.getElementById("compare-sound").addEventListener("click",compareSound);
+  exploreSlider.addEventListener("input",e=>{updateDiscovery(e.target.value,"example");});
   updateDiscovery(12,"example");
 
   /* ---------------- audio ---------------- */
@@ -233,6 +176,256 @@
     previewStop = () => { try { o.stop(); } catch(e){} previewStop = null; };
   }
 
+
+  const REPRESENTATIVE_REGIONS = {
+    'Halcón peregrino': [38, -110],
+    'Águila real': [46, 95],
+    'Vencejo real': [41, 14],
+    'Murciélago': [24, 48],
+    'Fragata': [9, -82],
+    'Paloma mensajera': [43, 28],
+    'Pez vela': [13, -103],
+    'Pez espada': [25, -37],
+    'Guepardo': [-5, 33],
+    'Berrendo': [41, -105],
+    'Caballo de carrera': [51, -6],
+    'León': [-8, 24],
+    'Ñu': [-17, 30],
+    'Tiburón mako': [-24, -25],
+    'Galgo': [39, -4],
+    'Canguro rojo': [-26, 134],
+    'Avestruz': [-25, 18],
+    'Liebre': [50, 42],
+    'Cebra': [-19, 25],
+    'Delfín': [6, -42],
+    'Jirafa': [-1, 34],
+    'Orca': [52, -146],
+    'Conejo': [53, -1],
+    'Oso pardo': [56, 112],
+    'Gato doméstico': [34, 62],
+    'Usain Bolt': [18, -77],
+    'Elefante': [5, 39],
+    'Pingüino papúa': [-51, -55],
+    'Tortuga marina': [-16, 143],
+    'Abeja': [12, 14],
+    'Ardilla': [47, -88],
+    'Mariposa monarca': [22, -102],
+    'Cocodrilo': [-13, 119],
+    'Gallina': [19, 107],
+    'Ratón': [39, 48],
+    'Humano trotando': [40, -73],
+    'Mosca doméstica': [12, 77],
+    'Araña': [-14, -60],
+    'Hormiga': [-4, -55],
+    'Tortuga terrestre': [16, 21],
+    'Perezoso': [-7, -67],
+    'Estrella de mar': [-4, 128],
+    'Caracol': [46, 9],
+  };
+  const RECORDINGS = {
+    'Halcón peregrino': {file:'Halcón peregrino.ogg',author:'Sternanita3',licence:'CC BY-SA 4.0',description:'Llamada de halcón peregrino'},
+    'Guepardo': {file:'Acoustic-Structure-and-Contextual-Use-of-Calls-by-Captive-Male-and-Female-Cheetahs-(Acinonyx-pone.0158546.s001.oga',author:'Smirnova, Volodin, Demina y Volodina',licence:'CC BY 4.0',description:'Vocalizaciones de guepardo en cautiverio'},
+    'Caballo de carrera': {file:'Wiehern.ogg',author:'Hü',licence:'Dominio público',description:'Relincho de caballo (ejemplar no identificado como caballo de carrera)'},
+    'León': {file:'Lion raring-sound1TamilNadu178.ogg',author:'த*உழவன்',licence:'Dominio público',description:'Rugido de león en cautiverio'},
+    'Galgo': {file:'Barking of a dog.ogg',author:'Amada44',licence:'CC BY-SA 3.0',description:'Ladrido de perro; la raza no está identificada'},
+    'Gato doméstico': {file:'Meow.ogg',author:'Dan Crosby',licence:'CC BY-SA 3.0',description:'Maullido de gato doméstico'},
+    'Gallina': {file:'Medium rooster crowing.ogg',author:'alys / PDSounds',licence:'Dominio público',description:'Gallo y gallinas: vocalización de la misma especie doméstica'},
+    'Ardilla': {file:'A three-striped palm squirrel (Funambulus palmarum) chirping 16January2015.oga',author:'Subhashish Panigrahi',licence:'CC BY-SA 4.0',description:'Ardilla de palmeras; especie concreta del registro'},
+    'Paloma mensajera': {file:'Dove cooing.ogg',author:'mary905 / PDSounds',licence:'Dominio público',description:'Arrullo de paloma; no hay confirmación de que sea mensajera'},
+    'Oso pardo': {file:'Bear growl.ogg',author:'Shizhao',licence:'CC BY 3.0',description:'Gruñido de una cría de oso; la especie exacta no está identificada'},
+    'Orca': {file:'Killer whale.ogg',author:'National Park Service',licence:'Dominio público (EE. UU.)',description:'Llamadas de orcas registradas en Alaska'},
+    'Elefante': {file:'Elephant voice - trumpeting.ogg',author:'தகவலுழவன்',licence:'CC0',description:'Barrito de elefante'},
+    'Abeja': {file:'Bombus buzz.ogg',author:'Mysid',licence:'Dominio público',description:'Zumbido de un abejorro (abeja del género Bombus)'},
+    'Jirafa': {file:'Giraffe Hum.oga',author:'Anton Baotic, Florian Sicks y Angela S. Stoeger',licence:'CC BY-SA 4.0',description:'Zumbido nocturno de jirafa registrado en zoológico'},
+    'Murciélago': {file:'Ultrasonic bat calls short.ogg',author:'Mnolf',licence:'CC BY-SA 2.0 / GFDL',description:'Ecolocalización de un murciélago, probablemente Pipistrellus pipistrellus, registrada mediante detector ultrasónico'},
+  };
+
+  const AUDIO_SPECIES = {
+    "Águila real": "Aquila chrysaetos",
+    "Vencejo real": "Tachymarptis melba",
+    "Murciélago": "Chiroptera",
+    "Fragata": "Fregata magnificens",
+    "Pez vela": "Istiophorus platypterus",
+    "Pez espada": "Xiphias gladius",
+    "Berrendo": "Antilocapra americana",
+    "Ñu": "Connochaetes taurinus",
+    "Tiburón mako": "Isurus oxyrinchus",
+    "Canguro rojo": "Osphranter rufus",
+    "Avestruz": "Struthio camelus",
+    "Liebre": "Lepus europaeus",
+    "Cebra": "Equus quagga",
+    "Delfín": "Tursiops truncatus",
+    "Jirafa": "Giraffa camelopardalis",
+    "Orca": "Orcinus orca",
+    "Conejo": "Oryctolagus cuniculus",
+    "Oso pardo": "Ursus arctos",
+    "Elefante": "Loxodonta africana",
+    "Pingüino papúa": "Pygoscelis papua",
+    "Tortuga marina": "Chelonia mydas",
+    "Abeja": "Apis mellifera",
+    "Mariposa monarca": "Danaus plexippus",
+    "Cocodrilo": "Crocodylus porosus",
+    "Ratón": "Mus musculus",
+    "Mosca doméstica": "Musca domestica",
+    "Araña": "Araneae",
+    "Hormiga": "Formicidae",
+    "Tortuga terrestre": "Testudo graeca",
+    "Perezoso": "Bradypus variegatus",
+    "Estrella de mar": "Asteroidea",
+    "Caracol": "Cornu aspersum",
+    "Ardilla": "Sciuridae",
+    "Paloma mensajera": "Columba livia",
+    "Galgo": "Canis lupus familiaris",
+    "León": "Panthera leo",
+    "Guepardo": "Acinonyx jubatus",
+    "Halcón peregrino": "Falco peregrinus",
+    "Caballo de carrera": "Equus caballus",
+    "Gato doméstico": "Felis catus",
+    "Gallina": "Gallus gallus domesticus"
+};
+  const dynamicMissing = new Set();
+  const audioLookups = new Map();
+  const plainText = html => {const div=document.createElement('div');div.innerHTML=html||'';return div.textContent||'';};
+  async function resolveAnimalAudio(d){
+    return RECORDINGS[d.nombre] || null;
+  }
+
+  const soundURL = file => "https://commons.wikimedia.org/wiki/Special:FilePath/" + encodeURIComponent(file);
+  const soundInfoURL = file => "https://commons.wikimedia.org/wiki/File:" + encodeURIComponent(file);
+  const mapSurface = document.getElementById("world-map-surface");
+  const mapPins = document.getElementById("world-map-pins");
+  const mapSelection = document.getElementById("map-selection");
+  const animalSoundFeedback = document.getElementById("animal-sound-feedback");
+  let rankingView = "map";
+  let mapAnimal = null;
+  let animalAudio = null;
+  let animalAudioStop = null;
+  let mapSoundEnabled=false;
+  const mapSoundToggle=document.getElementById("map-sound-toggle");
+  mapSoundToggle.addEventListener("click",()=>{
+    mapSoundEnabled=!mapSoundEnabled;
+    mapSoundToggle.setAttribute("aria-pressed",String(mapSoundEnabled));
+    mapSoundToggle.textContent=mapSoundEnabled?"🔊 Desactivar sonido de animales":"🔇 Activar sonido de animales";
+    if(!mapSoundEnabled)stopRecording();
+  });
+
+  function stopRecording(){
+    if(animalAudioStop !== null){clearTimeout(animalAudioStop);animalAudioStop=null;}
+    if(animalAudio){animalAudio.pause();animalAudio.currentTime=0;animalAudio=null;}
+  }
+
+  async function listenAnimal(d){
+    stopRecording();
+    if(!mapSoundEnabled)return;
+    const source=RECORDINGS[d.nombre] || null;
+    if(!source){
+      animalSoundFeedback.textContent=`${d.emoji} No se encontró audio de ${d.nombre}.`;
+      return;
+    }
+    const player = new Audio(source.url || soundURL(source.file));
+    player.volume=.75;
+    animalAudio=player;
+    player.addEventListener('error',()=>{
+      if(animalAudio!==player)return;
+      animalSoundFeedback.textContent = `No se pudo reproducir ${d.nombre}. No se encontró audio reproducible.`;
+      showMapAnimal(d);
+    },{once:true});
+    try{
+      await player.play();
+      animalAudioFeedback(d, source);
+      animalAudioStop=setTimeout(()=>{if(animalAudio===player) stopRecording();},Math.min(6000,(Number.isFinite(player.duration)?player.duration:6)*1000));
+    }catch(error){
+      if(animalAudio!==player)return;
+      animalSoundFeedback.textContent=`El navegador no pudo reproducir ${d.nombre}. No se encontró audio reproducible.`;
+      showMapAnimal(d);
+    }
+  }
+  function animalAudioFeedback(d,s){
+    animalSoundFeedback.textContent = `🔊 ${d.nombre}: reproduciendo su grabación. Los créditos están al final de la página.`;
+  }
+  function mapLatLng(d){
+    if(!d.tu && d.clase === "humano") return null;
+    if(d.tu){
+      if(!Number.isFinite(d.mapLat)||!Number.isFinite(d.mapLon))return null;
+      return [d.mapLat,d.mapLon];
+    }
+    return REPRESENTATIVE_REGIONS[d.nombre]||null;
+  }
+  function showMapAnimal(d){
+    mapAnimal=d;
+    const s=RECORDINGS[d.nombre];
+    const isSelected=chartParticipants.includes(d);
+    const locationHint=d.tu ?
+      (mapLatLng(d)?'Última ubicación de tu carrera GPS, solo en esta sesión.':'Tu resultado aún no tiene ubicación GPS.') :
+      'Selecciona este animal para llevarlo a La pista.';
+    mapSelection.replaceChildren();
+    const entry=document.createElement('div');entry.className='map-entry';
+    const emoji=document.createElement('span');emoji.textContent=d.emoji;
+    const content=document.createElement('div');
+    const title=document.createElement('strong');title.textContent=d.nombre+' · '+fmtSpeed(d.kmh)+' km/h';
+    const context=document.createElement('p');context.textContent=locationHint;
+    content.append(title,context);entry.append(emoji,content);
+    const actions=document.createElement('div');actions.className='map-actions';
+    const choose=document.createElement('button');choose.type='button';choose.textContent=isSelected?'✓ Quitar de La pista':'+ Llevar a La pista';
+    choose.onclick=()=>{toggleIntroParticipant(d);showMapAnimal(d);renderMapPins();};
+    actions.append(choose);
+    mapSelection.append(entry,actions);
+    [...mapPins.children].forEach(pin=>pin.classList.toggle('active',pin.dataset.name===d.nombre));
+  }
+  function renderMapPins(){
+    mapPins.replaceChildren();
+    const list=visible();
+    for(const d of list){
+      const ll=mapLatLng(d);
+      if(!ll)continue;
+      const [lat,lon]=ll;
+      const pin=document.createElement('button');
+      pin.type='button';pin.className='world-map-pin';
+      pin.dataset.name=d.nombre;
+      pin.style.setProperty('--x',((lon+180)/360*100).toFixed(3)+'%');
+      pin.style.setProperty('--y',((85-lat)/145*100).toFixed(3)+'%');
+      pin.style.setProperty('--r',(11+14*Math.pow(Math.max(0,d.kmh)/V_MAX,.60)).toFixed(2)+'px');
+      pin.style.setProperty('--speed-tier',String(d.kmh));
+      pin.style.setProperty('--pin-color',d.tu?COLOR.tu:COLOR[d.medio]);
+      pin.classList.toggle('on',chartParticipants.includes(d));
+      pin.classList.toggle('active',mapAnimal===d);
+      const emoji=document.createElement('span');emoji.textContent=d.emoji;
+      pin.append(emoji);
+      pin.title=`${d.nombre} · ${fmtSpeed(d.kmh)} km/h${RECORDINGS[d.nombre]?' · audio disponible':''}`;
+      pin.setAttribute('aria-label',`${d.nombre}, ${fmtSpeed(d.kmh)} km/h. Escuchar vocalización disponible y ver opciones.`);
+      pin.addEventListener('click',()=>{
+        showMapAnimal(d);
+        listenAnimal(d);
+      });
+      mapPins.append(pin);
+    }
+    if(!mapAnimal || !list.includes(mapAnimal)){
+      mapAnimal=list.find(d=>RECORDINGS[d.nombre]) || list[0] || null;
+      if(mapAnimal)showMapAnimal(mapAnimal);
+      else mapSelection.textContent='No hay animales con los filtros seleccionados.';
+    }else showMapAnimal(mapAnimal);
+    if(me && !mapLatLng(me)){
+      const notice=document.createElement('p');notice.className='map-player-note';
+      notice.textContent=`🏃 Tú · ${fmtSpeed(me.kmh)} km/h (${me.tipo==='gps'?'ubicación no disponible':'demo sin ubicación GPS'}). Tu resultado sí aparece en la vista Barras.`;
+      mapSelection.append(notice);
+    }
+  }
+  function displayRankingView(){
+    document.getElementById('ranking-map-view').hidden=rankingView!=='map';
+    document.getElementById('ranking-bars-view').hidden=rankingView!=='bars';
+    for(const item of document.querySelectorAll('.ranking-bars-only'))item.hidden=rankingView!=='bars';
+    document.querySelectorAll('#ranking-view button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===rankingView)));
+    if(rankingView==='map'){
+      renderMapPins();
+      calloutEl.hidden=true;
+    }else render();
+  }
+  document.getElementById('ranking-view').addEventListener('click',event=>{
+    const choice=event.target.closest('button[data-view]');if(!choice)return;
+    rankingView=choice.dataset.view;
+    displayRankingView();
+  });
+
   /* ---------------- ranking ---------------- */
   const barsEl = document.getElementById("bars");
   const gridEl = document.getElementById("grid");
@@ -261,7 +454,7 @@
     axisEl.innerHTML = "";
     gridEl.innerHTML = "";
     axisEl.style.marginLeft = getComputedStyle(barsEl).getPropertyValue("--namecol");
-    axisEl.style.marginRight = "56px";
+    axisEl.style.marginRight = "91px";
     axisEl.style.position = "relative";
     ticks.forEach(t => {
       const p = (t === 0 ? 0 : pos(t)) * 100;
@@ -278,7 +471,7 @@
   function render(){
     const list = visible();
     emptyEl.hidden = list.length > 0;
-    [...barsEl.querySelectorAll(".row")].forEach(r => r.remove());
+    [...barsEl.querySelectorAll(".ranking-entry")].forEach(r => r.remove());
     list.forEach(d => {
       const row = document.createElement("button");
       row.className = "row" + (chartParticipants.includes(d) ? " on" : "");
@@ -290,14 +483,28 @@
         `<span class="plot"><span class="fill" style="background:${c};width:${(pos(d.kmh)*100).toFixed(3)}%"></span></span>` +
         `<span class="vl">${fmtSpeed(d.kmh)}</span>`;
       row.setAttribute("aria-pressed", String(chartParticipants.includes(d)));
-      row.addEventListener("click", () => { toggleIntroParticipant(d); });
-      barsEl.appendChild(row);
+      row.addEventListener("click", () => { toggleIntroParticipant(d); selectedRanking=d; });
+      const entry=document.createElement("div");entry.className="ranking-entry";
+      entry.appendChild(row);
+      const rec=RECORDINGS[d.nombre];
+      const sound=document.createElement("button");sound.type="button";sound.className="animal-audio";
+      sound.textContent=rec?"🔊":"—";sound.disabled=!rec;
+      sound.title=rec?"Escuchar sonido real de "+d.nombre:"Grabación no disponible";
+      sound.setAttribute("aria-label",rec?"Escuchar grabación de "+d.nombre:"Grabación no disponible");
+      if(rec)sound.addEventListener("click",()=>{if(!mapSoundEnabled)mapSoundToggle.click();showMapAnimal(d);listenAnimal(d);});
+      entry.appendChild(sound);
+      barsEl.appendChild(entry);
     });
     drawAxis();
-    calloutEl.innerHTML = scaleMode === "lin"
-      ? "<b>Escala lineal.</b> El halcón se come todo el ancho y los últimos veinte animales son una raya de un píxel. No es un problema de diseño gráfico: es que 389 y 0,048 no caben en la misma regla. Cambia a logarítmica y mira lo que pasa."
-      : "<b>Escala logarítmica.</b> Cada marca del eje multiplica por diez en vez de sumar, así que ahora se ven todos. El precio: las longitudes no representan proporciones lineales. Por eso puedes alternar las dos escalas.";
-    if (selectedRanking) calloutEl.innerHTML += ` <b>${selectedRanking.emoji} ${selectedRanking.nombre}:</b> ${fmtSpeed(selectedRanking.kmh)} km/h ${selectedRanking.tu ? "(resultado de tu prueba)" : "de velocidad máxima aproximada"}.`;
+    if(rankingView === "map"){
+      renderMapPins();
+      calloutEl.hidden=true;
+    } else {
+      calloutEl.hidden=false;
+      calloutEl.innerHTML = scaleMode === "lin"
+        ? "<b>Escala lineal.</b> Todas las barras usan la misma regla: el doble de velocidad ocupa el doble de ancho. Como el halcón es mucho más rápido, el caracol casi no se distingue."
+        : "<b>Escala logarítmica.</b> Sirve para ver a los muy lentos y los muy rápidos juntos. Cada salto del eje multiplica la velocidad, en vez de sumar una cantidad fija. Por eso las barras ya no muestran proporciones directas.";
+    }
     calloutEl.innerHTML += ` <b>En La pista:</b> ${chartParticipants.length} de 6 seleccionados.`;
   }
 
@@ -327,6 +534,7 @@
 
   /* ---------------- tu turno: sensores ---------------- */
   const tapBtn   = document.getElementById("tap");
+  const tapRepeatBtn=document.getElementById("tap-repeat");
   const tapCount = document.getElementById("tapCount");
   const tapTime  = document.getElementById("tapTime");
   const mySpeedEl= document.getElementById("myspeed");
@@ -339,10 +547,11 @@
   const lkA=document.getElementById("lkA"), lvA=document.getElementById("lvA"), luA=document.getElementById("luA");
   const lkB=document.getElementById("lkB"), lvB=document.getElementById("lvB"), luB=document.getElementById("luB");
 
+  let tapAwaitNewStart = false;
   const COPY = {
     motion: "El acelerómetro cuenta <b>impulsos del celular</b>, incluso si solo mueves la mano. La cifra en km/h es una <b>equivalencia simulada</b> con la zancada que elijas; no es tu rapidez al correr.",
     gps:    "El GPS mide desplazamiento, no pasos. Desde Safari del celular, pulsa «Preparar GPS», concede ubicación precisa y espera la señal verde. Pulsa «Empezar carrera» antes de correr y «Terminar carrera» cuando te detengas.",
-    tap:    "Esto mide la frecuencia de tu dedo, no la de tus piernas. Sirve para probar la página desde el computador, pero no es una medición de nada."
+    tap:    "Cada pulsación representa un paso simulado de 1,20 m. La distancia y los km/h son una equivalencia de juego: no medimos tus pasos reales ni puedes alterar la zancada del teclado."
   };
   const DUR = {motion: 10, tap: 10, gps: 0};   // 0 = hasta que pares
 
@@ -536,7 +745,9 @@
     else if (running) stop(true);
     mode = m;
     [...document.getElementById("modes").children].forEach(b => b.setAttribute("aria-pressed", String(b.dataset.mode === m)));
-    strideWrap.hidden = (m === "gps");
+    strideWrap.hidden = (m !== "motion");
+    tapAwaitNewStart = false;
+    tapRepeatBtn.hidden=true;
     lkA.textContent = m === "gps" ? "Máxima" : (m === "motion" ? "Impulsos/s" : "Toques/s");
     luA.textContent = m === "gps" ? "km/h" : (m === "tap" ? "toques/s" : "movimientos/s");
     lkB.textContent = m === "gps" ? "Ahora" : "Simulación";
@@ -566,7 +777,9 @@
     }
     running = true; tStart = performance.now();
     tapBtn.classList.add("live");
-    if (mode !== "gps") tapBtn.textContent = "¡Dale!";
+    if (mode !== "gps") tapBtn.textContent = mode === "tap" ? "¡PULSA ESPACIO!" : "¡Dale!";
+    tapBtn.blur();
+    tapRepeatBtn.hidden=true;
     tick = setInterval(update, 60);
   }
 
@@ -582,7 +795,7 @@
     const n = mode === "tap" ? taps : steps;
     const rate = el > 0.3 ? n / el : 0;
     lvA.textContent = nf(rate, 1);
-    lvB.textContent = nf(rate * strideM * 3.6, 1);
+    lvB.textContent = nf(rate * (mode === "tap" ? TAP_STEP_METRES : strideM) * 3.6, 1);
     tapCount.textContent = n + (mode === "tap" ? " toques" : " impulsos detectados");
     tapTime.textContent = nf(Math.max(DUR[mode] - el, 0), 1) + " s";
     if (el >= DUR[mode]) stop(false);
@@ -595,7 +808,13 @@
     clearTimeout(motionWatch);
     window.removeEventListener("devicemotion", onMotion);
     tapBtn.classList.remove("live");
-    tapBtn.textContent = abort ? "Medir" : "Otra vez";
+    tapBtn.textContent = abort ? "Iniciar prueba" : "↻ Repetir prueba";
+    if(mode === "tap" && !abort){
+      tapAwaitNewStart = true; tapTime.textContent = "0,0 s";
+      tapBtn.disabled=true;tapBtn.textContent="PRUEBA FINALIZADA";
+      tapRepeatBtn.hidden=false;
+    }
+    tapBtn.blur();
     if (abort) return;
 
     const el = (performance.now() - tStart) / 1000;
@@ -605,8 +824,9 @@
     } else {
       const n = mode === "tap" ? taps : steps;
       const rate = n / Math.max(el, 0.1);
-      kmh = Math.round(rate * strideM * 3.6 * 10) / 10;
-      detalle = `${n} ${mode === "tap" ? "toques" : "impulsos detectados"} en ${nf(el,1)} s (${nf(rate,1)}/s) × ${nf(strideM,2)} m de zancada supuesta.`;
+      const step = mode === "tap" ? TAP_STEP_METRES : strideM;
+      kmh = Math.round(rate * step * 3.6 * 10) / 10;
+      detalle = `${n} ${mode === "tap" ? "pasos simulados" : "impulsos detectados"} en ${nf(el,1)} s (${nf(rate,1)}/s) × ${nf(step,2)} m ${mode === "tap" ? "por paso fijo" : "de zancada supuesta"}.`;
     }
     verdict(kmh, detalle);
     say(COPY[mode]);
@@ -635,6 +855,9 @@
     if (!me) me = {nombre:"Tú", kmh, medio:"tierra", clase:"humano", emoji:"🏃‍♂️", tu:true};
     else me.kmh = kmh;
     me.tipo = simulated ? "simulada" : "gps";
+    if (mode==="gps" && lastFix && Number.isFinite(lastFix.lat) && Number.isFinite(lastFix.lon)){
+      me.mapLat=lastFix.lat;me.mapLon=lastFix.lon;
+    } else {delete me.mapLat;delete me.mapLon;}
     selectedRanking = me;
     // Coloca al usuario en la pista automáticamente, con hasta seis participantes.
     chartParticipants=[me,...chartParticipants.filter(d=>d!==me)].slice(0,6);
@@ -699,17 +922,22 @@
       else if (gpsStage === "running") finishGps(false);
       return;
     }
-    if (mode === "tap"){ if (!running) start(); return; } // toques por pointerdown
+    if (mode === "tap"){ if (!running && !tapAwaitNewStart) start(); return; }
     running ? stop(false) : start();
   });
   gpsCancelBtn.addEventListener("click",()=>{finishGps(true);say("Preparación cancelada. Puedes volver a intentarlo cuando quieras.");});
-  tapBtn.addEventListener("pointerdown", e => { if (running && mode === "tap"){ e.preventDefault(); taps++; blip(320 + Math.random()*60, null, 0.04, 0.09); } });
+  tapRepeatBtn.addEventListener("click",()=>{
+    if(mode!=="tap"||running)return;
+    tapBtn.disabled=false;tapAwaitNewStart=false;tapRepeatBtn.hidden=true;start();
+  });
+  tapBtn.addEventListener("pointerdown", e => { if (running && mode === "tap"){ e.preventDefault(); taps++; } });
   document.addEventListener("keydown", e => {
-    if (e.code !== "Space" || mode !== "tap") return;
+    if (e.code !== "Space" || e.repeat || mode !== "tap") return;
     const a = document.activeElement;
-    if (a && /^(input|select|textarea)$/i.test(a.tagName)) return;
+    if (a && /^(input|select|textarea|button)$/i.test(a.tagName)) return;
     e.preventDefault();
-    if (!running) start(); else { taps++; blip(320 + Math.random()*60, null, 0.04, 0.09); }
+    if (!running) return;
+    taps++;
   });
   setMode("gps");
 
@@ -779,7 +1007,7 @@
   }
 
   function updateIntroFocus(){
-    if(!chartParticipants.includes(selectedRanking)) selectedRanking=chartParticipants[0];
+    if(!chartParticipants.includes(selectedRanking)) selectedRanking=chartParticipants[0] || null;
     introLines.forEach(({animal,group,line,chip})=>{
       const active=animal===selectedRanking;
       chip.dataset.active=String(active);
@@ -814,6 +1042,7 @@
   }
 
   function rebuildIntro(){
+    stopIntroVoice();
     if(introRAF!==null) cancelAnimationFrame(introRAF);
     introRAF=null;
     introRunning=false;
@@ -855,7 +1084,8 @@
       svgNode("line",{x1:x,y1:trackTop-15,x2:x,y2:trackBottom+8,stroke:"#c7b8b1","stroke-width":1,"stroke-dasharray":"2 7",opacity:.18});
       svgLabel(x,trackBottom+24,`${metresLabel(metres)} m`,{fill:"#d2c4bc","font-size":10,"text-anchor":"middle"});
     }
-    svgLabel(450,397,"TODOS PARTEN JUNTOS · CADA UNO EN SU CARRIL",{fill:"#a9b9ad","font-size":10,"text-anchor":"middle"});
+    svgLabel(450,397,"EJE X · DISTANCIA RECORRIDA (METROS)",{fill:"#c1d0c5","font-size":11,"text-anchor":"middle"});
+    svgLabel(45,210,"EJE Y · PARTICIPANTES",{fill:"#c1d0c5","font-size":11,"text-anchor":"middle",transform:"rotate(-90 45 210)"});
 
     introLines=chartParticipants.map((animal,index)=>{
       const color=chartColor(animal,index);
@@ -868,17 +1098,19 @@
       chip.type="button";
       chip.className="intro-chip";
       chip.style.setProperty("--intro-color",color);
-      chip.innerHTML=`<span class="intro-chip-dot"></span><span>${animal.emoji} ${animal.nombre}</span><strong>${fmtSpeed(animal.kmh)} km/h</strong>`;
+      chip.innerHTML=`<span class="intro-chip-dot"></span><span>${animal.emoji} ${animal.nombre}</span>`;
       chip.addEventListener("click",()=>{
         selectedRanking=animal;
         updateIntroFocus();
         render();
-        if(introAudio) soundIntro(animal);
+        if(introAudio){if(introRunning)startIntroVoice(animal);else previewIntroSound(animal);}
       });
       introLegend.appendChild(chip);
       return {animal,group,marker,shadow,index,chip};
     });
-    introStatus.textContent=`${chartParticipants.length} de 6 competidores · edita desde el ranking`;
+    introStatus.textContent=`${chartParticipants.length} de 6 competidores · selecciona desde el mapa o las barras`;
+    introReplay.disabled = chartParticipants.length===0;
+    if(!chartParticipants.length)introSelectionInfo.textContent='La pista está vacía. Elige uno o varios animales en el mapa o el ranking.';
     setIntroTime(0);
     updateIntroFocus();
   }
@@ -886,14 +1118,8 @@
   function toggleIntroParticipant(animal){
     const index=chartParticipants.indexOf(animal);
     if(index>=0){
-      if(chartParticipants.length===1){
-        introStatus.textContent="La pista necesita al menos un participante";
-        selectedRanking=animal;
-        updateIntroFocus();
-        return;
-      }
       chartParticipants.splice(index,1);
-      selectedRanking=chartParticipants[0];
+      selectedRanking=chartParticipants[0] || null;
     }else{
       if(chartParticipants.length===6) chartParticipants.shift();
       chartParticipants.push(animal);
@@ -903,19 +1129,62 @@
     render();
   }
 
-  function soundIntro(animal){
-    if(!introAudio) return;
-    const context=actx();
-    if(!context) return;
-    const oscillator=context.createOscillator(),gain=context.createGain();
-    oscillator.type=({tierra:"triangle",aire:"sine",agua:"sawtooth"})[animal.medio]||"triangle";
-    oscillator.frequency.setValueAtTime(pitch(Math.max(animal.kmh,V_MIN)),context.currentTime);
+  let introVoice=null;
+  function stopIntroVoice(){
+    if(!introVoice)return;
+    const voice=introVoice;
+    introVoice=null;
+    const now=voice.context.currentTime;
+    try{
+      voice.gain.gain.cancelScheduledValues(now);
+      voice.gain.gain.setTargetAtTime(.00001,now,.08);
+      voice.osc.stop(now+.35);
+      voice.layer.stop(now+.35);
+    }catch(error){}
+  }
+  function startIntroVoice(animal){
+    stopIntroVoice();
+    if(!introAudio||!introRunning||!animal)return;
+    const context=actx();if(!context)return;
+    const osc=context.createOscillator();
+    const layer=context.createOscillator();
+    const layerGain=context.createGain();
+    const filter=context.createBiquadFilter();
+    const gain=context.createGain();
+    const pan=context.createStereoPanner?context.createStereoPanner():null;
+    const normalized=Math.max(0,Math.min(1,(Math.log10(Math.max(animal.kmh,.048))-Math.log10(.048))/(Math.log10(389)-Math.log10(.048))));
+    const relative=Math.sqrt(Math.max(0,Math.min(1,animal.kmh/389)));
+    const base=105+195*normalized;
+    osc.type=animal.medio==='tierra'?'triangle':'sine';
+    layer.type=animal.medio==='aire'?'triangle':animal.medio==='agua'?'sine':'sawtooth';
+    osc.frequency.value=base;
+    layer.frequency.value=base*(animal.medio==='aire'?1.5:animal.medio==='agua'?.5:2);
+    layerGain.gain.value=animal.medio==='tierra'?.075:animal.medio==='aire'?.09:.18;
+    filter.type='lowpass';
+    filter.frequency.value=animal.medio==='agua'?370:animal.medio==='aire'?900:610;
+    filter.Q.value=.35;
+    osc.connect(filter);layer.connect(layerGain);layerGain.connect(filter);
+    filter.connect(gain);
+    if(pan){gain.connect(pan);pan.connect(context.destination);}else gain.connect(context.destination);
+    gain.gain.value=.00001;
+    osc.start();layer.start();
+    introVoice={animal,context,osc,layer,gain,filter,pan,relative,beatHz:.55+2.8*relative};
+  }
+
+  function previewIntroSound(animal){
+    if(!introAudio||introRunning||!animal)return;
+    const context=actx();if(!context)return;
+    const base=110+225*Math.max(0,Math.min(1,(Math.log10(Math.max(animal.kmh,.048))-Math.log10(.048))/(Math.log10(389)-Math.log10(.048))));
+    const osc=context.createOscillator(),gain=context.createGain(),filter=context.createBiquadFilter();
+    osc.type='sine';osc.frequency.value=base;
+    filter.type='lowpass';filter.frequency.value=animal.medio==='agua'?380:animal.medio==='aire'?820:600;
     const now=context.currentTime;
-    gain.gain.setValueAtTime(.0001,now);
-    gain.gain.exponentialRampToValueAtTime(.045,now+.012);
-    gain.gain.exponentialRampToValueAtTime(.0001,now+.12);
-    oscillator.connect(gain);gain.connect(context.destination);
-    oscillator.start(now);oscillator.stop(now+.14);
+    gain.gain.setValueAtTime(.00001,now);
+    gain.gain.linearRampToValueAtTime(.010,now+.13);
+    gain.gain.setValueAtTime(.010,now+.45);
+    gain.gain.linearRampToValueAtTime(.00001,now+.78);
+    osc.connect(filter);filter.connect(gain);gain.connect(context.destination);
+    osc.start(now);osc.stop(now+.82);
   }
 
   function showIntroWinner(){
@@ -930,35 +1199,53 @@
   function introFrame(now){
     const t=Math.min((now-introStarted)/1000,graph.duration);
     setIntroTime(t);
-    if(introAudio&&t>=introNextTone){
+    if(introAudio){
       const animal=selectedRanking;
       if(animal){
-        soundIntro(animal);
-        const pulses=.4+3*Math.sqrt(Math.max(animal.kmh,0)/V_MAX);
-        introNextTone=t+1/pulses;
+        if(!introVoice || introVoice.animal!==animal) startIntroVoice(animal);
+        if(introVoice){
+          const voice=introVoice;
+          const normalized=Math.min(1,t/graph.duration);
+          const relative=Math.sqrt(Math.max(animal.kmh,0)/V_MAX);
+          const now=voice.context.currentTime;
+          const rhythmic=Math.pow(.5+.5*Math.sin(2*Math.PI*voice.beatHz*t),3);
+          const level=(.0025+.0075*rhythmic)*(.78+.22*relative);
+          voice.gain.gain.setTargetAtTime(level,now,.035);
+          if(voice.pan)voice.pan.pan.setTargetAtTime(-.8+1.6*normalized,now,.1);
+        }
+
       }
     }
     if(t<graph.duration){introRAF=requestAnimationFrame(introFrame);}
     else{
       introRAF=null;
       introRunning=false;
+      stopIntroVoice();
       introReplay.textContent="↻ Repetir simulación";
       showIntroWinner();
     }
   }
 
   function startIntro(){
+    if(!chartParticipants.length){introStatus.textContent="Selecciona animales en el ranking para iniciar";return;}
     if(introRAF!==null) cancelAnimationFrame(introRAF);
     introStarted=performance.now();
     introNextTone=0;
     introWinner.hidden=true;
     introRunning=true;
+    if(introAudio)startIntroVoice(selectedRanking);
     introReplay.textContent="↻ Reiniciar simulación";
     setIntroTime(0);
     introRAF=requestAnimationFrame(introFrame);
   }
 
   introReplay.addEventListener("click",startIntro);
+  document.getElementById("intro-clear").addEventListener("click",()=>{
+    chartParticipants=[];
+    selectedRanking=null;
+    rebuildIntro();
+    render();
+  });
   document.getElementById("intro-reset").addEventListener("click",()=>{
     chartParticipants=initialNames.map(name=>DATA.find(d=>d.nombre===name));
     selectedRanking=chartParticipants[0];
@@ -967,7 +1254,8 @@
   });
   document.getElementById("intro-sound").addEventListener("click",event=>{
     introAudio=!introAudio;
-    if(introAudio) actx();
+    if(introAudio){actx();if(introRunning)startIntroVoice(selectedRanking);}
+    else stopIntroVoice();
     introNextTone=0;
     event.currentTarget.setAttribute("aria-pressed",String(introAudio));
     event.currentTarget.textContent=introAudio?"🔊 Desactivar sonido":"🔇 Activar sonido";
@@ -977,6 +1265,7 @@
   selectedRanking=chartParticipants[0];
   rebuildIntro();
   render();
+  displayRankingView();
   // Señal de arranque: si aparece el mensaje de fallo, el código no terminó de iniciar.
   const runtimeBanner = document.getElementById("runtime-banner");
   if (runtimeBanner) runtimeBanner.hidden = true;
