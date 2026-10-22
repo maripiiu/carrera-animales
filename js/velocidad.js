@@ -94,7 +94,7 @@
     currentRival = nearestNext(currentExplore) || [...discoveryAnimals].sort((a,b)=>b.kmh-a.kmh)[0];
     discoverSpeedEl.textContent = fmtSpeed(currentExplore);
     speedSourceEl.textContent = source === "gps" ? "TU CARRERA · ESTIMACIÓN GPS" : source === "demo" ? "DEMOSTRACIÓN · NO ES TU RAPIDEZ REAL" : "SIMULACIÓN · NO ES TU MEDICIÓN";
-    speedContextEl.textContent = source === "gps" ? "Medición de tu carrera: rapidez media estimada por GPS. Revisa su precisión." : source === "demo" ? "Resultado ficticio del sensor o teclado, no una carrera real." : "Rapidez hipotética: mueve el control para explorar.";
+    speedContextEl.textContent = source === "gps" ? "Máxima GPS observada y filtrada de tu carrera. Se compara con máximos animales aproximados; no implica una carrera real." : source === "demo" ? "Resultado ficticio del sensor o teclado, no una carrera real." : "Rapidez hipotética: mueve el control para explorar.";
     if (source === "example"){
       exploreSlider.value = String(currentExplore);
     }else{
@@ -568,6 +568,7 @@
   const gpsHint = document.getElementById("gpsHint");
   const gpsDistanceEl = document.getElementById("gpsDistance");
   const gpsAverageEl = document.getElementById("gpsAverage");
+  const gpsPeakEl = document.getElementById("gpsPeak");
   const gpsCountEl = document.getElementById("gpsCount");
   const gpsCancelBtn = document.getElementById("gpsCancel");
   let lastPerm = "no probado", motionEvents = 0, lastGpsErr = "no probado";
@@ -630,6 +631,7 @@
       "Aún no se ha registrado desplazamiento.";
     const elapsed = running ? (performance.now() - tStart) / 1000 : gpsFinalElapsed;
     gpsAverageEl.textContent = nf(elapsed > 0 ? gpsDistanceM / elapsed * 3.6 : 0,1) + " km/h";
+    if (gpsPeakEl) gpsPeakEl.textContent = nf(gpsMax,1) + " km/h";
   }
   function resetGpsTracking(){
     gpsMax=0; gpsNow=0; gpsDistanceM=0; gpsObservedTime=0; gpsSamples=0;
@@ -638,6 +640,7 @@
     gpsDistanceEl.textContent="0 m";
     gpsCountEl.textContent="Aún no se ha registrado desplazamiento.";
     gpsAverageEl.textContent="0,0 km/h";
+    if (gpsPeakEl) gpsPeakEl.textContent="0,0 km/h";
   }
   function clearGps(){
     ++gpsSession; // ignora callbacks tardíos de una sesión anterior
@@ -672,7 +675,7 @@
       if (gpsStage !== "running") return;
       // La incerteza horizontal puede superar el avance entre puntos.
       // No convertimos saltos de ubicación ni lecturas poco precisas en récords.
-      if (!good){lastFix=null; gpsLastSampleAt=null; gpsNow=0; gpsUi(); return;}
+      if (!good){lastFix=null; gpsLastSampleAt=null; gpsNow=0; gpsSpeeds=[]; gpsUi(); return;}
       let v=Number.isFinite(c.speed) && c.speed >= 0 ? c.speed : null;
       if (v === null && lastFix){
         const dt=(fix.t-lastFix.t)/1000;
@@ -689,7 +692,9 @@
       const sorted=[...gpsSpeeds].sort((a,b)=>a-b);
       const smooth=sorted[Math.floor(sorted.length/2)]; // reduce picos aislados
       gpsNow=smooth*3.6;
-      gpsMax=Math.max(gpsNow,gpsMax);
+      // Solo registrar máximos cuando existen tres lecturas válidas para la mediana.
+      // Una única lectura GPS puede contener un pico espurio.
+      if (gpsSpeeds.length === 3 && gpsSamples >= 1) gpsMax=Math.max(gpsNow,gpsMax);
       if (gpsLastSampleAt !== null){
         const dt=(fix.t-gpsLastSampleAt)/1000;
         if (dt>0 && dt<=6){
@@ -725,18 +730,20 @@
   }
   function finishGps(abort=false){
     const elapsed=running?(performance.now()-tStart)/1000:0;
-    const kmh=elapsed>0?gpsDistanceM/elapsed*3.6:0;
+    const meanKmh=elapsed>0?gpsDistanceM/elapsed*3.6:0;
     const distance=gpsDistanceM, samples=gpsSamples, max=gpsMax, coverage=elapsed>0?gpsObservedTime/elapsed:0;
     running=false; gpsFinalElapsed=elapsed; clearInterval(tick);tick=null;
     tapBtn.classList.remove("live"); clearGps(); gpsUi();
     if (abort) return;
-    if (samples<2 || distance<10 || elapsed<5 || coverage<0.35){
+    if (samples<3 || distance<10 || elapsed<5 || coverage<0.35 || !Number.isFinite(max) || max<=0){
       say(`No pudimos calcular tu carrera con suficiente confianza: ${samples} intervalos GPS válidos, ${nf(distance,0)} m estimados y ${nf(coverage*100,0)}% del tiempo cubierto. Comprueba la ubicación precisa, usa Safari directamente y prueba 100–200 m al aire libre con la pantalla activa.`,true);
       return;
     }
-    const detalle=`Recorriste aproximadamente ${nf(distance,0)} m en ${fmtTime(elapsed)}. Rapidez máxima observada (filtrada): ${nf(max,1)} km/h. ${coverage<0.7 ? "La señal fue intermitente; la medición puede subestimar tu rapidez." : ""}`;
-    verdict(Math.round(kmh*10)/10, detalle);
-    say("¡Carrera terminada! Tu rapidez es una estimación GPS. Mira a qué animales podrías superar.");
+    const detalle=`Recorriste aproximadamente ${nf(distance,0)} m en ${fmtTime(elapsed)}. <strong>Rapidez máxima observada (filtrada): ${nf(max,1)} km/h.</strong> Rapidez media estimada de la prueba: ${nf(meanKmh,1)} km/h. ${coverage<0.7 ? "La señal fue intermitente; el máximo observado podría no coincidir con tu máximo real." : ""}`;
+    // La métrica principal es ahora la máxima GPS filtrada, NO la media de la sesión.
+    // verdict() actualiza la persona en barras, pista, mapa y sonificación.
+    verdict(Math.round(max*10)/10, detalle);
+    say("¡Carrera terminada! Tu máxima GPS observada (filtrada) aparece ahora frente a las referencias animales.");
   }
 
   /* --- ciclo de medición --- */
@@ -835,10 +842,14 @@
   function verdict(kmh, detalle){
     const simulated = mode !== "gps";
     mySpeedEl.textContent = fmtSpeed(kmh) + " km/h";
+    const verdictLabel = document.querySelector("#verdict .eyebrow");
+    if (verdictLabel) verdictLabel.textContent = simulated
+      ? "Tu resultado · equivalencia simulada (no medición real)"
+      : "Tu resultado · máxima GPS observada (filtrada)";
     const animals = DATA.filter(d => d.clase !== "humano");
     const beaten = animals.filter(d => d.kmh < kmh);
     const next = [...animals].reverse().find(d => d.kmh > kmh);
-    const qualifier = mode === "gps" ? "Rapidez media estimada por GPS, comparada con velocidades máximas aproximadas de animales." : mode === "motion" ? "DEMOSTRACIÓN: impulsos del celular, no pasos comprobados ni rapidez real al correr." : "DEMOSTRACIÓN: simulación desde el teclado, no tu rapidez real al correr.";
+    const qualifier = mode === "gps" ? "Tu máxima GPS observada y filtrada se compara con máximos aproximados de animales; las condiciones de medición son distintas y no se predice una carrera real." : mode === "motion" ? "DEMOSTRACIÓN: impulsos del celular, no pasos comprobados ni rapidez real al correr." : "DEMOSTRACIÓN: simulación desde el teclado, no tu rapidez real al correr.";
     beatMsg.innerHTML = `${detalle} <b>${beaten.length} de ${animals.length}</b> animales quedarían por debajo de tu resultado. ${qualifier}`;
     const rival = document.getElementById("result-rival");
     rival.hidden = false;
@@ -1021,7 +1032,7 @@
     if(animal){
       const distance=animal.kmh/3.6*8;
       const note=animal.tu
-        ? (animal.tipo==="gps" ? "Tu resultado estimado por GPS" : "Tu equivalencia simulada")
+        ? (animal.tipo==="gps" ? "Tu máxima GPS filtrada (aproximada)" : "Tu equivalencia simulada")
         : "Velocidad máxima aproximada";
       introSelectionInfo.innerHTML=`${animal.emoji} <strong>${animal.nombre}</strong> · <span class="mono">${fmtSpeed(animal.kmh)} km/h</span> · <span class="mono">${metresLabel(distance)} m en 8 s</span> · ${note}`;
     }
