@@ -74,7 +74,7 @@
     <div class="sd-top">
       <div><span class="sd-kicker">SONIFICACIÓN · DIFERENCIA DE DISTANCIA</span>
         <h3>¿Quién va ganando tu duelo?</h3>
-        <p>Dos participantes, ocho segundos, la misma escala. Escucha una señal cuando alguno alcance 10 m de ventaja.</p></div>
+        <p>Dos referencias de rapidez: máxima GPS filtrada (o demo) y máxima animal aproximada, proyectadas durante ocho segundos. La alerta indica 10 m de ventaja en esta simulación, no en una carrera real.</p></div>
       <span class="sd-source" id="sd-source">Resultado personal pendiente</span>
     </div>
     <div class="sd-switch">
@@ -164,14 +164,14 @@
   let audioAvailable = true;
 
   function sourceType() {
-    return typeOfResult === "gps" ? "Estimación GPS · media de tu carrera"
+    return typeOfResult === "gps" ? "Máxima GPS observada y filtrada · comparación aproximada"
       : typeOfResult === "demo" ? "Demostración · no es rapidez real"
       : "Rapidez guardada en La pista";
   }
   function rememberSource() {
     const txt = selected.textContent || "";
-    if (!/\bTú\b/u.test(txt)) return;
-    if (txt.includes("estimado por GPS")) typeOfResult = "gps";
+    if (!txt.includes("Tú")) return;
+    if (txt.includes("máxima GPS filtrada") || txt.includes("estimado por GPS")) typeOfResult = "gps";
     else if (txt.includes("simulada")) typeOfResult = "demo";
   }
 
@@ -389,6 +389,25 @@
     }
     if (!active) setStatus("Prueba de sonido: primero alerta del animal (tono descendente); después alerta a tu favor (tono ascendente).");
   });
+
+  // mapa_claro.js ya reutiliza el valor principal calculado en velocidad.js.
+  // Actualizamos solo los rótulos que aún describían la antigua media GPS.
+  const mapMetricSource = document.getElementById("mcl-source");
+  if (mapMetricSource) {
+    const clarifyMapSource = () => {
+      const before = mapMetricSource.textContent || "";
+      if (before.includes("GPS: rapidez media estimada")) {
+        mapMetricSource.textContent = "GPS: máxima observada y filtrada. Se compara con máximos animales aproximados; condiciones diferentes.";
+      }
+    };
+    const mapMetricObserver = new MutationObserver(clarifyMapSource);
+    mapMetricObserver.observe(mapMetricSource,{childList:true,subtree:true,characterData:true});
+    clarifyMapSource();
+  }
+  const mapMethod = document.querySelector(".mcl-method");
+  if (mapMethod) mapMethod.textContent = (mapMethod.textContent || "").replace(
+    "La rapidez media GPS no es equivalente a una velocidad máxima animal.",
+    "La máxima observada por GPS y la máxima animal son aproximaciones obtenidas en condiciones distintas.");
 
   refreshRivals();
 })();
