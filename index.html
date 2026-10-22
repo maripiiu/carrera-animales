@@ -8,6 +8,22 @@
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Anton&amp;family=Archivo:wght@400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet"/>
 <link href="css/styles.css" rel="stylesheet"/>
+<style id="v4-claridad-estilos">
+/* V4: se conservan los CSS y JavaScript originales. Solo mejora de jerarquía. */
+.v4-journey{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:24px 0 0}
+.v4-journey-card{min-width:0;display:flex;align-items:flex-start;gap:12px;padding:15px 13px 14px;border:1px solid #3a3742;border-radius:13px;background:#20212a;color:var(--ink,#edeef2);text-decoration:none;transition:border-color .18s,transform .18s,background .18s}
+.v4-journey-card:hover,.v4-journey-card:focus-visible{border-color:var(--tu,#ff6d92);background:#27222e;transform:translateY(-2px)}
+.v4-journey-card:focus-visible{outline:2px solid var(--tu,#ff6d92);outline-offset:3px}
+.v4-number{flex:0 0 31px;height:31px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:var(--tu,#ff6d92);color:#111318;font:700 11px/1 "Space Mono",monospace}
+.v4-card-body{min-width:0;display:grid;gap:6px}.v4-card-body strong{font-size:11px;letter-spacing:.035em;line-height:1.35}.v4-card-body small{font-size:12px;line-height:1.4;color:var(--ink-2,#a3a8b5)}
+.v4-arrow{margin-left:auto;color:var(--tu,#ff6d92);font-size:14px;line-height:1}
+.v4-view-note{margin:12px 0 0;font-size:12px;line-height:1.6;color:var(--ink-2,#a3a8b5)}
+.v4-view-note strong{color:var(--ink,#edeef2)}.v4-view-note a{color:var(--tu,#ff6d92);text-decoration:underline;text-underline-offset:3px}
+.v4-map-help{margin:12px 0 16px;border-left:3px solid var(--tu,#ff6d92);padding:11px 13px;background:rgba(255,109,146,.065);color:var(--ink-2,#a3a8b5);font-size:12px;line-height:1.55;border-radius:0 8px 8px 0}
+.v4-map-help strong{color:var(--ink,#edeef2)}
+@media(max-width:850px){.v4-journey{grid-template-columns:1fr;gap:8px}.v4-journey-card{padding:12px 14px}.v4-card-body small{font-size:12px}}
+@media(prefers-reduced-motion:reduce){.v4-journey-card{transition:none}.v4-journey-card:hover{transform:none}}
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -21,7 +37,12 @@
 <h1 class="display">¿LE GANAS<br/>AL <em>ANIMAL?</em></h1>
 <p class="lead">Un caracol, un guepardo, un halcón… <strong>y tú.</strong> ¿Qué tan rápido puedes ir frente a ellos? Mide tu rapidez, descubre a cuáles superarías y escoge tus rivales para <strong>La pista</strong>.</p>
 <div class="hero-action-pair"><a class="hero-btn" href="#carrera">Empezar mi prueba <span aria-hidden="true">↘</span></a><a class="hero-secondary-link" href="#descubre">Explorar sin medir ↓</a></div>
-<div class="hero-path" aria-label="Tres etapas: mide, compara y compite"><span><b>01</b> MIDE</span><i>→</i><span><b>02</b> COMPÁRATE</span><i>→</i><span><b>03</b> COMPITE</span></div>
+<nav class="v4-journey" aria-label="Tres pasos para comparar tu rapidez con animales">
+<a class="v4-journey-card" href="#carrera"><span class="v4-number">01</span><span class="v4-card-body"><strong>MIDE O SIMULA</strong><small>Corre con GPS o usa una rapidez hipotética para explorar.</small></span><span class="v4-arrow" aria-hidden="true">↗</span></a>
+<a class="v4-journey-card" href="#descubre"><span class="v4-number">02</span><span class="v4-card-body"><strong>DESCUBRE TUS RIVALES</strong><small>Busca qué animal se acerca más a tu rapidez.</small></span><span class="v4-arrow" aria-hidden="true">↗</span></a>
+<a class="v4-journey-card" href="#datos"><span class="v4-number">03</span><span class="v4-card-body"><strong>ELIGE Y COMPARA</strong><small>Explora en el mapa y compara los valores con barras.</small></span><span class="v4-arrow" aria-hidden="true">↗</span></a>
+</nav>
+<p class="v4-view-note"><strong>¿Y la pista?</strong> Convierte las rapideces en una carrera simulada: todos parten juntos y puedes observar cuánto avanza cada participante. <a href="#pista">Ver la pista ↗</a></p>
 </div>
 
 </header><section aria-labelledby="discovery-title" class="discovery intro-discovery" id="descubre">
@@ -117,7 +138,7 @@
 <p class="race-disclaimer"><strong>Importante:</strong> el GPS del celular es aproximado, sobre todo en carreras cortas o donde hay edificios. Comienza con una prueba de 100–200 m en un lugar despejado. En iPhone, abre la página directamente en Safari (no dentro de WhatsApp), concede ubicación precisa y comprueba que la señal esté lista antes de empezar. Prepara e inicia la medición antes de correr, detente en un lugar seguro y recién entonces presiona «Terminar carrera». Mantén abierta la página y la pantalla activa. Esta página no guarda coordenadas ni envía tu recorrido a un servidor propio. La comparación es ilustrativa: tu rapidez media se contrasta con velocidades máximas aproximadas de los animales.</p>
 </section>
 <section aria-labelledby="intro-title" class="intro-section" id="pista">
-<div class="sec-head"><h2 class="display" id="intro-title">La pista</h2><span class="eyebrow">Explora</span><span class="intro-time mono" id="intro-time">0,0 s</span></div>
+<div class="sec-head"><h2 class="display" id="intro-title">La pista</h2><span class="eyebrow">Compara visualmente</span><span class="intro-time mono" id="intro-time">0,0 s</span></div>
 <p class="sec-note">Cada emoji representa a un participante. Todos avanzan durante ocho segundos según su <strong>velocidad máxima de referencia</strong>. Pulsa iniciar y mira quién recorre más metros.</p>
 <div class="intro-viz">
 <div class="track-layout">
@@ -154,8 +175,8 @@
 </div>
 </section>
 <section class="ranking-section" id="datos">
-<div class="sec-head"><h2 class="display">Laboratorio de datos</h2><p class="eyebrow">Filtra y compara</p></div>
-<p class="sec-note">Explora animales por región y medio, escucha grabaciones reales cuando estén disponibles y elige hasta seis para La pista. Cambia a <strong>Barras</strong> si quieres comparar sus velocidades con precisión. Tu resultado se suma después de una prueba.</p>
+<div class="sec-head"><h2 class="display">Elige tus rivales</h2><p class="eyebrow">Mapa para explorar · Barras para comparar</p></div>
+<p class="sec-note"><strong>Mapa:</strong> explora regiones ilustrativas, descubre animales y selecciona rivales. <strong>Barras:</strong> compara velocidades en una escala común. Puedes elegir hasta seis participantes para la pista; tu resultado se agrega después de una prueba.</p>
 <div class="controls" id="filters">
 <div aria-label="Tipo de visualización" class="seg" id="ranking-view"><button aria-pressed="true" data-view="map">Mapa</button><button aria-pressed="false" data-view="bars">Barras</button></div>
 <button aria-pressed="true" class="chip" data-medio="tierra" style="color:var(--tierra)"><span class="dot"></span>Tierra</button>
@@ -184,6 +205,7 @@
 <p class="map-hint">En este mapa encontrarás animales con los que puedes comparar tu velocidad. El color indica su hábitat (tierra, aire o agua) y el tamaño de cada círculo representa su rapidez. Selecciona uno para conocerlo y llevarlo a La pista. Si activas el sonido, también podrás oírlo.</p>
 
 <div aria-live="polite" class="map-selection" id="map-selection"></div>
+<p class="v4-map-help"><strong>¿Qué significan las barras de distancia que aparecen al seleccionar un animal?</strong> Comparan los metros hipotéticos que recorrerían tú y ese animal durante los mismos 10 segundos, suponiendo rapideces constantes. No predicen una carrera real.</p>
 </div>
 <div hidden="" id="ranking-bars-view">
 <div class="axis" id="axis"></div>
