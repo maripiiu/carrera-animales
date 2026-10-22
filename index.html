@@ -23,6 +23,10 @@
 .v4-map-help strong{color:var(--ink,#edeef2)}
 @media(max-width:850px){.v4-journey{grid-template-columns:1fr;gap:8px}.v4-journey-card{padding:12px 14px}.v4-card-body small{font-size:12px}}
 @media(prefers-reduced-motion:reduce){.v4-journey-card{transition:none}.v4-journey-card:hover{transform:none}}
+/* GPS: los dos valores se muestran sin ocultar la media */
+.gps-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+.gps-metrics .gps-peak{grid-column:1/-1;border-top:1px solid var(--line);padding-top:8px}
+.gps-metrics .gps-peak strong{color:var(--tu,#e85d75)}
 </style>
 </head>
 <body>
@@ -84,7 +88,7 @@
 <div class="modes" id="modes">
 <button aria-pressed="true" class="mode" data-mode="gps">
 <span class="mi">📍</span><span class="mt">Carrera real · GPS</span>
-<span class="md">Calcula una <b>rapidez media estimada</b> a partir del desplazamiento y el tiempo registrados por GPS. Úsalo al aire libre, con ubicación precisa. <b>Modo recomendado.</b></span>
+<span class="md">Registra una <b>rapidez media</b> y una <b>máxima observada filtrada</b>. Para comparar con los máximos aproximados de los animales usamos tu máxima. Úsalo al aire libre, con ubicación precisa. <b>Modo recomendado.</b></span>
 </button>
 <button aria-pressed="false" class="mode" data-mode="motion">
 <span class="mi">📱</span><span class="mt">Movimiento · demo</span>
@@ -103,6 +107,7 @@
 <div class="gps-metrics">
 <div><span>Distancia estimada</span><strong class="mono" id="gpsDistance">0 m</strong></div>
 <div><span>Rapidez media</span><strong class="mono" id="gpsAverage">0,0 km/h</strong></div>
+<div class="gps-peak"><span>Máxima observada (filtrada)</span><strong class="mono" id="gpsPeak">0,0 km/h</strong></div>
 </div>
 <p class="gps-count" id="gpsCount">Lecturas válidas: 0 · Aún no se ha registrado desplazamiento.</p>
 <button class="gps-cancel" hidden="" id="gpsCancel" type="button">Cancelar preparación</button>
@@ -128,18 +133,18 @@
 <p aria-live="polite" class="status" id="status" role="status">Para tu carrera real usa el GPS desde un celular al aire libre.</p>
 </div>
 <div class="verdict" id="verdict">
-<div class="eyebrow">Tu resultado · rapidez media de la carrera</div>
+<div class="eyebrow">Tu resultado · máxima GPS filtrada o demo</div>
 <div class="big" id="myspeed">— km/h</div>
 <p class="beat" id="beatmsg">¡Todavía no corres! Prepara el GPS, completa tu carrera y aparecerán los animales que podrías superar.</p>
 <div class="result-rival" hidden="" id="result-rival"></div>
 <ul id="beatlist"></ul>
 </div>
 </div>
-<p class="race-disclaimer"><strong>Importante:</strong> el GPS del celular es aproximado, sobre todo en carreras cortas o donde hay edificios. Comienza con una prueba de 100–200 m en un lugar despejado. En iPhone, abre la página directamente en Safari (no dentro de WhatsApp), concede ubicación precisa y comprueba que la señal esté lista antes de empezar. Prepara e inicia la medición antes de correr, detente en un lugar seguro y recién entonces presiona «Terminar carrera». Mantén abierta la página y la pantalla activa. Esta página no guarda coordenadas ni envía tu recorrido a un servidor propio. La comparación es ilustrativa: tu rapidez media se contrasta con velocidades máximas aproximadas de los animales.</p>
+<p class="race-disclaimer"><strong>Importante:</strong> el GPS del celular es aproximado, sobre todo en carreras cortas o donde hay edificios. Comienza con una prueba de 100–200 m en un lugar despejado. En iPhone, abre la página directamente en Safari (no dentro de WhatsApp), concede ubicación precisa y comprueba que la señal esté lista antes de empezar. Prepara e inicia la medición antes de correr, detente en un lugar seguro y recién entonces presiona «Terminar carrera». Mantén abierta la página y la pantalla activa. Esta página no guarda coordenadas ni envía tu recorrido a un servidor propio. La comparación usa la <strong>máxima GPS observada y filtrada</strong> frente a <strong>máximos aproximados de animales</strong>. Una máxima del celular no tiene la precisión de un registro científico y puede haberse obtenido en condiciones distintas. La pista proyecta esas referencias suponiéndolas constantes; no predice una carrera real.</p>
 </section>
 <section aria-labelledby="intro-title" class="intro-section" id="pista">
 <div class="sec-head"><h2 class="display" id="intro-title">La pista</h2><span class="eyebrow">Compara visualmente</span><span class="intro-time mono" id="intro-time">0,0 s</span></div>
-<p class="sec-note">Cada emoji representa a un participante. Todos avanzan durante ocho segundos según su <strong>velocidad máxima de referencia</strong>. Pulsa iniciar y mira quién recorre más metros.</p>
+<p class="sec-note">Cada emoji representa a un participante. Durante ocho segundos se proyectan <strong>rapideces de referencia constantes</strong>: en animales, máximas aproximadas; para ti, máxima GPS filtrada o equivalencia demo. Pulsa iniciar para ver la distancia hipotética. No representa una carrera real.</p>
 <div class="intro-viz">
 <div class="track-layout">
 <div class="track-main">
@@ -170,7 +175,7 @@
 <span><b>Emojis</b> — cada figura representa a la especie o a la persona que está corriendo.</span>
 <span><b>Cronómetro</b> — muestra el tiempo de la simulación: de 0 a 8 segundos.</span>
 </div>
-<p>Los metros se calculan a partir de velocidades máximas aproximadas. En animales como el halcón, esa velocidad se alcanza en situaciones particulares, como una picada.</p>
+<p>Los metros se calculan a partir de valores máximos aproximados de rapidez, suponiéndolos constantes durante ocho segundos. Un animal podría no mantener su máximo durante ese tiempo; el halcón, por ejemplo, alcanza su rapidez extraordinaria en picada.</p>
 </div>
 </div>
 </section>
