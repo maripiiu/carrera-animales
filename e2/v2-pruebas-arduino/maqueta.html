@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>La pista física · Carrera de animales</title>
+<style>
+  :root { --rosa:#d4537e; --lila:#7f77dd; --tinta:#2c2c2a; --suave:#5f5e5a; --borde:#d3d1c7; --fondo:#faf8f3; --carton:#e7d3b0; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:system-ui,-apple-system,"Segoe UI",sans-serif; color:var(--tinta); background:var(--fondo); }
+  main { max-width:900px; margin:0 auto; padding:24px 16px 48px; }
+  h1 { font-size:26px; margin:0 0 4px; }
+  .sub { color:var(--suave); margin:0 0 20px; }
+  .tarjeta { background:#fff; border:1px solid var(--borde); border-radius:12px; padding:16px; margin-bottom:16px; }
+  .fila { display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; }
+  label { font-size:14px; color:var(--suave); }
+  select, input[type=number] { font-size:15px; padding:6px 8px; border:1px solid var(--borde); border-radius:8px; background:#fff; }
+  input[type=number] { width:90px; }
+  button { font-size:15px; padding:8px 14px; border-radius:8px; border:1px solid var(--tinta); background:#fff; cursor:pointer; }
+  button.prin { background:var(--tinta); color:#fff; }
+  button:disabled { opacity:.45; cursor:default; }
+  #estado { font-size:14px; padding:4px 10px; border-radius:20px; background:#f1efe8; }
+  #estado.ok { background:#eaf3de; color:#27500a; }
+  #estado.mal { background:#fcebeb; color:#791f1f; }
+  #reloj { font-size:28px; font-weight:600; font-variant-numeric:tabular-nums; min-width:90px; }
+  svg { width:100%; height:auto; display:block; }
+  .nota { font-size:13px; color:var(--suave); margin:8px 0 0; }
+  details summary { cursor:pointer; font-weight:600; }
+  .prueba { display:grid; grid-template-columns:110px 1fr 50px; align-items:center; gap:8px; margin-top:10px; }
+  #lectura { font-size:15px; margin-top:10px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>La pista física</h1>
+  <p class="sub">Tú contra un animal durante 8 segundos. Cada brazo de la maqueta avanza lo que avanzaría ese competidor.</p>
+
+  <div class="tarjeta fila">
+    <button id="btnConectar">Conectar Arduino</button>
+    <span id="estado">Sin Arduino · la pantalla funciona igual</span>
+  </div>
+
+  <div class="tarjeta">
+    <div class="fila">
+      <label for="tuVel">Tu rapidez (km/h)</label>
+      <input type="number" id="tuVel" min="1" max="50" step="0.1" value="20">
+      <label for="rival">Rival</label>
+      <select id="rival"></select>
+      <button class="prin" id="btnCorrer">Iniciar carrera</button>
+      <button id="btnPartida">Volver a la partida</button>
+      <label><input type="checkbox" id="sonido" checked> Sonido</label>
+      <span id="reloj">0,0 s</span>
+    </div>
+    <svg id="pistas" viewBox="0 0 680 270" role="img" aria-label="Las dos pistas vistas desde arriba"></svg>
+    <div id="lectura"></div>
+    <p class="nota">Escala: la meta (180°) es lo que recorre el más rápido de los dos en 8 segundos. El otro avanza en proporción. Las rapideces son máximas aproximadas, supuestas constantes.</p>
+  </div>
+
+  <div class="tarjeta">
+    <details>
+      <summary>Ajustes y pruebas de los servos</summary>
+      <p class="nota">Mueve cada servo a mano para revisar que el brazo apunte bien. Si un brazo gira al revés (parte desde la meta), marca «Invertir».</p>
+      <div class="prueba"><label for="p1">Servo Tú (pin 5)</label><input type="range" id="p1" min="0" max="180" value="0"><span id="p1v">0°</span></div>
+      <div class="prueba"><label for="p2">Servo Rival (pin 6)</label><input type="range" id="p2" min="0" max="180" value="0"><span id="p2v">0°</span></div>
+      <div class="fila" style="margin-top:10px">
+        <label><input type="checkbox" id="inv1"> Invertir servo Tú</label>
+        <label><input type="checkbox" id="inv2"> Invertir servo Rival</label>
+      </div>
+    </details>
+  </div>
+</main>
+
+<script>
+// ===== Datos: reemplácenlos por los de su tabla (km/h, máximas aproximadas) =====
+const ANIMALES = [
+  { nombre: "Caracol",       kmh: 0.05 },
+  { nombre: "Tortuga",       kmh: 0.3 },
+  { nombre: "Ratón",         kmh: 13 },
+  { nombre: "Usain Bolt",    kmh: 44.7 },
+  { nombre: "Gato",          kmh: 48 },
+  { nombre: "Caballo",       kmh: 88 },
+  { nombre: "Guepardo",      kmh: 110 },
+  { nombre: "Halcón peregrino (en picada)", kmh: 390 },
+];
+const DURACION = 8;          // segundos de carrera
+const ENVIOS_POR_SEG = 25;   // cuántas veces por segundo se le habla al Arduino
+
+// ===== Elementos =====
+const $ = id => document.getElementById(id);
+const selRival = $("rival");
+ANIMALES.forEach((a, i) => {
+  const o = document.createElement("option");
+  o.value = i; o.textContent = `${a.nombre} · ${a.kmh.toLocaleString("es-CL")} km/h`;
+  if (a.nombre === "Guepardo") o.selected = true;
+  selRival.appendChild(o);
+});
+
+// ===== Conexión con el Arduino (Web Serial, solo Chrome o Edge) =====
+let puerto = null, escritor = null, ultimoEnvio = "";
+const codificador = new TextEncoder();
+
+function ponerEstado(texto, clase) { const e = $("estado"); e.textContent = texto; e.className = clase || ""; }
+
+$("btnConectar").onclick = async () => {
+  if (!("serial" in navigator)) {
+    ponerEstado("Este navegador no puede hablar con el Arduino. Abre la página en Chrome o Edge.", "mal");
+    return;
+  }
+  try {
+    puerto = await navigator.serial.requestPort();
+    await puerto.open({ baudRate: 9600 });
+    escritor = puerto.writable.getWriter();
+    ponerEstado("Arduino conectado", "ok");
+    $("btnConectar").disabled = true;
+    setTimeout(() => enviar(0, 0, true), 300);
+  } catch (err) {
+    ponerEstado("No se pudo conectar: " + err.message, "mal");
+    puerto = null; escritor = null;
+  }
+};
+
+if ("serial" in navigator) {
+  navigator.serial.addEventListener("disconnect", () => {
+    escritor = null; puerto = null;
+    $("btnConectar").disabled = false;
+    ponerEstado("Arduino desconectado", "mal");
+  });
+}
+
+async function enviar(a1, a2, forzar) {
+  if ($("inv1").checked) a1 = 180 - a1;
+  if ($("inv2").checked) a2 = 180 - a2;
+  const msg = `${Math.round(a1)},${Math.round(a2)}\n`;
+  if (!escritor || (!forzar && msg === ultimoEnvio)) return;
+  ultimoEnvio = msg;
+  try { await escritor.write(codificador.encode(msg)); }
+  catch (err) { ponerEstado("Error al enviar: " + err.message, "mal"); }
+}
+
+// ===== Dibujo de las pistas en pantalla =====
+const CY = 230, R = 120, CENTROS = [170, 510];
+const COLORES = ["var(--rosa)", "var(--lila)"];
+function punto(cx, grados, r) {
+  const t = grados * Math.PI / 180;
+  return [cx - r * Math.cos(t), CY - r * Math.sin(t)];
+}
+function dibujar(angulos, nombres) {
+  let s = "";
+  CENTROS.forEach((cx, i) => {
+    s += `<path d="M${cx-R-18} ${CY} A${R+18} ${R+18} 0 0 1 ${cx+R+18} ${CY} L${cx+R-18} ${CY} A${R-18} ${R-18} 0 0 0 ${cx-R+18} ${CY} Z" fill="var(--carton)" stroke="#a07c45"/>`;
+    for (let d = 0; d <= 180; d += 45) {
+      const [x1, y1] = punto(cx, d, R - 18), [x2, y2] = punto(cx, d, R + 18);
+      s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#5f5e5a" stroke-width="${d % 180 === 0 ? 3 : 1}"/>`;
+    }
+    s += `<text x="${cx-R}" y="${CY+22}" text-anchor="middle" font-size="13" fill="#5f5e5a">Partida</text>`;
+    s += `<text x="${cx+R}" y="${CY+22}" text-anchor="middle" font-size="13" fill="#5f5e5a">Meta</text>`;
+    const [ex, ey] = punto(cx, angulos[i], R);
+    s += `<line x1="${cx}" y1="${CY}" x2="${ex}" y2="${ey}" stroke="#ba7517" stroke-width="8" stroke-linecap="round"/>`;
+    s += `<rect x="${cx-16}" y="${CY-12}" width="32" height="24" rx="3" fill="#993556"/><circle cx="${cx}" cy="${CY}" r="6" fill="#ef9f27"/>`;
+    s += `<circle cx="${ex}" cy="${ey}" r="15" fill="${COLORES[i]}"/>`;
+    s += `<text x="${cx}" y="${CY-R-32}" text-anchor="middle" font-size="16" font-weight="600" fill="#2c2c2a">${nombres[i]}</text>`;
+  });
+  $("pistas").innerHTML = s;
+}
+
+// ===== Sonido: altura y ritmo según la rapidez; timbre distinto para cada carril =====
+let audio = null;
+function asegurarAudio() {
+  if (!audio) audio = new (window.AudioContext || window.webkitAudioContext)();
+  if (audio.state === "suspended") audio.resume();
+}
+function nota(freq, dur, tipo, vol) {
+  if (!$("sonido").checked || !audio) return;
+  const o = audio.createOscillator(), g = audio.createGain(), t = audio.currentTime;
+  o.type = tipo; o.frequency.value = freq;
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(vol, t + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g).connect(audio.destination);
+  o.start(t); o.stop(t + dur + 0.05);
+}
+// Escala logarítmica: 0,05 km/h → grave, 400 km/h → agudo
+function frecuencia(kmh) {
+  const f = Math.log10(Math.max(kmh, 0.05) / 0.05) / Math.log10(400 / 0.05);
+  return 160 * Math.pow(2, f * 3);          // de 160 Hz a 1280 Hz (3 octavas)
+}
+function pulsosPorSeg(kmh) {
+  const f = Math.log10(Math.max(kmh, 0.05) / 0.05) / Math.log10(400 / 0.05);
+  return 0.5 + f * 9.5;                       // de 0,5 a 10 pasos por segundo
+}
+
+// ===== La carrera =====
+let animacion = null;
+function leer() {
+  const tu = Math.max(0.05, parseFloat($("tuVel").value) || 0.05);
+  const rival = ANIMALES[+selRival.value];
+  return { vel: [tu, rival.kmh], nombres: ["Tú", rival.nombre.split(" (")[0]] };
+}
+function finales(vel) {
+  const max = Math.max(...vel);
+  return vel.map(v => 180 * v / max);
+}
+function metros(kmh) { return kmh / 3.6 * DURACION; }
+function formatoMetros(m) {
+  if (m < 1) return `${Math.round(m * 100).toLocaleString("es-CL")} cm`;
+  return `${(Math.round(m * 10) / 10).toLocaleString("es-CL")} m`;
+}
+
+function aPartida() {
+  cancelAnimationFrame(animacion); animacion = null;
+  const { nombres } = leer();
+  dibujar([0, 0], nombres);
+  $("reloj").textContent = "0,0 s";
+  $("lectura").textContent = "";
+  enviar(0, 0, true);
+}
+
+function correr() {
+  asegurarAudio();
+  cancelAnimationFrame(animacion);
+  const { vel, nombres } = leer();
+  const fin = finales(vel);
+  const timbres = ["triangle", "square"];
+  const proximoPulso = [0, 0];
+  let ultimoEnvioT = -1;
+  enviar(0, 0, true);
+  const t0 = performance.now();
+
+  function paso(ahora) {
+    const t = Math.min((ahora - t0) / 1000, DURACION);
+    const ang = fin.map(f => f * t / DURACION);
+    dibujar(ang, nombres);
+    $("reloj").textContent = t.toFixed(1).replace(".", ",") + " s";
+
+    if (t - ultimoEnvioT >= 1 / ENVIOS_POR_SEG || t === DURACION) {
+      enviar(ang[0], ang[1], t === DURACION);
+      ultimoEnvioT = t;
+    }
+    vel.forEach((v, i) => {
+      if (t >= proximoPulso[i] && t < DURACION) {
+        nota(frecuencia(v), 0.08, timbres[i], i ? 0.06 : 0.12);
+        proximoPulso[i] = t + 1 / pulsosPorSeg(v);
+      }
+    });
+
+    if (t < DURACION) {
+      animacion = requestAnimationFrame(paso);
+    } else {
+      animacion = null;
+      const ganador = vel[0] >= vel[1] ? 0 : 1;
+      nota(1568, 0.5, "sine", 0.18);
+      setTimeout(() => nota(2093, 0.6, "sine", 0.15), 140);
+      const m = vel.map(metros);
+      const veces = Math.max(...vel) / Math.min(...vel);
+      const vecesTxt = veces >= 10 ? Math.round(veces).toLocaleString("es-CL") : (Math.round(veces * 10) / 10).toLocaleString("es-CL");
+      $("lectura").innerHTML =
+        `En 8 s: <b>Tú ${formatoMetros(m[0])}</b> · <b>${nombres[1]} ${formatoMetros(m[1])}</b>. ` +
+        (veces < 1.05 ? "¡Prácticamente empate!" :
+          `${ganador === 0 ? "Tú vas" : nombres[1] + " va"} ${vecesTxt} veces más rápido.`);
+    }
+  }
+  animacion = requestAnimationFrame(paso);
+}
+
+$("btnCorrer").onclick = correr;
+$("btnPartida").onclick = aPartida;
+selRival.onchange = aPartida;
+$("tuVel").onchange = aPartida;
+
+// Pruebas manuales
+["p1", "p2"].forEach(id => {
+  $(id).oninput = () => {
+    $(id + "v").textContent = $(id).value + "°";
+    cancelAnimationFrame(animacion); animacion = null;
+    const a = [+$("p1").value, +$("p2").value];
+    dibujar(a, leer().nombres);
+    enviar(a[0], a[1], false);
+  };
+});
+["inv1", "inv2"].forEach(id => $(id).onchange = () => enviar(+$("p1").value, +$("p2").value, true));
+
+aPartida();
+</script>
+</body>
+</html>
