@@ -182,13 +182,13 @@ Reconocemos que la implementación tecnológica debe responder a una decisión d
 
 ## 11. Evidencias
 
-Esta etapa cuenta con los siguientes registros:
+Durante el desarrollo de la V2 registramos las siguientes pruebas:
 
-- Videos de pruebas utilizando las opciones de humano y animal.
-- Código utilizado para controlar el Arduino.
-- Archivo `maqueta.html`, correspondiente a la interfaz digital experimental.
-- Fotografías de los servomotores, las placas Arduino y las piezas disponibles.
+- **[Video: prueba del participante humano](https://drive.google.com/file/d/1_hwZMiRt5t0HUFzzEUbcYTmDxYpDCAAe/view?usp=sharing)** — Demostración del movimiento del servomotor utilizando la opción de humano.
+- **[Video: prueba del animal](https://drive.google.com/file/d/1XuTpJAEkveTmNMMYyfglgerEG2nEn3s5/view?usp=sharing)** — Demostración del movimiento utilizando la opción de animal.
+- **Archivo `maqueta.html`** — Interfaz experimental utilizada para simular la carrera de ocho segundos, generar sonidos y enviar instrucciones al Arduino.
+- **Código de Arduino** — Programa utilizado para recibir las instrucciones y controlar los servomotores.
 
-Los videos permiten documentar los avances de las pruebas y los problemas de calibración encontrados.
+Las pruebas muestran que conseguimos generar movimiento, aunque todavía tenemos dificultades para calibrar el recorrido físico. Estos registros nos servirán para evaluar y justificar los cambios de las siguientes versiones.
 
 **Estado al 9 de noviembre de 2026:** logramos realizar pruebas de movimiento mediante Arduino y desarrollamos una interfaz digital para explorar una carrera con representación angular y sonido. Todavía no contamos con una maqueta física completa, calibrada e integrada a la página original.
