@@ -80,6 +80,7 @@ Inicialmente pensábamos que ambos motores funcionarían de manera similar, pero
 
 Esta prueba permitió identificar una diferencia importante entre los componentes disponibles. Un servomotor continuo no permite que el brazo se detenga siempre en la misma posición, por lo que para representar distancias necesitamos dos servomotores de posición angular.
 
+> **Por completar:** si reemplazamos el servomotor continuo por uno angular, indicar cuándo y con qué modelo.
 
 ### 4.4. Exploración con piezas LEGO
 
@@ -91,9 +92,12 @@ Optamos por brazos giratorios: cada servomotor mueve una viga LEGO y la ficha de
 
 Nuestra primera idea fue montar ambos servomotores sobre el mismo eje, uno bajo la pista y otro colgando de un puente, para que los dos brazos giraran desde el mismo centro sobre una pista con dos carriles concéntricos.
 
-No logramos construir una base que pusiera un motor a mayor altura que el otro manteniendo el mismo origen. Como solución provisoria, pusimos los dos motores juntos y acostados, y dejamos la pista de pie, como la esfera de un reloj. Así, cada brazo gira en un plano distinto y no pueden chocar entre sí.
+No logramos construir un puente que sostuviera un motor sobre el otro. Primero probamos poner los dos motores juntos y acostados con la pista de pie, pero así los ejes quedaban separados por unos centímetros y los brazos no giraban desde el mismo centro.
 
-Como consecuencia, los ejes de los dos motores no coinciden: quedan separados por unos centímetros. Para que las fichas no se junten en la parte alta de la pista, el brazo largo debe ir en el motor de arriba, y la pista impresa debe ajustarse a la distancia real entre los ejes.
+Finalmente pusimos un motor en posición normal y el otro dado vuelta, uno sobre el otro, de modo que ambos ejes quedan alineados. Así los dos brazos giran desde el mismo origen, pero a distinta altura: el brazo amarillo (el más largo, del animal) va abajo y el azul (el de la persona) va arriba. Como la ficha del brazo amarillo queda más lejos del centro que el extremo del brazo azul, los brazos no pueden chocar.
+
+Al estar dado vuelta, uno de los motores gira en sentido contrario al otro con las mismas instrucciones. No modificamos el programa del Arduino: lo resolvemos calibrando la partida y la meta de cada brazo desde la interfaz (sección 5).
+
 
 ## 5. Interfaz `maqueta.html`
 
@@ -109,7 +113,7 @@ La interfaz permite:
 - Mostrar marcas de 25 %, 50 % y 75 % del recorrido con su equivalencia en metros para cada duelo.
 - Generar sonidos utilizando tono, ritmo y timbres diferentes.
 - Enviar las posiciones angulares al Arduino mediante Web Serial (Google Chrome o Edge), esperando a que la placa esté lista antes de iniciar la carrera.
-- Calibrar cada brazo guardando su posición de partida y de meta. Esto reemplaza la opción de invertir la dirección de giro y queda guardado en el navegador.
+- Calibrar cada brazo guardando su posición de partida y de meta. Esto reemplaza la opción de invertir la dirección de giro, corrige el sentido del motor que está dado vuelta y queda guardado en el navegador.
 
 La comunicación utiliza los pines digitales 5 (persona) y 6 (animal) del Arduino. La interfaz envía líneas de texto con dos ángulos, por ejemplo `30,180`, y el programa `carrera_servos.ino` mueve cada servomotor a ese ángulo.
 
@@ -156,8 +160,8 @@ Todavía debemos evaluar si los sonidos se comprenden sin explicación.
 | 2 | Fue necesario cambiar temporalmente al Arduino Uno. | Volvimos al Arduino Leonardo del curso. |
 | 3 | El servomotor angular presentaba problemas de calibración del recorrido. | La interfaz ahora permite calibrar partida y meta. Falta comprobarlo en la maqueta. |
 | 4 | El segundo servomotor gira de forma continua. | Pendiente: necesitamos un segundo servomotor angular. |
-| 5 | No logramos montar dos motores en el mismo eje a distinta altura. | Solución provisoria: motores acostados y pista de pie. |
-| 6 | Con los motores juntos, los ejes no coinciden. | Brazo largo en el motor de arriba; ajustar la pista impresa a la distancia entre ejes. |
+| 5 | No logramos construir un puente para montar un motor sobre el otro. | Resuelto: un motor normal y el otro dado vuelta, con los ejes alineados. |
+| 6 | El motor dado vuelta gira en sentido contrario. | Se corrige calibrando partida y meta en la interfaz, sin cambiar el programa. |
 | 7 | Las rapideces son muy diferentes para un espacio limitado. | La meta equivale a lo que recorre el más rápido; la pista marca porcentajes. |
 | 8 | La interfaz y la página de la E1 aún no están enlazadas. | Pendiente. La interfaz ya usa los mismos datos. |
 | 9 | No hemos comprobado una carrera física completa de ocho segundos calibrada. | Pendiente. |
@@ -174,15 +178,14 @@ Marcamos la partida y la meta como franjas anchas porque el servomotor tiene un 
 
 Agregamos un mensaje final explícito (ganaste, perdiste o empate) para que el resultado se entienda sin necesidad de explicación.
 
-Dejamos la pista de pie de manera provisoria por una restricción de montaje (sección 4.5), no por una decisión de visualización.
+Montamos los dos motores con los ejes alineados para que ambos brazos giren desde el mismo centro: así la persona y el animal comparten la misma escala angular y la comparación es justa (sección 4.5).
 
 Reconocemos que la implementación tecnológica debe responder a una decisión de visualización: **el objetivo no es simplemente conseguir que un motor gire, sino utilizar ese movimiento para comunicar diferencias entre los datos**.
 
 ## 10. Próximos pasos
 
 - Conseguir un segundo servomotor angular.
-- Medir la distancia entre los ejes y ajustar la pista impresa a esa medida.
-- Imprimir la pista y montarla sobre el cartón piedra.
+- Imprimir la pista y montarla sobre el cartón piedra, con el eje de los motores sobre el centro marcado.
 - Calibrar ambos brazos desde la interfaz.
 - Comprobar una carrera física completa de ocho segundos con los dos brazos.
 - Enlazar la interfaz desde la página de la E1.
@@ -199,4 +202,5 @@ Durante el desarrollo de la V2 registramos las siguientes pruebas:
 - **[Imagen: Montaje 1](https://drive.google.com/file/d/1JqPR-qWcAqv80aG7_kap5A-tBCJYxvdg/view?usp=sharing)**
 - **[Imagen: Montaje 2](https://drive.google.com/file/d/18XGIr_JgXWtonkoRoNNlqfIuXtE-oj0G/view?usp=sharing)**
 
-**Estado al 10 de noviembre de 2026:** volvimos a usar el Arduino Leonardo del curso, desarrollamos una interfaz con una pista compartida, sonido y mensaje de resultado, y montamos provisoriamente los dos motores acostados con la pista de pie. Todavía falta un segundo servomotor angular, ajustar la pista impresa a la distancia entre los ejes y comprobar una carrera física completa calibrada.
+
+**Estado al 10 de noviembre de 2026:** volvimos a usar el Arduino Leonardo del curso, desarrollamos una interfaz con una pista compartida, sonido y mensaje de resultado, y montamos los dos motores con los ejes alineados para que ambos brazos giren desde el mismo centro. Todavía falta un segundo servomotor angular, calibrar los brazos y comprobar una carrera física completa.
