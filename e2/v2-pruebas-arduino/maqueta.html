@@ -2,284 +2,815 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>La pista física · Carrera de animales</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>La pista · ¿Le ganas al animal?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  :root { --rosa:#d4537e; --lila:#7f77dd; --tinta:#2c2c2a; --suave:#5f5e5a; --borde:#d3d1c7; --fondo:#faf8f3; --carton:#e7d3b0; }
-  * { box-sizing:border-box; }
-  body { margin:0; font-family:system-ui,-apple-system,"Segoe UI",sans-serif; color:var(--tinta); background:var(--fondo); }
-  main { max-width:900px; margin:0 auto; padding:24px 16px 48px; }
-  h1 { font-size:26px; margin:0 0 4px; }
-  .sub { color:var(--suave); margin:0 0 20px; }
-  .tarjeta { background:#fff; border:1px solid var(--borde); border-radius:12px; padding:16px; margin-bottom:16px; }
-  .fila { display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; }
-  label { font-size:14px; color:var(--suave); }
-  select, input[type=number] { font-size:15px; padding:6px 8px; border:1px solid var(--borde); border-radius:8px; background:#fff; }
-  input[type=number] { width:90px; }
-  button { font-size:15px; padding:8px 14px; border-radius:8px; border:1px solid var(--tinta); background:#fff; cursor:pointer; }
-  button.prin { background:var(--tinta); color:#fff; }
-  button:disabled { opacity:.45; cursor:default; }
-  #estado { font-size:14px; padding:4px 10px; border-radius:20px; background:#f1efe8; }
-  #estado.ok { background:#eaf3de; color:#27500a; }
-  #estado.mal { background:#fcebeb; color:#791f1f; }
-  #reloj { font-size:28px; font-weight:600; font-variant-numeric:tabular-nums; min-width:90px; }
-  svg { width:100%; height:auto; display:block; }
-  .nota { font-size:13px; color:var(--suave); margin:8px 0 0; }
-  details summary { cursor:pointer; font-weight:600; }
-  .prueba { display:grid; grid-template-columns:110px 1fr 50px; align-items:center; gap:8px; margin-top:10px; }
-  #lectura { font-size:15px; margin-top:10px; }
+  /* Misma paleta y tipografías que la página de la E1 (css/styles.css y js/velocidad.js) */
+  :root{
+    --ground:#111318; --surface:#191c23; --surface-2:#1f232b; --line:#2a2f3a; --line-soft:#21252d;
+    --ink:#edeef2; --ink-2:#a3a8b5; --ink-3:#6e7482;
+    --tu:#ff6d92; --rival:#e6af70;
+    --ok:#5fd39a; --aviso:#e6af70; --error:#ff7a7a;
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ground);color:var(--ink);font-family:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:980px;margin:0 auto;padding:26px 20px 56px}
+  .display{font-family:"Anton",Impact,"Arial Narrow",sans-serif;font-weight:400;letter-spacing:.01em;text-transform:uppercase}
+  .mono{font-family:"Space Mono",ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums}
+  .eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin:0}
+  a{color:var(--tu)}
+
+  /* ---------- cabecera ---------- */
+  .cabecera{padding-bottom:20px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+  .punto{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--tu);margin-right:6px;vertical-align:1px}
+  h1{font-size:clamp(36px,7vw,64px);line-height:.95;margin:10px 0 0}
+  h1 em{font-style:normal;color:var(--tu)}
+  .lead{color:var(--ink-2);max-width:60ch;margin:12px 0 0;font-size:15.5px}
+  .volver{font-size:13px;color:var(--ink-2);text-decoration:none;border:1px solid var(--line);border-radius:3px;padding:7px 12px;white-space:nowrap}
+  .volver:hover{color:var(--ink);border-color:var(--ink-3)}
+
+  /* ---------- controles ---------- */
+  button,select,input{font-family:inherit;font-size:14px;color:var(--ink)}
+  button,select{background:var(--surface-2);border:1px solid var(--line);border-radius:3px;padding:9px 14px;cursor:pointer}
+  button:hover,select:hover{border-color:var(--ink-3)}
+  :focus-visible{outline:2px solid var(--tu);outline-offset:2px}
+  .btn-go{background:var(--tu);border-color:var(--tu);color:#15070b;font-weight:700;letter-spacing:.02em;padding:10px 22px}
+  .btn-go:hover{filter:brightness(1.08);border-color:var(--tu)}
+  .chip{background:transparent;border-radius:99px;color:var(--ink-3);padding:8px 14px}
+  .chip[aria-pressed="true"]{color:var(--ink);border-color:var(--ink-3);background:var(--surface-2)}
+
+  .conexion{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:20px 0 14px}
+  .pill{font-size:13px;padding:5px 12px;border-radius:99px;border:1px solid var(--line);color:var(--ink-2);background:var(--surface)}
+  .pill[data-tono="ok"]{color:var(--ok);border-color:#2f5a45}
+  .pill[data-tono="aviso"]{color:var(--aviso);border-color:#5a4a2f}
+  .pill[data-tono="error"]{color:var(--error);border-color:#5a2f35}
+
+  .controles{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 14px;background:var(--surface);border:1px solid var(--line-soft);border-radius:4px;padding:14px 16px}
+  .campo{display:flex;flex-direction:column;gap:6px;min-width:0}
+  .campo.crece{flex:1 1 250px}
+  .con-unidad{display:flex;align-items:center;background:var(--surface-2);border:1px solid var(--line);border-radius:3px}
+  .con-unidad:focus-within{border-color:var(--tu)}
+  .con-unidad input{width:90px;background:transparent;border:0;padding:8px 4px 8px 12px;font-family:"Space Mono",monospace;font-size:16px;font-weight:700}
+  .con-unidad input:focus-visible{outline:none}
+  .con-unidad span{padding-right:12px;color:var(--ink-3);font-size:13px}
+  select{width:100%}
+  .acciones{display:flex;flex-wrap:wrap;gap:8px}
+  .error{flex-basis:100%;margin:0;color:var(--error);font-size:13px}
+  .error:empty{display:none}
+
+  /* ---------- marcador ---------- */
+  .marcador{--acento:var(--line);margin-top:16px;border:1px solid var(--line);border-left:4px solid var(--acento);border-radius:4px;background:var(--surface);padding:16px 18px;transition:background .35s,border-color .35s}
+  .marcador[data-estado="cuenta"],.marcador[data-estado="carrera"]{--acento:var(--ink-3)}
+  .marcador[data-estado="gano"]{--acento:var(--tu);background:color-mix(in srgb,var(--tu) 12%,var(--surface))}
+  .marcador[data-estado="perdio"]{--acento:var(--rival);background:color-mix(in srgb,var(--rival) 12%,var(--surface))}
+  .marcador[data-estado="empate"]{--acento:var(--ink-2);background:var(--surface-2)}
+  .fila{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:12px}
+  .lado{display:flex;flex-direction:column;gap:2px;min-width:0}
+  .lado-rival{align-items:flex-end;text-align:right}
+  .quien{display:flex;align-items:center;gap:8px;font-weight:600;font-size:15px;min-width:0}
+  .lado-rival .quien{flex-direction:row-reverse}
+  .token{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;flex:none;font-size:16px;line-height:1}
+  .tok-tu{background:var(--tu);color:#15070b;font-family:"Anton",Impact,sans-serif;font-size:12px;letter-spacing:.04em}
+  .tok-rival{background:var(--rival)}
+  .metros{font-size:clamp(20px,3.6vw,30px);font-weight:700;line-height:1.15}
+  .lado-tu .metros{color:var(--tu)}
+  .lado-rival .metros{color:var(--rival)}
+  .kmh{font-size:12px;color:var(--ink-3)}
+  .reloj{font-size:clamp(28px,6vw,46px);font-weight:700;line-height:1;text-align:center;min-width:4.4ch}
+  .reloj small{font-size:.42em;color:var(--ink-3);font-weight:400}
+  .anuncio{margin-top:14px;padding-top:14px;border-top:1px solid var(--line-soft);text-align:center}
+  .titulo{margin:0;font-size:clamp(32px,6.4vw,60px);line-height:1}
+  .marcador[data-estado="gano"] .titulo{color:var(--tu)}
+  .marcador[data-estado="perdio"] .titulo{color:var(--rival)}
+  .sub{margin:10px 0 0;font-size:17px}
+  .sub:empty{display:none}
+  .detalle{margin:6px auto 0;font-size:14px;color:var(--ink-2);max-width:64ch}
+  .detalle:empty{display:none}
+  @media (prefers-reduced-motion:no-preference){
+    .pop{animation:pop .45s cubic-bezier(.2,.9,.3,1.25)}
+    @keyframes pop{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
+  }
+
+  /* ---------- pista ---------- */
+  .pista{margin-top:16px;background:var(--surface);border:1px solid var(--line-soft);border-radius:4px;padding:12px 14px 16px}
+  .pista svg{display:block;width:100%;max-width:760px;height:auto;margin:0 auto}
+  .t-pct{font:400 11px "Space Mono",ui-monospace,monospace;fill:#6e7482}
+  .t-m{font:700 12px "Space Mono",ui-monospace,monospace;fill:#a3a8b5}
+  .t-carril{font:15px "Anton",Impact,sans-serif;letter-spacing:4px;opacity:.6;dominant-baseline:central}
+  .t-pm{font:14px "Anton",Impact,sans-serif;letter-spacing:2px;fill:#a3a8b5}
+  .t-tu{font:13px "Anton",Impact,sans-serif;letter-spacing:.5px;fill:#15070b}
+  .t-emoji{font-size:19px}
+  .brazo{stroke:#bfc3cd;stroke-width:5;stroke-linecap:round}
+  .brazo-alto{stroke:#e6e8ee;stroke-width:6}
+  .leyenda{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 22px;margin-top:6px;font-size:13px;color:var(--ink-2)}
+  .leyenda i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+  .pin{font-family:"Space Mono",monospace;font-size:11px;color:var(--ink-3);border:1px solid var(--line);border-radius:3px;padding:0 5px;margin-left:6px}
+  .escala{margin:10px auto 0;max-width:70ch;text-align:center;font-size:13px;color:var(--ink-3)}
+  .escala b{color:var(--ink-2);font-weight:600}
+
+  /* ---------- paneles ---------- */
+  details.panel{margin-top:14px;background:var(--surface);border:1px solid var(--line-soft);border-radius:4px}
+  details.panel>summary{cursor:pointer;padding:12px 16px;font-weight:600;font-size:14px;color:var(--ink-2)}
+  details.panel[open]>summary{color:var(--ink);border-bottom:1px solid var(--line-soft)}
+  .panel-body{padding:14px 16px 16px}
+  .pasos{margin:0 0 14px;padding-left:20px;color:var(--ink-2);font-size:13.5px}
+  .pasos li{margin:4px 0}
+  .pasos b{color:var(--ink)}
+  .cal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:12px}
+  .cal{background:var(--surface-2);border:1px solid var(--line);border-radius:4px;padding:12px 14px}
+  .cal h3{margin:0 0 10px;font-size:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .cal .sw{width:11px;height:11px;border-radius:3px;flex:none}
+  .cal-slider{display:flex;align-items:center;gap:10px}
+  .cal-slider input{flex:1;accent-color:var(--tu)}
+  .cal-slider output{min-width:44px;text-align:right}
+  .cal-botones{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .cal-botones button{font-size:13px;padding:7px 11px}
+  .cal-valores{margin:10px 0 0;font-size:13px;color:var(--ink-2)}
+  .cal-aviso{margin:6px 0 0;font-size:12.5px;color:var(--aviso)}
+  .cal-aviso:empty{display:none}
+  .link{background:none;border:0;padding:0;color:var(--ink-3);text-decoration:underline;font-size:12.5px;margin-top:8px}
+  .link:hover{color:var(--ink-2)}
+  .ayuda h3{font-size:13px;margin:14px 0 6px;color:var(--ink)}
+  .ayuda dl{margin:0;font-size:13.5px}
+  .ayuda dt{color:var(--ink);font-weight:600;margin-top:8px}
+  .ayuda dd{margin:2px 0 0;color:var(--ink-2)}
+  footer{margin-top:28px;font-size:12px;color:var(--ink-3);text-align:center}
+
+  @media (max-width:640px){
+    .wrap{padding:20px 16px 48px}
+    .acciones{width:100%}
+    .acciones .btn-go{flex:1 1 auto}
+    .fila{gap:8px}
+    .quien{font-size:13px}
+    .token{width:26px;height:26px;font-size:14px}
+  }
 </style>
 </head>
 <body>
-<main>
-  <h1>La pista física</h1>
-  <p class="sub">Tú contra un animal durante 8 segundos. Cada brazo de la maqueta avanza lo que avanzaría ese competidor.</p>
+<div class="wrap">
 
-  <div class="tarjeta fila">
-    <button id="btnConectar">Conectar Arduino</button>
-    <span id="estado">Sin Arduino · la pantalla funciona igual</span>
-  </div>
-
-  <div class="tarjeta">
-    <div class="fila">
-      <label for="tuVel">Tu rapidez (km/h)</label>
-      <input type="number" id="tuVel" min="1" max="50" step="0.1" value="20">
-      <label for="rival">Rival</label>
-      <select id="rival"></select>
-      <button class="prin" id="btnCorrer">Iniciar carrera</button>
-      <button id="btnPartida">Volver a la partida</button>
-      <label><input type="checkbox" id="sonido" checked> Sonido</label>
-      <span id="reloj">0,0 s</span>
+  <header class="cabecera">
+    <div>
+      <p class="eyebrow"><span class="punto" aria-hidden="true"></span>Entrega 2 · la pista física</p>
+      <h1 class="display">¿Le ganas al <em>animal?</em></h1>
+      <p class="lead">Tú y un animal corren 8 segundos en la misma pista. En la maqueta, cada brazo avanza lo que avanzaría su competidor.</p>
     </div>
-    <svg id="pistas" viewBox="0 0 680 270" role="img" aria-label="Las dos pistas vistas desde arriba"></svg>
-    <div id="lectura"></div>
-    <p class="nota">Escala: la meta (180°) es lo que recorre el más rápido de los dos en 8 segundos. El otro avanza en proporción. Las rapideces son máximas aproximadas, supuestas constantes.</p>
+    <a class="volver" href="https://maripiiu.github.io/carrera-animales/">↗ Página principal</a>
+  </header>
+
+  <div class="conexion">
+    <button id="btnConectar" type="button">Conectar Arduino</button>
+    <span id="estado" class="pill" data-tono="neutro" role="status">Sin Arduino · la carrera se ve igual en pantalla</span>
   </div>
 
-  <div class="tarjeta">
-    <details>
-      <summary>Ajustes y pruebas de los servos</summary>
-      <p class="nota">Mueve cada servo a mano para revisar que el brazo apunte bien. Si un brazo gira al revés (parte desde la meta), marca «Invertir».</p>
-      <div class="prueba"><label for="p1">Servo Tú (pin 5)</label><input type="range" id="p1" min="0" max="180" value="0"><span id="p1v">0°</span></div>
-      <div class="prueba"><label for="p2">Servo Rival (pin 6)</label><input type="range" id="p2" min="0" max="180" value="0"><span id="p2v">0°</span></div>
-      <div class="fila" style="margin-top:10px">
-        <label><input type="checkbox" id="inv1"> Invertir servo Tú</label>
-        <label><input type="checkbox" id="inv2"> Invertir servo Rival</label>
-      </div>
-    </details>
+  <div class="controles">
+    <div class="campo">
+      <label for="tuVel" class="eyebrow">Tu rapidez</label>
+      <div class="con-unidad"><input id="tuVel" type="text" inputmode="decimal" autocomplete="off" value="12" aria-describedby="errorVel"><span>km/h</span></div>
+    </div>
+    <div class="campo crece">
+      <label for="rival" class="eyebrow">Tu rival</label>
+      <select id="rival"></select>
+    </div>
+    <div class="acciones">
+      <button id="btnCorrer" class="btn-go" type="button">Iniciar carrera</button>
+      <button id="btnPartida" type="button">Volver a la partida</button>
+      <button id="btnSonido" class="chip" type="button" aria-pressed="true">♪ Sonido</button>
+    </div>
+    <p id="errorVel" class="error" role="alert"></p>
   </div>
-</main>
+
+  <section id="marcador" class="marcador" data-estado="inicio" aria-label="Marcador de la carrera">
+    <div class="fila">
+      <div class="lado lado-tu">
+        <span class="quien"><span class="token tok-tu" aria-hidden="true">TÚ</span><span>Tú</span></span>
+        <span class="metros mono" id="mTu">0 m</span>
+        <span class="kmh mono" id="kTu">12 km/h</span>
+      </div>
+      <div class="reloj mono" id="reloj">0,0<small> s</small></div>
+      <div class="lado lado-rival">
+        <span class="quien"><span class="token tok-rival" id="emojiRival" aria-hidden="true">🐆</span><span id="nombreRival">Guepardo</span></span>
+        <span class="metros mono" id="mRival">0 m</span>
+        <span class="kmh mono" id="kRival">120 km/h</span>
+      </div>
+    </div>
+    <div class="anuncio" id="anuncio" aria-live="polite">
+      <p class="titulo display" id="titulo">¿Le ganas?</p>
+      <p class="sub" id="sub"></p>
+      <p class="detalle" id="detalle"></p>
+    </div>
+  </section>
+
+  <section class="pista" aria-label="La pista">
+    <svg id="svg" viewBox="0 0 680 380" role="img" aria-labelledby="svgTitulo svgDesc">
+      <title id="svgTitulo">Pista de dos carriles</title>
+      <desc id="svgDesc">Una sola pista semicircular. El carril interior es tuyo y el exterior es del animal. Los dos brazos giran desde el mismo centro, desde la partida a la izquierda hasta la meta a la derecha.</desc>
+      <defs>
+        <pattern id="cuadros" width="12" height="12" patternUnits="userSpaceOnUse">
+          <rect width="12" height="12" fill="#edeef2"/>
+          <rect width="6" height="6" fill="#111318"/>
+          <rect x="6" y="6" width="6" height="6" fill="#111318"/>
+        </pattern>
+        <path id="arcoTu" d=""/>
+        <path id="arcoRival" d=""/>
+      </defs>
+      <g id="capa"></g>
+    </svg>
+    <div class="leyenda">
+      <span><i style="background:var(--tu)"></i>Tú · carril interior<span class="pin">pin 5</span></span>
+      <span><i style="background:var(--rival)"></i><span id="legRival">Guepardo</span> · carril exterior<span class="pin">pin 6</span></span>
+    </div>
+    <p class="escala" id="escala"></p>
+  </section>
+
+  <details class="panel" id="panelCal">
+    <summary>Calibrar los brazos de la maqueta</summary>
+    <div class="panel-body">
+      <ol class="pasos">
+        <li>Conecta el Arduino (arriba) y espera a que diga <b>Arduino listo</b>.</li>
+        <li>Mueve el control de un brazo hasta que apunte justo a la <b>partida</b> y aprieta <b>Guardar partida</b>.</li>
+        <li>Muévelo hasta que apunte justo a la <b>meta</b> y aprieta <b>Guardar meta</b>.</li>
+        <li>Haz lo mismo con el otro brazo. Si un brazo gira al revés, no importa: al guardar la partida y la meta, la página corrige el sentido sola.</li>
+      </ol>
+      <div class="cal-grid">
+        <div class="cal">
+          <h3><span class="sw" style="background:var(--tu)"></span>Tú · carril interior <span class="pin">pin 5</span></h3>
+          <div class="cal-slider"><input type="range" id="crudo0" min="0" max="180" step="1" value="0" aria-label="Posición del brazo de Tú, en grados del servo"><output id="crudo0v" class="mono">0°</output></div>
+          <div class="cal-botones">
+            <button type="button" data-guardar="partida" data-i="0">Guardar partida</button>
+            <button type="button" data-guardar="meta" data-i="0">Guardar meta</button>
+            <button type="button" data-probar="0">Probar recorrido</button>
+          </div>
+          <p class="cal-valores mono" id="calv0"></p>
+          <p class="cal-aviso" id="cala0"></p>
+          <button type="button" class="link" data-reset="0">Restablecer este brazo</button>
+        </div>
+        <div class="cal">
+          <h3><span class="sw" style="background:var(--rival)"></span>Animal · carril exterior <span class="pin">pin 6</span></h3>
+          <div class="cal-slider"><input type="range" id="crudo1" min="0" max="180" step="1" value="0" aria-label="Posición del brazo del animal, en grados del servo"><output id="crudo1v" class="mono">0°</output></div>
+          <div class="cal-botones">
+            <button type="button" data-guardar="partida" data-i="1">Guardar partida</button>
+            <button type="button" data-guardar="meta" data-i="1">Guardar meta</button>
+            <button type="button" data-probar="1">Probar recorrido</button>
+          </div>
+          <p class="cal-valores mono" id="calv1"></p>
+          <p class="cal-aviso" id="cala1"></p>
+          <button type="button" class="link" data-reset="1">Restablecer este brazo</button>
+        </div>
+      </div>
+      <p class="escala" style="text-align:left;margin-left:0">La calibración se guarda en este navegador, así que basta hacerla una vez por computador.</p>
+    </div>
+  </details>
+
+  <details class="panel ayuda">
+    <summary>¿Cómo se usa?</summary>
+    <div class="panel-body">
+      <ol class="pasos">
+        <li>Abre esta página en <b>Google Chrome</b> o <b>Edge</b>. Safari no puede conectarse al Arduino.</li>
+        <li>Cierra el Arduino IDE: solo un programa a la vez puede usar el Arduino.</li>
+        <li>Aprieta <b>Conectar Arduino</b> y elige el Arduino de la lista. Al conectarse, el Arduino hace su barrido de prueba (unos 5 segundos).</li>
+        <li>La primera vez, calibra los brazos.</li>
+        <li>Escribe tu rapidez, elige un rival y aprieta <b>Iniciar carrera</b> (o Enter).</li>
+      </ol>
+      <h3>Si algo falla</h3>
+      <dl>
+        <dt>«No se pudo abrir el Arduino»</dt>
+        <dd>El Arduino IDE (o su Serial Monitor) lo está usando. Ciérralo y vuelve a conectar.</dd>
+        <dt>El Arduino no aparece en la lista</dt>
+        <dd>Prueba otro cable USB: algunos solo cargan y no transmiten datos.</dd>
+        <dt>Un brazo gira al revés o no llega justo a la meta</dt>
+        <dd>Calíbralo en «Calibrar los brazos de la maqueta».</dd>
+        <dt>Los brazos tiemblan o el Arduino se reinicia</dt>
+        <dd>Los dos servos piden más corriente de la que da el USB. Prueben con un servo a la vez o con una fuente externa de 5 V.</dd>
+      </dl>
+    </div>
+  </details>
+
+  <footer>IIC2026 · Visualización de Información · ¿Le ganas al animal? · Datos: los mismos de la página de la E1.</footer>
+</div>
 
 <script>
-// ===== Datos: reemplácenlos por los de su tabla (km/h, máximas aproximadas) =====
-const ANIMALES = [
-  { nombre: "Caracol",       kmh: 0.05 },
-  { nombre: "Tortuga",       kmh: 0.3 },
-  { nombre: "Ratón",         kmh: 13 },
-  { nombre: "Usain Bolt",    kmh: 44.7 },
-  { nombre: "Gato",          kmh: 48 },
-  { nombre: "Caballo",       kmh: 88 },
-  { nombre: "Guepardo",      kmh: 110 },
-  { nombre: "Halcón peregrino (en picada)", kmh: 390 },
-];
-const DURACION = 8;          // segundos de carrera
-const ENVIOS_POR_SEG = 25;   // cuántas veces por segundo se le habla al Arduino
+(() => {
+  "use strict";
+  const $ = id => document.getElementById(id);
 
-// ===== Elementos =====
-const $ = id => document.getElementById(id);
-const selRival = $("rival");
-ANIMALES.forEach((a, i) => {
-  const o = document.createElement("option");
-  o.value = i; o.textContent = `${a.nombre} · ${a.kmh.toLocaleString("es-CL")} km/h`;
-  if (a.nombre === "Guepardo") o.selected = true;
-  selRival.appendChild(o);
-});
+  // ===== Datos: los mismos de la página de la E1 (js/velocidad.js) =====
+  // nombre, km/h, medio, clase, emoji
+  const DATA = [
+    ["Halcón peregrino",389,"aire","ave","🦅"],
+    ["Águila real",320,"aire","ave","🦅"],
+    ["Vencejo real",169,"aire","ave","🐦"],
+    ["Murciélago",160,"aire","mamífero","🦇"],
+    ["Fragata",153,"aire","ave","🐦"],
+    ["Paloma mensajera",148,"aire","ave","🕊️"],
+    ["Pez vela",110,"agua","pez","🐟"],
+    ["Pez espada",97,"agua","pez","🐠"],
+    ["Guepardo",120,"tierra","mamífero","🐆"],
+    ["Berrendo",88,"tierra","mamífero","🦌"],
+    ["Caballo de carrera",88,"tierra","mamífero","🐎"],
+    ["León",80,"tierra","mamífero","🦁"],
+    ["Ñu",80,"tierra","mamífero","🐃"],
+    ["Tiburón mako",74,"agua","pez","🦈"],
+    ["Galgo",74,"tierra","mamífero","🐕"],
+    ["Canguro rojo",71,"tierra","mamífero","🦘"],
+    ["Avestruz",70,"tierra","ave","🐦"],
+    ["Liebre",70,"tierra","mamífero","🐇"],
+    ["Cebra",64,"tierra","mamífero","🦓"],
+    ["Delfín",60,"agua","mamífero","🐬"],
+    ["Jirafa",60,"tierra","mamífero","🦒"],
+    ["Orca",56,"agua","mamífero","🐋"],
+    ["Conejo",56,"tierra","mamífero","🐰"],
+    ["Oso pardo",56,"tierra","mamífero","🐻"],
+    ["Gato doméstico",48,"tierra","mamífero","🐈"],
+    ["Usain Bolt",44.7,"tierra","humano","🏃"],
+    ["Elefante",40,"tierra","mamífero","🐘"],
+    ["Pingüino papúa",36,"agua","ave","🐧"],
+    ["Tortuga marina",35,"agua","reptil","🐢"],
+    ["Abeja",29,"aire","insecto","🐝"],
+    ["Ardilla",20,"tierra","mamífero","🐿️"],
+    ["Mariposa monarca",20,"aire","insecto","🦋"],
+    ["Cocodrilo",17,"tierra","reptil","🐊"],
+    ["Gallina",14,"tierra","ave","🐔"],
+    ["Ratón",13,"tierra","mamífero","🐁"],
+    ["Humano trotando",12,"tierra","humano","🚶"],
+    ["Mosca doméstica",8,"aire","insecto","🪰"],
+    ["Araña",1.9,"tierra","arácnido","🕷️"],
+    ["Hormiga",0.3,"tierra","insecto","🐜"],
+    ["Tortuga terrestre",0.3,"tierra","reptil","🐢"],
+    ["Perezoso",0.27,"tierra","mamífero","🦥"],
+    ["Estrella de mar",0.09,"agua","equinodermo","⭐"],
+    ["Caracol",0.048,"tierra","molusco","🐌"]
+  ].map(([nombre,kmh,medio,clase,emoji]) => ({nombre,kmh,medio,clase,emoji}))
+   .sort((a,b) => b.kmh - a.kmh);
 
-// ===== Conexión con el Arduino (Web Serial, solo Chrome o Edge) =====
-let puerto = null, escritor = null, ultimoEnvio = "";
-const codificador = new TextEncoder();
+  const COLOR = {tierra:"#e6af70", aire:"#9b7bf0", agua:"#1f97a6", tu:"#ff6d92"};
+  const MEDIOS = [["tierra","Tierra"],["aire","Aire"],["agua","Agua"]];
 
-function ponerEstado(texto, clase) { const e = $("estado"); e.textContent = texto; e.className = clase || ""; }
+  const DURACION = 8;            // segundos de carrera
+  const ENVIOS_POR_SEG = 25;     // veces por segundo que se le habla al Arduino
+  const PREPARACION_MS = 5000;   // el Arduino UNO se reinicia al conectarse y hace su barrido de prueba
+  const PASO_CUENTA_MS = 1000;   // "En sus marcas…" y "Listos…"
 
-$("btnConectar").onclick = async () => {
-  if (!("serial" in navigator)) {
-    ponerEstado("Este navegador no puede hablar con el Arduino. Abre la página en Chrome o Edge.", "mal");
-    return;
+  // ===== Textos =====
+  const FEMENINOS = new Set(["Fragata","Paloma mensajera","Liebre","Cebra","Jirafa","Orca","Tortuga marina","Abeja","Ardilla","Mariposa monarca","Gallina","Mosca doméstica","Araña","Hormiga","Tortuga terrestre","Estrella de mar"]);
+  const articulo = a => a.nombre === "Usain Bolt" ? "" : a.nombre === "Humano trotando" ? "un" : FEMENINOS.has(a.nombre) ? "la" : "el";
+  const nombreMin = a => a.nombre === "Usain Bolt" ? a.nombre : a.nombre.charAt(0).toLowerCase() + a.nombre.slice(1);
+  const conArt = a => (articulo(a) ? articulo(a) + " " : "") + nombreMin(a);          // "el guepardo"
+  const conA = a => { const art = articulo(a), n = nombreMin(a);                       // "al guepardo"
+    return art === "el" ? "al " + n : art ? "a " + art + " " + n : "a " + n; };
+  const mayus = s => s.charAt(0).toUpperCase() + s.slice(1);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+  const nf = (n, d) => n.toLocaleString("es-CL", {minimumFractionDigits:d, maximumFractionDigits:d});
+  const fmtVel = v => Number.isInteger(v) ? nf(v,0) : v >= 1 ? nf(v,1) : nf(v,3);
+  const metros = kmh => kmh / 3.6 * DURACION;
+  function fmtDist(m){
+    if (m < 0.01) return "menos de 1 cm";
+    return m < 1 ? nf(m * 100, 0) + " cm" : nf(m, 1) + " m";
   }
-  try {
-    puerto = await navigator.serial.requestPort();
-    await puerto.open({ baudRate: 9600 });
-    escritor = puerto.writable.getWriter();
-    ponerEstado("Arduino conectado", "ok");
-    $("btnConectar").disabled = true;
-    setTimeout(() => enviar(0, 0, true), 300);
-  } catch (err) {
-    ponerEstado("No se pudo conectar: " + err.message, "mal");
-    puerto = null; escritor = null;
+  const fmtVivo = m => m <= 0 ? "0 m" : m < 1 ? nf(m * 100, 0) + " cm" : nf(m, 1) + " m";
+  // "un 4 % más rápido" si son parecidos; "10 veces más rápido" si no
+  const cuantoMas = r => r < 1.95 ? `un ${nf(Math.round((r - 1) * 100), 0)} % más rápido`
+    : `${r < 10 ? nf(r, 1) : nf(Math.round(r), 0)} veces más rápido`;
+  const fmtPct = p => p * 100 < 1 ? nf(p * 100, 1) : nf(Math.round(p * 100), 0);
+
+  // ===== Rival y rapidez =====
+  const sel = $("rival");
+  MEDIOS.forEach(([medio, etiqueta]) => {
+    const g = document.createElement("optgroup");
+    g.label = etiqueta;
+    DATA.forEach((d, i) => {
+      if (d.medio !== medio) return;
+      const o = document.createElement("option");
+      o.value = String(i);
+      o.textContent = `${d.emoji} ${d.nombre} · ${fmtVel(d.kmh)} km/h`;
+      g.appendChild(o);
+    });
+    sel.appendChild(g);
+  });
+  sel.value = String(DATA.findIndex(d => d.nombre === "Guepardo"));
+  const rival = () => DATA[+sel.value];
+
+  function velTu(){
+    const txt = $("tuVel").value.trim().replace(",", ".");
+    const v = Number(txt);
+    return txt && Number.isFinite(v) && v > 0 && v <= 500 ? v : null;
   }
-};
+  function validarVel(){
+    const v = velTu();
+    $("errorVel").textContent = v === null
+      ? "Escribe tu rapidez en km/h, por ejemplo 12 o 12,5." : "";
+    return v;
+  }
 
-if ("serial" in navigator) {
-  navigator.serial.addEventListener("disconnect", () => {
-    escritor = null; puerto = null;
-    $("btnConectar").disabled = false;
-    ponerEstado("Arduino desconectado", "mal");
-  });
-}
+  // ===== Sonido (el mismo de maqueta.html) =====
+  let audio = null;
+  let sonidoOn = true;
+  try { sonidoOn = localStorage.getItem("pista-sonido") !== "0"; } catch (e) {}
+  function asegurarAudio(){
+    if (!audio) audio = new (window.AudioContext || window.webkitAudioContext)();
+    if (audio.state === "suspended") audio.resume();
+  }
+  function nota(freq, dur, tipo, vol){
+    if (!sonidoOn || !audio) return;
+    const o = audio.createOscillator(), g = audio.createGain(), t = audio.currentTime;
+    o.type = tipo; o.frequency.value = freq;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(vol, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g).connect(audio.destination);
+    o.start(t); o.stop(t + dur + 0.05);
+  }
+  // Escala logarítmica: 0,05 km/h → grave, 400 km/h → agudo
+  function frecuencia(kmh){
+    const f = Math.log10(Math.max(kmh, 0.05) / 0.05) / Math.log10(400 / 0.05);
+    return 160 * Math.pow(2, f * 3);          // de 160 Hz a 1280 Hz (3 octavas)
+  }
+  function pulsosPorSeg(kmh){
+    const f = Math.log10(Math.max(kmh, 0.05) / 0.05) / Math.log10(400 / 0.05);
+    return 0.5 + f * 9.5;                       // de 0,5 a 10 pasos por segundo
+  }
+  function pintarSonido(){
+    $("btnSonido").setAttribute("aria-pressed", String(sonidoOn));
+    $("btnSonido").textContent = sonidoOn ? "♪ Sonido" : "♪ Sin sonido";
+  }
 
-async function enviar(a1, a2, forzar) {
-  if ($("inv1").checked) a1 = 180 - a1;
-  if ($("inv2").checked) a2 = 180 - a2;
-  const msg = `${Math.round(a1)},${Math.round(a2)}\n`;
-  if (!escritor || (!forzar && msg === ultimoEnvio)) return;
-  ultimoEnvio = msg;
-  try { await escritor.write(codificador.encode(msg)); }
-  catch (err) { ponerEstado("Error al enviar: " + err.message, "mal"); }
-}
+  // ===== Calibración (se guarda en este navegador) =====
+  const CAL_KEY = "pista-calibracion";
+  const CAL_BASE = () => [{partida:0, meta:180}, {partida:0, meta:180}];
+  function cargarCal(){
+    try {
+      const c = JSON.parse(localStorage.getItem(CAL_KEY));
+      const ok = x => x && Number.isFinite(x.partida) && Number.isFinite(x.meta);
+      if (Array.isArray(c) && c.length === 2 && c.every(ok)) return c;
+    } catch (e) {}
+    return CAL_BASE();
+  }
+  function guardarCal(){ try { localStorage.setItem(CAL_KEY, JSON.stringify(cal)); } catch (e) {} }
+  let cal = cargarCal();
+  const recorte = (x, a, b) => Math.min(Math.max(x, a), b);
+  const aCrudo = (i, ang) => Math.round(cal[i].partida + (cal[i].meta - cal[i].partida) * recorte(ang, 0, 180) / 180);
+  const aAngulo = (i, crudo) => cal[i].meta === cal[i].partida ? 0 : recorte((crudo - cal[i].partida) / (cal[i].meta - cal[i].partida) * 180, -6, 186);
 
-// ===== Dibujo de las pistas en pantalla =====
-const CY = 230, R = 120, CENTROS = [170, 510];
-const COLORES = ["var(--rosa)", "var(--lila)"];
-function punto(cx, grados, r) {
-  const t = grados * Math.PI / 180;
-  return [cx - r * Math.cos(t), CY - r * Math.sin(t)];
-}
-function dibujar(angulos, nombres) {
-  let s = "";
-  CENTROS.forEach((cx, i) => {
-    s += `<path d="M${cx-R-18} ${CY} A${R+18} ${R+18} 0 0 1 ${cx+R+18} ${CY} L${cx+R-18} ${CY} A${R-18} ${R-18} 0 0 0 ${cx-R+18} ${CY} Z" fill="var(--carton)" stroke="#a07c45"/>`;
-    for (let d = 0; d <= 180; d += 45) {
-      const [x1, y1] = punto(cx, d, R - 18), [x2, y2] = punto(cx, d, R + 18);
-      s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#5f5e5a" stroke-width="${d % 180 === 0 ? 3 : 1}"/>`;
+  // ===== Conexión con el Arduino (Web Serial: Chrome o Edge) =====
+  let puerto = null, escritor = null, listo = false, prepTimer = null;
+  let esperando = [];
+  let deseado = [aCrudo(0, 0), aCrudo(1, 0)];   // ángulos del servo que queremos
+  let enviado = "";
+  const codificador = new TextEncoder();
+
+  function estado(texto, tono){ const e = $("estado"); e.textContent = texto; e.dataset.tono = tono || "neutro"; }
+
+  function enviarCrudo(a, b, forzar){
+    deseado = [a, b];
+    if (!escritor || !listo) return;
+    const msg = a + "," + b + "\n";
+    if (!forzar && msg === enviado) return;
+    enviado = msg;
+    escritor.write(codificador.encode(msg)).catch(() => {
+      estado("No se pudo enviar al Arduino. Revisa el cable y vuelve a conectar.", "error");
+    });
+  }
+  const enviarAngulos = (a0, a1, forzar) => enviarCrudo(aCrudo(0, a0), aCrudo(1, a1), forzar);
+  function moverBrazo(i, ang, forzar){
+    angulos[i] = ang;
+    const par = deseado.slice();
+    par[i] = aCrudo(i, ang);
+    enviarCrudo(par[0], par[1], forzar);
+  }
+
+  function liberarEspera(){ esperando.splice(0).forEach(r => r()); }
+  const esperarArduino = () => (puerto && !listo) ? new Promise(r => esperando.push(r)) : Promise.resolve();
+
+  function prepararArduino(){
+    const fin = performance.now() + PREPARACION_MS;
+    clearInterval(prepTimer);
+    const tick = () => {
+      const quedan = Math.ceil((fin - performance.now()) / 1000);
+      if (quedan > 0) { estado(`Conectado · el Arduino hace su barrido de prueba (${quedan} s)…`, "aviso"); return; }
+      clearInterval(prepTimer);
+      listo = true;
+      estado("Arduino listo · los brazos siguen la carrera", "ok");
+      enviarCrudo(deseado[0], deseado[1], true);
+      liberarEspera();
+    };
+    tick();
+    prepTimer = setInterval(tick, 200);
+  }
+
+  async function conectar(){
+    if (!("serial" in navigator)) {
+      estado("Este navegador no puede hablar con el Arduino. Abre la página en Google Chrome o Edge.", "error");
+      return;
     }
-    s += `<text x="${cx-R}" y="${CY+22}" text-anchor="middle" font-size="13" fill="#5f5e5a">Partida</text>`;
-    s += `<text x="${cx+R}" y="${CY+22}" text-anchor="middle" font-size="13" fill="#5f5e5a">Meta</text>`;
-    const [ex, ey] = punto(cx, angulos[i], R);
-    s += `<line x1="${cx}" y1="${CY}" x2="${ex}" y2="${ey}" stroke="#ba7517" stroke-width="8" stroke-linecap="round"/>`;
-    s += `<rect x="${cx-16}" y="${CY-12}" width="32" height="24" rx="3" fill="#993556"/><circle cx="${cx}" cy="${CY}" r="6" fill="#ef9f27"/>`;
-    s += `<circle cx="${ex}" cy="${ey}" r="15" fill="${COLORES[i]}"/>`;
-    s += `<text x="${cx}" y="${CY-R-32}" text-anchor="middle" font-size="16" font-weight="600" fill="#2c2c2a">${nombres[i]}</text>`;
-  });
-  $("pistas").innerHTML = s;
-}
+    let p;
+    try { p = await navigator.serial.requestPort(); }
+    catch (e) { estado("No elegiste ningún Arduino. Aprieta «Conectar Arduino» y elige el Arduino de la lista.", "neutro"); return; }
+    try { await p.open({ baudRate: 9600 }); }
+    catch (e) { estado("No se pudo abrir el Arduino. Cierra el Arduino IDE (o su Serial Monitor) y vuelve a intentarlo.", "error"); return; }
+    puerto = p;
+    escritor = p.writable.getWriter();
+    listo = false; enviado = "";
+    $("btnConectar").textContent = "Desconectar";
+    prepararArduino();
+  }
 
-// ===== Sonido: altura y ritmo según la rapidez; timbre distinto para cada carril =====
-let audio = null;
-function asegurarAudio() {
-  if (!audio) audio = new (window.AudioContext || window.webkitAudioContext)();
-  if (audio.state === "suspended") audio.resume();
-}
-function nota(freq, dur, tipo, vol) {
-  if (!$("sonido").checked || !audio) return;
-  const o = audio.createOscillator(), g = audio.createGain(), t = audio.currentTime;
-  o.type = tipo; o.frequency.value = freq;
-  g.gain.setValueAtTime(0, t);
-  g.gain.linearRampToValueAtTime(vol, t + 0.01);
-  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-  o.connect(g).connect(audio.destination);
-  o.start(t); o.stop(t + dur + 0.05);
-}
-// Escala logarítmica: 0,05 km/h → grave, 400 km/h → agudo
-function frecuencia(kmh) {
-  const f = Math.log10(Math.max(kmh, 0.05) / 0.05) / Math.log10(400 / 0.05);
-  return 160 * Math.pow(2, f * 3);          // de 160 Hz a 1280 Hz (3 octavas)
-}
-function pulsosPorSeg(kmh) {
-  const f = Math.log10(Math.max(kmh, 0.05) / 0.05) / Math.log10(400 / 0.05);
-  return 0.5 + f * 9.5;                       // de 0,5 a 10 pasos por segundo
-}
+  async function desconectar(mensaje, tono){
+    const p = puerto;
+    puerto = null; listo = false; clearInterval(prepTimer);
+    if (escritor) { try { await escritor.close(); } catch (e) {} try { escritor.releaseLock(); } catch (e) {} }
+    escritor = null;
+    if (p) { try { await p.close(); } catch (e) {} }
+    liberarEspera();
+    $("btnConectar").textContent = "Conectar Arduino";
+    estado(mensaje || "Sin Arduino · la carrera se ve igual en pantalla", tono || "neutro");
+  }
 
-// ===== La carrera =====
-let animacion = null;
-function leer() {
-  const tu = Math.max(0.05, parseFloat($("tuVel").value) || 0.05);
-  const rival = ANIMALES[+selRival.value];
-  return { vel: [tu, rival.kmh], nombres: ["Tú", rival.nombre.split(" (")[0]] };
-}
-function finales(vel) {
-  const max = Math.max(...vel);
-  return vel.map(v => 180 * v / max);
-}
-function metros(kmh) { return kmh / 3.6 * DURACION; }
-function formatoMetros(m) {
-  if (m < 1) return `${Math.round(m * 100).toLocaleString("es-CL")} cm`;
-  return `${(Math.round(m * 10) / 10).toLocaleString("es-CL")} m`;
-}
-
-function aPartida() {
-  cancelAnimationFrame(animacion); animacion = null;
-  const { nombres } = leer();
-  dibujar([0, 0], nombres);
-  $("reloj").textContent = "0,0 s";
-  $("lectura").textContent = "";
-  enviar(0, 0, true);
-}
-
-function correr() {
-  asegurarAudio();
-  cancelAnimationFrame(animacion);
-  const { vel, nombres } = leer();
-  const fin = finales(vel);
-  const timbres = ["triangle", "square"];
-  const proximoPulso = [0, 0];
-  let ultimoEnvioT = -1;
-  enviar(0, 0, true);
-  const t0 = performance.now();
-
-  function paso(ahora) {
-    const t = Math.min((ahora - t0) / 1000, DURACION);
-    const ang = fin.map(f => f * t / DURACION);
-    dibujar(ang, nombres);
-    $("reloj").textContent = t.toFixed(1).replace(".", ",") + " s";
-
-    if (t - ultimoEnvioT >= 1 / ENVIOS_POR_SEG || t === DURACION) {
-      enviar(ang[0], ang[1], t === DURACION);
-      ultimoEnvioT = t;
-    }
-    vel.forEach((v, i) => {
-      if (t >= proximoPulso[i] && t < DURACION) {
-        nota(frecuencia(v), 0.08, timbres[i], i ? 0.06 : 0.12);
-        proximoPulso[i] = t + 1 / pulsosPorSeg(v);
+  $("btnConectar").addEventListener("click", () => puerto ? desconectar() : conectar());
+  if ("serial" in navigator) {
+    navigator.serial.addEventListener("disconnect", e => {
+      if (puerto && (!e.target || e.target === puerto || e.target === navigator.serial)) {
+        escritor = null;
+        desconectar("Se desconectó el Arduino. Revisa el cable y vuelve a conectar.", "error");
       }
     });
+  } else {
+    estado("Este navegador no puede conectarse al Arduino (usa Chrome o Edge). La carrera igual se ve en pantalla.", "aviso");
+  }
 
-    if (t < DURACION) {
-      animacion = requestAnimationFrame(paso);
-    } else {
-      animacion = null;
-      const ganador = vel[0] >= vel[1] ? 0 : 1;
+  // ===== Dibujo de la pista =====
+  const CX = 340, CY = 318;
+  const R_IN = 126, R_MID = 194, R_OUT = 262;   // bordes de los carriles
+  const R_TU = 160, R_RIV = 228, R_LBL = 290;   // largo de cada brazo y etiquetas
+  let angulos = [0, 0];
+
+  const pt = (r, a) => { const t = a * Math.PI / 180; return [CX - r * Math.cos(t), CY - r * Math.sin(t)]; };
+  const P = (r, a) => pt(r, a).map(n => n.toFixed(2)).join(" ");
+  const sector = (r0, r1, a0, a1) => { const g = (a1 - a0) > 180 ? 1 : 0;
+    return `M${P(r1,a0)} A${r1} ${r1} 0 ${g} 1 ${P(r1,a1)} L${P(r0,a1)} A${r0} ${r0} 0 ${g} 0 ${P(r0,a0)}Z`; };
+  const arco = (r, a0, a1) => `M${P(r,a0)} A${r} ${r} 0 ${(a1 - a0) > 180 ? 1 : 0} 1 ${P(r,a1)}`;
+
+  $("arcoTu").setAttribute("d", arco(R_TU, 25, 155));
+  $("arcoRival").setAttribute("d", arco(R_RIV, 25, 155));
+
+  function dibujar(){
+    const r = rival(), cR = COLOR[r.medio], cT = COLOR.tu;
+    const v = velTu();
+    const maxD = v ? Math.max(metros(v), metros(r.kmh)) : null;
+    let s = "";
+    s += `<path d="M${CX} ${CY} L${P(R_IN,-6)} A${R_IN} ${R_IN} 0 1 1 ${P(R_IN,186)} Z" fill="#14171d"/>`;
+    s += `<path d="${sector(R_IN, R_OUT, -6, 186)}" fill="#1c2029"/>`;
+    s += `<path d="${sector(R_IN, R_MID, -6, 186)}" fill="${cT}" fill-opacity=".07"/>`;
+    s += `<path d="${sector(R_MID, R_OUT, -6, 186)}" fill="${cR}" fill-opacity=".07"/>`;
+    // Lo recorrido por cada uno
+    const a0 = recorte(angulos[0], 0, 180), a1 = recorte(angulos[1], 0, 180);
+    if (a0 > 0.2) s += `<path d="${sector(R_IN + 4, R_MID - 4, 0, a0)}" fill="${cT}" fill-opacity=".42"/>`;
+    if (a1 > 0.2) s += `<path d="${sector(R_MID + 4, R_OUT - 4, 0, a1)}" fill="${cR}" fill-opacity=".42"/>`;
+    [R_IN, R_MID, R_OUT].forEach(rr => {
+      s += `<path d="${arco(rr, -6, 186)}" fill="none" stroke="#3b414e" stroke-width="${rr === R_MID ? 2 : 1.5}"/>`;
+    });
+    // Cuartos de la pista, con su equivalencia en metros para este duelo
+    [[45, "end"], [90, "middle"], [135, "start"]].forEach(([a, anchor]) => {
+      const [x1, y1] = pt(R_IN, a), [x2, y2] = pt(R_OUT, a), [x, y] = pt(R_LBL, a);
+      s += `<line x1="${x1.toFixed(2)}" y1="${y1.toFixed(2)}" x2="${x2.toFixed(2)}" y2="${y2.toFixed(2)}" stroke="#545b6a" stroke-width="1.2" stroke-dasharray="4 5"/>`;
+      s += `<text class="t-pct" x="${x.toFixed(1)}" y="${(y - 6).toFixed(1)}" text-anchor="${anchor}">${a / 180 * 100} %</text>`;
+      if (maxD) s += `<text class="t-m" x="${x.toFixed(1)}" y="${(y + 9).toFixed(1)}" text-anchor="${anchor}">${fmtDist(maxD * a / 180)}</text>`;
+    });
+    s += `<path d="${sector(R_IN, R_OUT, -2.2, 2.2)}" fill="#edeef2"/>`;
+    s += `<path d="${sector(R_IN, R_OUT, 177.8, 182.2)}" fill="url(#cuadros)"/>`;
+    s += `<text class="t-carril" fill="${cT}"><textPath href="#arcoTu" startOffset="50%" text-anchor="middle">TÚ</textPath></text>`;
+    s += `<text class="t-carril" fill="${cR}"><textPath href="#arcoRival" startOffset="50%" text-anchor="middle">${esc(r.nombre.toUpperCase())}</textPath></text>`;
+    const [xp] = pt((R_IN + R_OUT) / 2, 0), [xm] = pt((R_IN + R_OUT) / 2, 180);
+    s += `<text class="t-pm" x="${xp.toFixed(1)}" y="${CY + 50}" text-anchor="middle">PARTIDA</text>`;
+    s += `<text class="t-pm" x="${xm.toFixed(1)}" y="${CY + 50}" text-anchor="middle">META</text>`;
+    // Brazos: el tuyo va abajo (más corto) y el del animal arriba (más largo)
+    const [xt, yt] = pt(R_TU, angulos[0]), [xr, yr] = pt(R_RIV, angulos[1]);
+    s += `<line class="brazo" x1="${CX}" y1="${CY}" x2="${xt.toFixed(2)}" y2="${yt.toFixed(2)}"/>`;
+    s += `<line class="brazo brazo-alto" x1="${CX}" y1="${CY}" x2="${xr.toFixed(2)}" y2="${yr.toFixed(2)}"/>`;
+    s += `<circle cx="${CX}" cy="${CY}" r="11" fill="#2a2f3a" stroke="#6e7482"/><circle cx="${CX}" cy="${CY}" r="5" fill="#ef9f27"/>`;
+    s += `<circle cx="${xt.toFixed(2)}" cy="${yt.toFixed(2)}" r="17" fill="${cT}" stroke="#111318" stroke-width="3"/>`;
+    s += `<text class="t-tu" x="${xt.toFixed(2)}" y="${yt.toFixed(2)}" text-anchor="middle" dominant-baseline="central">TÚ</text>`;
+    s += `<circle cx="${xr.toFixed(2)}" cy="${yr.toFixed(2)}" r="18" fill="${cR}" stroke="#111318" stroke-width="3"/>`;
+    s += `<text class="t-emoji" x="${xr.toFixed(2)}" y="${(yr + 1).toFixed(2)}" text-anchor="middle" dominant-baseline="central">${r.emoji}</text>`;
+    $("capa").innerHTML = s;
+  }
+
+  // ===== Marcador =====
+  function pintarLados(t){
+    const r = rival(), v = velTu();
+    $("nombreRival").textContent = r.nombre;
+    $("emojiRival").textContent = r.emoji;
+    $("legRival").textContent = r.nombre;
+    $("kTu").textContent = v ? fmtVel(v) + " km/h" : "— km/h";
+    $("kRival").textContent = fmtVel(r.kmh) + " km/h";
+    $("mTu").textContent = v ? fmtVivo(v / 3.6 * t) : "—";
+    $("mRival").textContent = fmtVivo(r.kmh / 3.6 * t);
+    $("reloj").innerHTML = nf(t, 1) + "<small> s</small>";
+  }
+
+  function anunciar(estadoMarcador, titulo, sub, detalle, animar){
+    $("marcador").dataset.estado = estadoMarcador;
+    $("titulo").textContent = titulo;
+    $("sub").textContent = sub || "";
+    $("detalle").textContent = detalle || "";
+    if (animar) { const a = $("anuncio"); a.classList.remove("pop"); void a.offsetWidth; a.classList.add("pop"); }
+  }
+  const INVITACION = "Escribe tu rapidez, elige un rival y aprieta «Iniciar carrera».";
+
+  function actualizarEscala(){
+    const r = rival(), v = velTu();
+    document.documentElement.style.setProperty("--rival", COLOR[r.medio]);
+    if (!v) { $("escala").textContent = "La meta es lo que recorre el más rápido de los dos en 8 segundos."; return; }
+    const ganasTu = v >= r.kmh;
+    $("escala").innerHTML = `En este duelo, de la partida a la meta hay <b>${fmtDist(Math.max(metros(v), metros(r.kmh)))}</b>: lo que ${ganasTu ? "recorres tú" : "recorre " + esc(conArt(r))} en 8 segundos. Se compara el ángulo: si los dos brazos apuntan a la misma línea, recorrieron lo mismo.`;
+  }
+
+  // ===== Resultado =====
+  function resultado(vTu, r){
+    const vAn = r.kmh;
+    const dTu = metros(vTu), dAn = metros(vAn);
+    const nom = conArt(r);
+    if (vTu === vAn) {
+      return { estado: "empate", titulo: "¡Empate!",
+        sub: `Tú y ${nom} recorrieron lo mismo: ${fmtDist(dTu)} en 8 segundos.`,
+        detalle: "Los dos brazos llegaron juntos a la meta." };
+    }
+    const ratio = Math.max(vTu, vAn) / Math.min(vTu, vAn);
+    const justo = ratio < 1.03;
+    const recorrido = `En 8 segundos recorriste ${fmtDist(dTu)} y ${nom} ${fmtDist(dAn)}.`;
+    if (vTu > vAn) {
+      const p = dAn / dTu;
+      return { estado: "gano", titulo: "¡Ganaste!",
+        sub: `${justo ? "¡Por un pelo! " : ""}Le ganaste ${conA(r)} por ${fmtDist(dTu - dAn)}.`,
+        detalle: `${recorrido} ${justo ? "Fueron casi a la par." : `Vas ${cuantoMas(ratio)} que ${nom}.`} ` +
+          `Cuando cruzaste la meta, ${nom} ${p * 100 < 0.1 ? "casi no se había movido de la partida" : `iba en el ${fmtPct(p)} % del recorrido`}.` };
+    }
+    const p = dTu / dAn;
+    return { estado: "perdio", titulo: "Perdiste",
+      sub: `${justo ? "¡Por un pelo! " : ""}${mayus(nom)} te ganó por ${fmtDist(dAn - dTu)}.`,
+      detalle: `${recorrido} ${justo ? "Fueron casi a la par." : `${mayus(nom)} va ${cuantoMas(ratio)} que tú.`} ` +
+        `Cuando ${nom} cruzó la meta, ${p * 100 < 0.1 ? "casi no te habías movido de la partida" : `ibas en el ${fmtPct(p)} % del recorrido`}.` };
+  }
+
+  // ===== La carrera =====
+  let turno = 0;   // cambia cada vez que algo empieza o se cancela
+  const pausa = ms => new Promise(r => setTimeout(r, ms));
+
+  async function correr(){
+    const v = validarVel();
+    if (v === null) { $("tuVel").focus(); return; }
+    asegurarAudio();
+    const id = ++turno;
+    const r = rival();
+    const vel = [v, r.kmh];
+    const max = Math.max(...vel);
+    const fin = vel.map(x => 180 * x / max);
+
+    angulos = [0, 0]; dibujar(); pintarLados(0); actualizarEscala();
+    enviarAngulos(0, 0, true);
+
+    if (puerto && !listo) {
+      anunciar("cuenta", "Un momento", "El Arduino está terminando su barrido de prueba…", "", true);
+      await esperarArduino();
+      if (id !== turno) return;
+      enviarAngulos(0, 0, true);
+    }
+    anunciar("cuenta", "En sus marcas…", "", "", true);
+    await pausa(PASO_CUENTA_MS); if (id !== turno) return;
+    anunciar("cuenta", "Listos…", "", "", true);
+    await pausa(PASO_CUENTA_MS); if (id !== turno) return;
+    anunciar("carrera", "¡Ya!", "Mira la maqueta: cada brazo avanza a la rapidez de su competidor.", "", true);
+
+    const timbres = ["triangle", "square"];
+    const proximoPulso = [0, 0];
+    let ultimoEnvio = -1, cambioTitulo = false;
+    const t0 = performance.now();
+
+    function paso(ahora){
+      if (id !== turno) return;
+      const t = recorte((ahora - t0) / 1000, 0, DURACION);
+      angulos = fin.map(f => f * t / DURACION);
+      dibujar(); pintarLados(t);
+      if (!cambioTitulo && t >= 1) { $("titulo").textContent = "En carrera"; cambioTitulo = true; }
+      if (t - ultimoEnvio >= 1 / ENVIOS_POR_SEG || t === DURACION) {
+        enviarAngulos(angulos[0], angulos[1], t === DURACION);
+        ultimoEnvio = t;
+      }
+      vel.forEach((x, i) => {
+        if (t >= proximoPulso[i] && t < DURACION) {
+          nota(frecuencia(x), 0.08, timbres[i], i ? 0.06 : 0.12);
+          proximoPulso[i] = t + 1 / pulsosPorSeg(x);
+        }
+      });
+      if (t < DURACION) { requestAnimationFrame(paso); return; }
       nota(1568, 0.5, "sine", 0.18);
       setTimeout(() => nota(2093, 0.6, "sine", 0.15), 140);
-      const m = vel.map(metros);
-      const veces = Math.max(...vel) / Math.min(...vel);
-      const vecesTxt = veces >= 10 ? Math.round(veces).toLocaleString("es-CL") : (Math.round(veces * 10) / 10).toLocaleString("es-CL");
-      $("lectura").innerHTML =
-        `En 8 s: <b>Tú ${formatoMetros(m[0])}</b> · <b>${nombres[1]} ${formatoMetros(m[1])}</b>. ` +
-        (veces < 1.05 ? "¡Prácticamente empate!" :
-          `${ganador === 0 ? "Tú vas" : nombres[1] + " va"} ${vecesTxt} veces más rápido.`);
+      const res = resultado(v, r);
+      anunciar(res.estado, res.titulo, res.sub, res.detalle, true);
     }
+    requestAnimationFrame(paso);
   }
-  animacion = requestAnimationFrame(paso);
-}
 
-$("btnCorrer").onclick = correr;
-$("btnPartida").onclick = aPartida;
-selRival.onchange = aPartida;
-$("tuVel").onchange = aPartida;
+  function aPartida(){
+    turno++;
+    angulos = [0, 0];
+    dibujar(); pintarLados(0); actualizarEscala();
+    enviarAngulos(0, 0, true);
+    anunciar("inicio", "¿Le ganas?", INVITACION);
+  }
 
-// Pruebas manuales
-["p1", "p2"].forEach(id => {
-  $(id).oninput = () => {
-    $(id + "v").textContent = $(id).value + "°";
-    cancelAnimationFrame(animacion); animacion = null;
-    const a = [+$("p1").value, +$("p2").value];
-    dibujar(a, leer().nombres);
-    enviar(a[0], a[1], false);
-  };
-});
-["inv1", "inv2"].forEach(id => $(id).onchange = () => enviar(+$("p1").value, +$("p2").value, true));
+  $("btnCorrer").addEventListener("click", correr);
+  $("btnPartida").addEventListener("click", aPartida);
+  $("btnSonido").addEventListener("click", () => {
+    sonidoOn = !sonidoOn; pintarSonido();
+    try { localStorage.setItem("pista-sonido", sonidoOn ? "1" : "0"); } catch (e) {}
+  });
+  sel.addEventListener("change", aPartida);
+  $("tuVel").addEventListener("input", () => { if (validarVel() !== null) aPartida(); else { dibujar(); pintarLados(0); actualizarEscala(); } });
+  $("tuVel").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); correr(); } });
 
-aPartida();
+  // ===== Panel de calibración =====
+  const sliders = [$("crudo0"), $("crudo1")];
+  function pintarCal(){
+    [0, 1].forEach(i => {
+      $("calv" + i).textContent = `Partida ${cal[i].partida}° · Meta ${cal[i].meta}°`;
+      $("cala" + i).textContent = Math.abs(cal[i].meta - cal[i].partida) < 20
+        ? "Ojo: la partida y la meta quedaron muy juntas. Revisa que guardaste cada una en su lugar." : "";
+    });
+  }
+  function sincronizarSliders(){
+    sliders.forEach((s, i) => { s.value = deseado[i]; $("crudo" + i + "v").textContent = deseado[i] + "°"; });
+  }
+  sliders.forEach((s, i) => s.addEventListener("input", () => {
+    turno++;
+    const crudo = +s.value;
+    $("crudo" + i + "v").textContent = crudo + "°";
+    const par = deseado.slice(); par[i] = crudo;
+    enviarCrudo(par[0], par[1], false);
+    angulos[i] = aAngulo(i, crudo);
+    dibujar();
+    anunciar("inicio", "Calibrando", "Mueve el control hasta que el brazo apunte a la línea y guárdala.");
+  }));
+  document.querySelectorAll("[data-guardar]").forEach(b => b.addEventListener("click", () => {
+    const i = +b.dataset.i;
+    cal[i][b.dataset.guardar] = +sliders[i].value;
+    guardarCal(); pintarCal();
+    angulos[i] = aAngulo(i, +sliders[i].value);
+    dibujar();
+    anunciar("inicio", "Guardado", `${b.dataset.guardar === "partida" ? "Partida" : "Meta"} del brazo ${i === 0 ? "de Tú" : "del animal"}: ${sliders[i].value}°.`);
+  }));
+  document.querySelectorAll("[data-reset]").forEach(b => b.addEventListener("click", () => {
+    const i = +b.dataset.reset;
+    cal[i] = CAL_BASE()[i];
+    guardarCal(); pintarCal();
+    moverBrazo(i, 0, true); sincronizarSliders(); dibujar();
+  }));
+  function animarBrazo(i, desde, hasta, ms, id){
+    return new Promise(res => {
+      const t0 = performance.now();
+      let ultimo = -1;
+      const f = ahora => {
+        if (id !== turno) return res();
+        const k = recorte((ahora - t0) / ms, 0, 1);
+        angulos[i] = desde + (hasta - desde) * k;
+        if (ahora - ultimo >= 1000 / ENVIOS_POR_SEG || k === 1) { moverBrazo(i, angulos[i], k === 1); ultimo = ahora; }
+        dibujar();
+        if (k < 1) requestAnimationFrame(f); else res();
+      };
+      requestAnimationFrame(f);
+    });
+  }
+  document.querySelectorAll("[data-probar]").forEach(b => b.addEventListener("click", async () => {
+    const i = +b.dataset.probar;
+    const id = ++turno;
+    anunciar("inicio", "Probando", `Brazo ${i === 0 ? "de Tú" : "del animal"}: partida → meta → partida.`);
+    moverBrazo(i, 0, true); dibujar();
+    await pausa(600); if (id !== turno) return;
+    await animarBrazo(i, 0, 180, 2400, id); if (id !== turno) return;
+    await pausa(600); if (id !== turno) return;
+    await animarBrazo(i, 180, 0, 2400, id); if (id !== turno) return;
+    sincronizarSliders();
+    anunciar("inicio", "¿Le ganas?", "¿El brazo se detuvo justo en la partida y en la meta? Si no, ajusta y vuelve a guardar.");
+  }));
+  $("panelCal").addEventListener("toggle", () => { if ($("panelCal").open) sincronizarSliders(); });
+
+  // ===== Inicio =====
+  // Se puede abrir con la rapidez ya puesta: pista.html?vel=15&rival=Guepardo
+  const q = new URLSearchParams(location.search);
+  if (q.get("vel")) $("tuVel").value = q.get("vel");
+  if (q.get("rival")) {
+    const norm = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
+    const k = DATA.findIndex(d => norm(d.nombre) === norm(q.get("rival")));
+    if (k >= 0) sel.value = String(k);
+  }
+  pintarSonido(); pintarCal(); validarVel();
+  dibujar(); pintarLados(0); actualizarEscala();
+  anunciar("inicio", "¿Le ganas?", INVITACION);
+})();
 </script>
 </body>
 </html>
