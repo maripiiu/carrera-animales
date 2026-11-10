@@ -196,7 +196,7 @@ Durante el desarrollo de la V2 registramos las siguientes pruebas:
 - **[Video: prueba del animal](https://drive.google.com/file/d/1XuTpJAEkveTmNMMYyfglgerEG2nEn3s5/view?usp=sharing)** — Demostración del movimiento utilizando la opción de animal.
 - **Archivo `maqueta.html`** — Interfaz de la carrera en una pista compartida (actualizada el 10 de noviembre). La versión anterior, con dos pistas separadas, está en el historial del repositorio.
 - **Código de Arduino `carrera_servos.ino`** — Programa que recibe los ángulos y controla los servomotores.
-- **[Imagen: Montaje 1]([https://drive.google.com/file/d/1JqPR-qWcAqv80aG7_kap5A-tBCJYxvdg/view?usp=sharing])**
-- **[Imagen: Montaje 2]([https://drive.google.com/file/d/18XGIr_JgXWtonkoRoNNlqfIuXtE-oj0G/view?usp=sharing])**
+- **[Imagen: Montaje 1](https://drive.google.com/file/d/1JqPR-qWcAqv80aG7_kap5A-tBCJYxvdg/view?usp=sharing)**
+- **[Imagen: Montaje 2](https://drive.google.com/file/d/18XGIr_JgXWtonkoRoNNlqfIuXtE-oj0G/view?usp=sharing)**
 
 **Estado al 10 de noviembre de 2026:** volvimos a usar el Arduino Leonardo del curso, desarrollamos una interfaz con una pista compartida, sonido y mensaje de resultado, y montamos provisoriamente los dos motores acostados con la pista de pie. Todavía falta un segundo servomotor angular, ajustar la pista impresa a la distancia entre los ejes y comprobar una carrera física completa calibrada.
