@@ -219,10 +219,6 @@ Reconocemos que la implementación tecnológica debe responder a una decisión d
 - **[Foto: conexión final de los dos motores en el Arduino Leonardo](https://drive.google.com/file/d/1kqe79EJ9EmekWp3VdB69k6hEINhlF_Js/view?usp=sharing)** — Los dos motores en un solo Leonardo (pin 5 con 5V y pin 6 con IOREF).
 - **[Foto: la pista con los dos motores montados](https://drive.google.com/file/d/1Fb0B6ycqcNEPAHPEIAIXH6fL4ex5Blbg/view?usp=share_link)** — Montaje de los brazos sobre la pista.
 
-**La pista con los dos motores montados.**
-
-![Pista con los dos motores montados](https://drive.google.com/file/d/1Fb0B6ycqcNEPAHPEIAIXH6fL4ex5Blbg/view?usp=share_link)
-
 ### Pruebas anteriores con un servomotor
 
 - **[Video: prueba del participante humano](https://drive.google.com/file/d/1_hwZMiRt5t0HUFzzEUbcYTmDxYpDCAAe/view?usp=sharing)** — Demostración del movimiento del servomotor utilizando la opción de humano.
