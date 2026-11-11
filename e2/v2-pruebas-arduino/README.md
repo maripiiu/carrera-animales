@@ -3,7 +3,7 @@
 **Proyecto:** ¿Le ganas al animal?  
 **Grupo:** 6  
 **Fecha de desarrollo:** 8–10 de noviembre de 2026  
-**Estado:** Prototipo en desarrollo para la R2. Movimiento probado con un servomotor; pista compartida en construcción.
+**Estado:** Prototipo funcional. La carrera de ocho segundos funciona con los dos brazos en la maqueta, controlada desde la interfaz web. Faltan las imágenes de los participantes en los brazos.
 
 ## 1. Objetivo
 
@@ -13,17 +13,15 @@ El objetivo de esta V2 es probar si podemos utilizar Arduino y servomotores para
 
 En esta etapa buscamos comprobar el funcionamiento de los componentes, explorar cómo transmitir el movimiento, conectar la representación física con una interfaz web y definir cómo comparar a la persona y al animal en una misma pista.
 
-Todavía no buscamos construir una carrera física completa ni perfectamente calibrada.
-
 ## 2. Materiales utilizados
 
-- Arduino Leonardo del curso, que volvimos a utilizar el 10 de noviembre con un cable USB de datos facilitado por el profesor.
+- Arduino Leonardo del curso, con un cable USB de datos facilitado por el profesor.
 - Arduino Uno prestado, utilizado temporalmente mientras no contábamos con un cable que transmitiera datos.
 - Servomotor MG90S de posición angular.
-- Segundo servomotor Tower Pro, que presentó giro continuo durante las pruebas.
+- Segundo servomotor Tower Pro, que presentó giro continuo durante las primeras pruebas.
 - Cables USB y cables de conexión.
 - Computador para programar y controlar el Arduino.
-- Piezas LEGO: una viga amarilla (≈ 11,5 cm) y una viga azul (≈ 8,5 cm) como brazos giratorios, además de ejes, conectores, ruedas y engranajes.
+- Piezas LEGO: una viga amarilla (≈ 11,5 cm) y una viga azul (≈ 8,5 cm) como brazos giratorios, además de ejes y conectores.
 - Cartón piedra de 37,5 × 27 cm como base de la pista.
 - Interfaz `maqueta.html`.
 
@@ -35,8 +33,8 @@ Después de la primera revisión docente comenzamos a explorar la incorporación
 
 En esta V2:
 
-- Pasamos de una maqueta estática a realizar pruebas de movimiento con servomotores.
-- Controlamos ese movimiento mediante Arduino, a partir de instrucciones enviadas desde una interfaz web.
+- Pasamos de una maqueta estática a una carrera con movimiento automático mediante servomotores.
+- Controlamos ese movimiento con Arduino, a partir de instrucciones enviadas desde una interfaz web.
 - Reemplazamos la pista recta con figuras por brazos giratorios sobre una pista semicircular.
 - Pasamos de dos pistas separadas a **una sola pista con dos carriles**, para que la persona y el animal compitan lado a lado en el mismo espacio.
 - Incorporamos sonificación y un mensaje final que indica si la persona ganó o perdió.
@@ -64,13 +62,11 @@ Probamos un servomotor MG90S de posición angular conectado al Arduino Uno.
 
 Utilizamos una interfaz experimental que permitía trabajar con las opciones de participante humano y animal, enviando instrucciones de movimiento al servomotor.
 
-Grabamos videos de las demostraciones correspondientes.
-
-El motor respondió a las instrucciones, pero todavía no logramos calibrar adecuadamente sus posiciones de inicio y final. En algunas pruebas, el desplazamiento entre ambas posiciones fue muy pequeño.
+El motor respondió a las instrucciones, pero al principio no logramos calibrar adecuadamente sus posiciones de inicio y final. En algunas pruebas, el desplazamiento entre ambas posiciones fue muy pequeño.
 
 Esto nos mostró que conseguir movimiento no es suficiente: también necesitamos controlar cuánto avanza el participante para que el movimiento represente correctamente los datos.
 
-Para abordar este problema, la nueva versión de la interfaz permite guardar la posición exacta de partida y de meta de cada brazo (ver sección 5).
+Para resolverlo, la nueva versión de la interfaz permite guardar la posición exacta de partida y de meta de cada brazo (ver sección 5).
 
 ### 4.3. Prueba del segundo servomotor
 
@@ -78,9 +74,7 @@ También conectamos un segundo servomotor Tower Pro.
 
 Inicialmente pensábamos que ambos motores funcionarían de manera similar, pero observamos que este giraba continuamente: en un servomotor continuo, el valor enviado no indica una posición, sino una velocidad.
 
-Esta prueba permitió identificar una diferencia importante entre los componentes disponibles. Un servomotor continuo no permite que el brazo se detenga siempre en la misma posición, por lo que para representar distancias necesitamos dos servomotores de posición angular.
-
-> **Por completar:** si reemplazamos el servomotor continuo por uno angular, indicar cuándo y con qué modelo.
+Esta prueba permitió identificar una diferencia importante entre los componentes disponibles. Un servomotor continuo no permite que el brazo se detenga siempre en la misma posición, por lo que para representar distancias necesitamos dos servomotores que mantengan su posición, como los que usamos en la carrera final.
 
 ### 4.4. Exploración con piezas LEGO
 
@@ -96,8 +90,24 @@ No logramos construir un puente que sostuviera un motor sobre el otro. Primero p
 
 Finalmente pusimos un motor en posición normal y el otro dado vuelta, uno sobre el otro, de modo que ambos ejes quedan alineados. Así los dos brazos giran desde el mismo origen, pero a distinta altura: el brazo amarillo (el más largo, del animal) va abajo y el azul (el de la persona) va arriba. Como la ficha del brazo amarillo queda más lejos del centro que el extremo del brazo azul, los brazos no pueden chocar.
 
-Al estar dado vuelta, uno de los motores gira en sentido contrario al otro con las mismas instrucciones. No modificamos el programa del Arduino: lo resolvemos calibrando la partida y la meta de cada brazo desde la interfaz (sección 5).
+Al estar dado vuelta, uno de los motores gira en sentido contrario al otro con las mismas instrucciones: el azul avanzaba de izquierda a derecha y el amarillo de derecha a izquierda. No modificamos el programa del Arduino: lo resolvimos calibrando la partida y la meta de cada brazo desde la interfaz. En el motor dado vuelta, la partida quedó en un ángulo alto y la meta en uno bajo, y ahora ambos brazos avanzan hacia la meta.
 
+### 4.6. Conexión de los dos motores
+
+El Arduino Leonardo tiene un solo pin de 5 V, por lo que primero intentamos usar dos placas Leonardo, una por motor, y probamos una versión de la interfaz que se conectaba a ambas.
+
+Uno de los motores no se movía. Para descartar si el problema era el Arduino, los cables o el motor, cargamos un programa de prueba que mueve un servomotor conectado a cualquier pin. Con él comprobamos que ambos motores y sus cables funcionaban.
+
+Sin embargo, una de las placas Leonardo no permitió volver a cargar el programa de la carrera (error de carga «butterfly_recv… failed»), ni siquiera usando el botón de reinicio. Esa placa quedaba repitiendo el programa de prueba y movía su motor por su cuenta.
+
+Finalmente conectamos **los dos motores a un solo Arduino Leonardo**:
+
+| Motor | Señal | Alimentación | Tierra |
+|---|---|---|---|
+| Brazo azul (persona) | Pin ~5 | 5V | GND |
+| Brazo amarillo (animal) | Pin ~6 | IOREF | GND |
+
+En el Leonardo, el pin IOREF también entrega 5 V, lo que nos permitió alimentar el segundo motor sin una protoboard. Con esta conexión la carrera funcionó correctamente con la interfaz.
 
 ## 5. Interfaz `maqueta.html`
 
@@ -157,14 +167,18 @@ Todavía debemos evaluar si los sonidos se comprenden sin explicación.
 | # | Problema | Estado |
 |---|---|---|
 | 1 | El cable inicial del Arduino Leonardo no permitía transmitir datos. | Resuelto el 10 de noviembre con cables del profesor. |
-| 2 | Fue necesario cambiar temporalmente al Arduino Uno. | Volvimos al Arduino Leonardo del curso. |
-| 3 | El servomotor angular presentaba problemas de calibración del recorrido. | La interfaz ahora permite calibrar partida y meta. Falta comprobarlo en la maqueta. |
-| 4 | El segundo servomotor gira de forma continua. | Pendiente: necesitamos un segundo servomotor angular. |
+| 2 | Fue necesario cambiar temporalmente al Arduino Uno. | Resuelto: volvimos al Arduino Leonardo del curso. |
+| 3 | El servomotor angular presentaba problemas de calibración del recorrido. | Resuelto: la interfaz permite calibrar partida y meta de cada brazo. |
+| 4 | El segundo servomotor giraba de forma continua. | Resuelto: la carrera final usa dos servomotores que mantienen su posición. |
 | 5 | No logramos construir un puente para montar un motor sobre el otro. | Resuelto: un motor normal y el otro dado vuelta, con los ejes alineados. |
-| 6 | El motor dado vuelta gira en sentido contrario. | Se corrige calibrando partida y meta en la interfaz, sin cambiar el programa. |
-| 7 | Las rapideces son muy diferentes para un espacio limitado. | La meta equivale a lo que recorre el más rápido; la pista marca porcentajes. |
-| 8 | La interfaz y la página de la E1 aún no están enlazadas. | Pendiente. La interfaz ya usa los mismos datos. |
-| 9 | No hemos comprobado una carrera física completa de ocho segundos calibrada. | Pendiente. |
+| 6 | El motor dado vuelta gira en sentido contrario. | Resuelto calibrando partida y meta en la interfaz, sin cambiar el programa. |
+| 7 | Las rapideces son muy diferentes para un espacio limitado. | Resuelto: la meta equivale a lo que recorre el más rápido; la pista marca porcentajes. |
+| 8 | Uno de los motores no se movía con dos placas Leonardo. | Diagnosticado con un programa de prueba: motores y cables funcionaban. |
+| 9 | Una placa Leonardo no permitió volver a cargar el programa de la carrera. | Resuelto usando una sola placa para los dos motores. |
+| 10 | El Leonardo tiene un solo pin de 5 V para dos motores. | Resuelto alimentando el segundo motor desde el pin IOREF. |
+| 11 | Comprobar una carrera física completa de ocho segundos. | Resuelto el 10 de noviembre (ver videos). |
+| 12 | Los brazos todavía no tienen las imágenes de los participantes. | Pendiente para la próxima versión. |
+| 13 | La interfaz y la página de la E1 aún no están enlazadas. | Pendiente. La interfaz ya usa los mismos datos. |
 
 ## 9. Decisiones de diseño y justificación
 
@@ -174,33 +188,50 @@ Elegimos brazos giratorios sobre una pista semicircular porque los servomotores 
 
 Pasamos a una sola pista con dos carriles para que la comparación sea directa: la persona y el animal avanzan en el mismo espacio y con la misma escala, como en una competencia real.
 
+Montamos los dos motores con los ejes alineados para que ambos brazos giren desde el mismo centro: así la persona y el animal comparten la misma escala angular y la comparación es justa (sección 4.5).
+
+Usamos una sola placa para los dos motores porque es más simple que coordinar dos Arduino y porque una de las placas no permitía cargar el programa (sección 4.6).
+
 Marcamos la partida y la meta como franjas anchas porque el servomotor tiene un margen de error de algunos grados.
 
 Agregamos un mensaje final explícito (ganaste, perdiste o empate) para que el resultado se entienda sin necesidad de explicación.
-
-Montamos los dos motores con los ejes alineados para que ambos brazos giren desde el mismo centro: así la persona y el animal comparten la misma escala angular y la comparación es justa (sección 4.5).
 
 Reconocemos que la implementación tecnológica debe responder a una decisión de visualización: **el objetivo no es simplemente conseguir que un motor gire, sino utilizar ese movimiento para comunicar diferencias entre los datos**.
 
 ## 10. Próximos pasos
 
-- Conseguir un segundo servomotor angular.
-- Imprimir la pista y montarla sobre el cartón piedra, con el eje de los motores sobre el centro marcado.
-- Calibrar ambos brazos desde la interfaz.
-- Comprobar una carrera física completa de ocho segundos con los dos brazos.
+- Poner las imágenes de los participantes en los brazos. La idea es que la ficha del brazo amarillo cambie según el animal seleccionado en la interfaz.
+- Mejorar la terminación de la maqueta y la fijación de los motores.
 - Enlazar la interfaz desde la página de la E1.
 - Evaluar la comprensión del movimiento, del mensaje final y de la sonificación mediante pruebas con usuarios.
+- Revisar la placa Leonardo que no permite cargar programas o reemplazarla.
 
 ## 11. Evidencias
 
-Durante el desarrollo de la V2 registramos las siguientes pruebas:
+### Carrera completa (10 de noviembre)
+
+- **[Video: la carrera en la maqueta](https://drive.google.com/file/d/1Potf8K9PHKE2QywsTLvA0Z7WEhNJAZx3/view?usp=sharing)** — Solo los motores, con la pista de fondo.
+- **[Video: la carrera en la pantalla](https://drive.google.com/file/d/1X5h1JDLiqFGdM_FmGTCrpDMJJ_U0MB3o/view?usp=share_link)** — Solo la interfaz.
+- **[Video: pantalla y maqueta al mismo tiempo](https://drive.google.com/file/d/1u6yWrTqmiBOMtPMsCWpFHHJa1UNM8yii/view?usp=share_link)** — Muestra cómo el resultado de la pantalla se refleja en los motores.
+
+### Fotografías
+
+**Conexión final:** los dos motores en un solo Arduino Leonardo (pin 5 con 5V y pin 6 con IOREF).
+
+![Conexión final de los dos motores en el Arduino Leonardo](https://drive.google.com/file/d/1kqe79EJ9EmekWp3VdB69k6hEINhlF_Js/view?usp=sharing)
+
+**La pista con los dos motores montados.**
+
+![Pista con los dos motores montados](https://drive.google.com/file/d/1Fb0B6ycqcNEPAHPEIAIXH6fL4ex5Blbg/view?usp=share_link)
+
+### Pruebas anteriores con un servomotor
 
 - **[Video: prueba del participante humano](https://drive.google.com/file/d/1_hwZMiRt5t0HUFzzEUbcYTmDxYpDCAAe/view?usp=sharing)** — Demostración del movimiento del servomotor utilizando la opción de humano.
 - **[Video: prueba del animal](https://drive.google.com/file/d/1XuTpJAEkveTmNMMYyfglgerEG2nEn3s5/view?usp=sharing)** — Demostración del movimiento utilizando la opción de animal.
-- **Archivo `maqueta.html`** — Interfaz de la carrera en una pista compartida (actualizada el 10 de noviembre). La versión anterior, con dos pistas separadas, está en el historial del repositorio.
-- **Código de Arduino `carrera_servos.ino`** — Programa que recibe los ángulos y controla los servomotores.
-- **[Imagen: Montaje 1](https://drive.google.com/file/d/1JqPR-qWcAqv80aG7_kap5A-tBCJYxvdg/view?usp=sharing)**
-- **[Imagen: Montaje 2](https://drive.google.com/file/d/18XGIr_JgXWtonkoRoNNlqfIuXtE-oj0G/view?usp=sharing)**
 
+### Archivos
 
-**Estado al 10 de noviembre de 2026:** volvimos a usar el Arduino Leonardo del curso, desarrollamos una interfaz con una pista compartida, sonido y mensaje de resultado, y montamos los dos motores con los ejes alineados para que ambos brazos giren desde el mismo centro. Todavía falta un segundo servomotor angular, calibrar los brazos y comprobar una carrera física completa.
+- **`maqueta.html`** — Interfaz de la carrera en una pista compartida (actualizada el 10 de noviembre). La versión anterior, con dos pistas separadas, está en el historial del repositorio.
+- **`carrera_servos.ino`** — Programa que recibe los ángulos y controla los servomotores.
+
+**Estado al 10 de noviembre de 2026:** la carrera de ocho segundos funciona en la maqueta con los dos brazos, controlada desde la interfaz, con sonido y mensaje de resultado. Ambos motores están conectados a un solo Arduino Leonardo y calibrados desde la interfaz. Para la próxima versión queda poner las imágenes de los participantes en los brazos, mejorar la terminación de la maqueta y enlazar la interfaz con la página de la E1.
