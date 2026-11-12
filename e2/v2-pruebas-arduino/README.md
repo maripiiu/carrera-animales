@@ -179,6 +179,8 @@ Todavía debemos evaluar si los sonidos se comprenden sin explicación.
 | 11 | Comprobar una carrera física completa de ocho segundos. | Resuelto el 10 de noviembre (ver videos). |
 | 12 | Los brazos todavía no tienen las imágenes de los participantes. | Pendiente para la próxima versión. |
 | 13 | La interfaz y la página de la E1 aún no están enlazadas. | Pendiente. La interfaz ya usa los mismos datos. |
+| 14 | El segundo motor se alimenta desde IOREF, que no es una fuente de alimentación. El USB limita la corriente a 500 mA. | Pendiente: usar una fuente externa de 5 V con GND común, o alimentar un motor a la vez. |
+| 15 | La prueba con usuarios mostró que la interfaz no explica cómo obtener la rapidez y muestra la calibración al público. | Pendiente para la V3 (ver sección 10). |
 
 ## 9. Decisiones de diseño y justificación
 
@@ -198,15 +200,75 @@ Agregamos un mensaje final explícito (ganaste, perdiste o empate) para que el r
 
 Reconocemos que la implementación tecnológica debe responder a una decisión de visualización: **el objetivo no es simplemente conseguir que un motor gire, sino utilizar ese movimiento para comunicar diferencias entre los datos**.
 
-## 10. Próximos pasos
+## 10. Evaluación con usuarios (V2)
+
+**Método:** thinking aloud (pensar en voz alta). La participante es hermana de una integrante del grupo, sin conocimiento previo del proyecto.
+**Versión evaluada:** V2 (`maqueta.html` con la calibración visible y sin indicación de cómo obtener la rapidez).
+**Duración de la grabación:** aproximadamente 4 minutos y 1 segundo.
+**Intervención de la moderadora:** la moderadora respondió preguntas y explicó varias cosas durante la prueba, por lo que algunas respuestas están influidas por esas explicaciones.
+
+### Cambios aplicados en `maqueta.html` (V3)
+
+- Se agregó el paso «Antes de correr», con un enlace a la página principal para medir la rapidez en km/h antes de ingresarla.
+- La calibración de los brazos y los pines dejaron de mostrarse al público. Se abren agregando `?equipo` a la dirección de la página.
+- Se quitó de la ayuda la instrucción de calibrar, que solo queda visible en modo equipo.
+
+### Registro cronológico
+
+| Tiempo | Lo que dice la participante | Lo que hace o sucede |
+|---|---|---|
+| 00:01 | «Ya, empezando». | Comienza la exploración de la interfaz. |
+| 00:19 | «Es que estoy leyendo». | Lee el contenido antes de interactuar. La moderadora le recuerda que debe expresar lo que piensa. |
+| 00:28 | «En la maqueta cada brazo avanza lo que avanzaría su competidor». | Lee parte de las instrucciones e intenta entender la relación entre la página y la maqueta. |
+| 00:38 | «¿Y qué tengo que agarrar? ¿Para hacerlo así? ¿O no se puede?». | Tiene dudas sobre qué interacción debe realizar y cómo empezar. |
+| 00:49 | «Ah». | La moderadora explica que puede correr la carrera usando el celular. |
+| 00:55 | «¿Y eso dónde lo dice?». | Busca una indicación sobre el uso de la otra página. La moderadora reconoce que no aparece. |
+| 01:01 | «¿Y por qué aquí dice iniciar carrera?». | Cuestiona el orden de las acciones de la interfaz. |
+| 01:08 | «Ah, yo lo tengo que hacer, pero mi rapidez se supone que la tengo que hacer yendo a la página». | Intenta reconstruir cómo obtener e ingresar su rapidez. |
+| 01:32 | Se escucha la simulación con sonidos. | Se inicia una demostración, pero aparece un problema con la conexión del Arduino. |
+| 01:38 | «Ay, no conectaste el Arduino. O sea, yo no lo conecté». | Identifica que el dispositivo no está conectado. La moderadora interviene. |
+| 01:48 | «¿Lo tengo que mover?». | Pregunta si debe manipular físicamente algún elemento. |
+| 02:02 | «Oh, qué loco eso. ¿Y este soy yo?». | Reacciona al movimiento de la carrera y busca identificar su representación. |
+| 02:10 | «¿Entonces por qué...?». | Intenta formular una pregunta. La moderadora evita explicar la respuesta. |
+| 02:17 | «Calibrar los brazos, ¿qué es eso?». | Encuentra la sección de calibración y pregunta por su función. |
+| 02:22 | «Ah». | La moderadora explica que esa sección sirve para configurar el montaje, no para el usuario. |
+| 02:41 | Se escuchan nuevamente los sonidos de la carrera. | Continúa explorando la interfaz. |
+| 02:51 | «¿Y cómo sé cuál es mi rapidez?». | Dificultad central: no sabe cómo obtener el dato que debe ingresar. |
+| 02:53 | «Claro». | La moderadora indica que debería calcular su rapidez con la otra página. |
+| 03:16 | «¿Qué es esto, pin cinco?». | Se encuentra con información técnica sobre las conexiones del Arduino. |
+| 03:26 | «¿Le ganas?, obvio que no». | Reacciona al resultado de una comparación de rapidez. |
+| 03:54 | «No sé qué más pienso». | Deja de verbalizar observaciones. |
+| 4:00 | «Está cool». | Valoración general positiva al cerrar. |
+
+**Comentario después de detener la grabación:** «Pienso que debería decir algo como que debes ir a la página principal para calcular tu rapidez, porque si no, a mí no se me ocurriría hacer eso».
+
+
+### Hallazgos
+
+1. **Obtener la rapidez humana.** La interfaz no indica dónde medirla. Se propone un paso previo visible con enlace directo a la página de la E1.
+2. **Controles técnicos mezclados con controles de usuario.** La calibración del montaje y el pin 5 aparecen en la misma interfaz que usa el público. Se propone separarla y dejarla oculta tras un modo técnico.
+3. **Cómo iniciar la experiencia.** No queda claro qué hacer primero ni por qué aparece «Iniciar carrera». Se propone una instrucción inicial más clara.
+4. **Reacción positiva.** La participante se sorprendió con el movimiento, pero no se puede concluir que haya entendido la relación entre sonidos y rapideces.
+
+### Cambios para la V3
+
+- Agregar el paso «mide tu rapidez» con enlace a la página de la E1, indicando la unidad.
+- Ocultar la calibración en un modo técnico (por ejemplo, `?equipo`).
+- Revisar que los textos de la interfaz no mencionen el pin ni el Arduino.
+
+La efectividad de estos cambios deberá comprobarse con una nueva evaluación.
+
+## 11. Próximos pasos
 
 - Poner las imágenes de los participantes en los brazos. La idea es que la ficha del brazo amarillo cambie según el animal seleccionado en la interfaz.
 - Mejorar la terminación de la maqueta y la fijación de los motores.
 - Enlazar la interfaz desde la página de la E1.
 - Evaluar la comprensión del movimiento, del mensaje final y de la sonificación mediante pruebas con usuarios.
 - Revisar la placa Leonardo que no permite cargar programas o reemplazarla.
+- Cambiar la alimentación del segundo motor a una fuente externa de 5 V (ver problema 14).
+- Aplicar los cambios de la V3 derivados de la evaluación con usuarios (sección 10).
 
-## 11. Evidencias
+## 12. Evidencias
 
 ### Carrera completa (10 de noviembre)
 
@@ -216,8 +278,13 @@ Reconocemos que la implementación tecnológica debe responder a una decisión d
 
 ### Fotografías
 
-- **[Foto: conexión final de los dos motores en el Arduino Leonardo](https://drive.google.com/file/d/1kqe79EJ9EmekWp3VdB69k6hEINhlF_Js/view?usp=sharing)** — Los dos motores en un solo Leonardo (pin 5 con 5V y pin 6 con IOREF).
-- **[Foto: la pista con los dos motores montados](https://drive.google.com/file/d/1Fb0B6ycqcNEPAHPEIAIXH6fL4ex5Blbg/view?usp=share_link)** — Montaje de los brazos sobre la pista.
+**Conexión final:** los dos motores en un solo Arduino Leonardo (pin 5 con 5V y pin 6 con IOREF).
+
+![Conexión final de los dos motores en el Arduino Leonardo](https://drive.google.com/file/d/1kqe79EJ9EmekWp3VdB69k6hEINhlF_Js/view?usp=sharing)
+
+**La pista con los dos motores montados.**
+
+![Pista con los dos motores montados](https://drive.google.com/file/d/1Fb0B6ycqcNEPAHPEIAIXH6fL4ex5Blbg/view?usp=share_link)
 
 ### Pruebas anteriores con un servomotor
 
