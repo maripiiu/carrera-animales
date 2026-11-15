@@ -278,9 +278,8 @@ La efectividad de estos cambios deberá comprobarse con una nueva evaluación.
 
 ### Fotografías
 
-**Conexión final:** los dos motores en un solo Arduino Leonardo (pin 5 con 5V y pin 6 con IOREF).
-
-**[los dos motores en un solo Arduino Leonardo](https://drive.google.com/file/d/1kqe79EJ9EmekWp3VdB69k6hEINhlF_Js/view?usp=sharing)**
+**Conexión final:** 
+**[los dos motores en un solo Arduino Leonardo](https://drive.google.com/file/d/1kqe79EJ9EmekWp3VdB69k6hEINhlF_Js/view?usp=sharing)**  (pin 5 con 5V y pin 6 con IOREF).
 
 **La pista con los dos motores montados.**
 **[Pista con los 2 motores montados](https://drive.google.com/file/d/1Fb0B6ycqcNEPAHPEIAIXH6fL4ex5Blbg/view?usp=share_link)**
