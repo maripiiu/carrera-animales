@@ -8,216 +8,784 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  /* Misma paleta y tipografías que la página de la E1 (css/styles.css y js/velocidad.js) */
+  /* Paleta armónica e integrada con la lámina impresa (sin blancos chillones ni exceso de contraste) */
   :root{
-    --ground:#111318; --surface:#191c23; --surface-2:#1f232b; --line:#2a2f3a; --line-soft:#21252d;
-    --ink:#edeef2; --ink-2:#a3a8b5; --ink-3:#6e7482;
-    --tu:#ff6d92; --rival:#e6af70;
-    --ok:#5fd39a; --aviso:#e6af70; --error:#ff7a7a;
-    color-scheme:dark;
+    --bg-page:#dfe9c1;
+    --bg-page-2:#d5e1b3;
+    --card:#f4f7ea;
+    --card-inner:#e8efcf;
+    --card-chip:#dde7be;
+    --line:#bdcb96;
+    --line-strong:#8ea162;
+
+    --navy:#0e2a7b;
+    --navy-dark:#091c54;
+    --navy-soft:#253d7a;
+    --cyan-bar:#1e6f8e;
+
+    --track-red:#ee4e45;
+    --track-progress:#7a110c; /* Rojo oscuro profundo para que se note claramente el recorrido sobre la pista */
+    --gold:#f5be36;
+
+    --ink:#10255c;
+    --ink-2:#334773;
+    --ink-3:#596b91;
+
+    --tu:#e84c77;
+    --rival:#d98218;
+    --ok:#16794b;
+    --aviso:#a85f0c;
+    --error:#b82525;
+    color-scheme:light;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--ground);color:var(--ink);font-family:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
-  .wrap{max-width:980px;margin:0 auto;padding:26px 20px 56px}
-  .display{font-family:"Anton",Impact,"Arial Narrow",sans-serif;font-weight:400;letter-spacing:.01em;text-transform:uppercase}
+  body{
+    margin:0;
+    background:repeating-linear-gradient(
+      180deg,
+      var(--bg-page) 0px,
+      var(--bg-page) 44px,
+      var(--bg-page-2) 44px,
+      var(--bg-page-2) 88px
+    );
+    color:var(--ink);
+    font-family:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-size:15px;
+    line-height:1.45;
+    -webkit-font-smoothing:antialiased;
+  }
+  .display{font-family:"Anton",Impact,"Arial Narrow",sans-serif;font-weight:400;letter-spacing:.02em;text-transform:uppercase}
   .mono{font-family:"Space Mono",ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums}
-  .eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin:0}
-  a{color:var(--tu)}
+  .eyebrow{font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3);font-weight:700;margin:0}
 
-  /* ---------- cabecera ---------- */
-  .cabecera{padding-bottom:20px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
-  .punto{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--tu);margin-right:6px;vertical-align:1px}
-  h1{font-size:clamp(36px,7vw,64px);line-height:.95;margin:10px 0 0}
-  h1 em{font-style:normal;color:var(--tu)}
-  .lead{color:var(--ink-2);max-width:60ch;margin:12px 0 0;font-size:15.5px}
-  .volver{font-size:13px;color:var(--ink-2);text-decoration:none;border:1px solid var(--line);border-radius:3px;padding:7px 12px;white-space:nowrap}
-  .volver:hover{color:var(--ink);border-color:var(--ink-3)}
+  /* ---------- Cabecera azul marino armónica con la lámina ---------- */
+  .estadio-banner{
+    background:var(--navy);
+    color:#ffffff;
+    border-bottom:4px solid var(--cyan-bar);
+    padding:12px 20px;
+  }
+  .banner-inner{
+    max-width:980px;
+    margin:0 auto;
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px 18px;
+  }
+  .banner-title{display:flex;flex-direction:column;gap:2px}
+  h1{
+    font-size:clamp(28px,4.8vw,44px);
+    line-height:.98;
+    margin:0;
+    color:#ffffff;
+  }
+  h1 em{font-style:normal;color:var(--gold)}
+  .lead{
+    color:#d6e4ff;
+    margin:2px 0 0;
+    font-size:13.5px;
+    max-width:60ch;
+  }
+  .banner-actions{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:8px;
+  }
+  .volver{
+    font-size:12.5px;
+    font-weight:600;
+    color:#ffffff;
+    text-decoration:none;
+    background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.32);
+    border-radius:99px;
+    padding:6px 13px;
+    white-space:nowrap;
+  }
+  .volver:hover{background:rgba(255,255,255,.22)}
 
-  /* ---------- controles ---------- */
+  .wrap{max-width:980px;margin:0 auto;padding:14px 16px 44px}
+
+  /* ---------- Botones e inputs ---------- */
   button,select,input{font-family:inherit;font-size:14px;color:var(--ink)}
-  button,select{background:var(--surface-2);border:1px solid var(--line);border-radius:3px;padding:9px 14px;cursor:pointer}
-  button:hover,select:hover{border-color:var(--ink-3)}
-  :focus-visible{outline:2px solid var(--tu);outline-offset:2px}
-  .btn-go{background:var(--tu);border-color:var(--tu);color:#15070b;font-weight:700;letter-spacing:.02em;padding:10px 22px}
-  .btn-go:hover{filter:brightness(1.08);border-color:var(--tu)}
-  .chip{background:transparent;border-radius:99px;color:var(--ink-3);padding:8px 14px}
-  .chip[aria-pressed="true"]{color:var(--ink);border-color:var(--ink-3);background:var(--surface-2)}
+  button{
+    background:var(--card);
+    border:1.5px solid var(--line-strong);
+    border-radius:8px;
+    padding:7px 13px;
+    font-weight:600;
+    cursor:pointer;
+    color:var(--ink);
+    transition:background .15s,border-color .15s,transform .08s;
+  }
+  button:hover{background:var(--card-chip);border-color:var(--navy)}
+  button:active{transform:translateY(1px)}
+  :focus-visible{outline:2px solid var(--navy);outline-offset:2px}
 
-  .conexion{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:20px 0 14px}
-  .pill{font-size:13px;padding:5px 12px;border-radius:99px;border:1px solid var(--line);color:var(--ink-2);background:var(--surface)}
-  .pill[data-tono="ok"]{color:var(--ok);border-color:#2f5a45}
-  .pill[data-tono="aviso"]{color:var(--aviso);border-color:#5a4a2f}
-  .pill[data-tono="error"]{color:var(--error);border-color:#5a2f35}
+  .btn-arduino{
+    background:var(--gold);
+    border:1.5px solid #ffffff;
+    color:var(--navy-dark);
+    font-weight:700;
+    border-radius:99px;
+    padding:6px 13px;
+    font-size:12.5px;
+  }
+  .btn-arduino:hover{background:#ffd25a}
+  .pill{
+    font-size:12px;
+    font-weight:500;
+    padding:5px 11px;
+    border-radius:99px;
+    border:1px solid rgba(255,255,255,.25);
+    color:#e6eeff;
+    background:rgba(8,27,84,.5);
+  }
+  .pill[data-tono="ok"]{background:#126e44;border-color:#7be0b0;color:#ffffff}
+  .pill[data-tono="aviso"]{background:#995508;border-color:#ffd089;color:#ffffff}
+  .pill[data-tono="error"]{background:#a61e1e;border-color:#ffa8a8;color:#ffffff}
 
-  .controles{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 14px;background:var(--surface);border:1px solid var(--line-soft);border-radius:4px;padding:14px 16px}
-  .campo{display:flex;flex-direction:column;gap:6px;min-width:0}
-  .campo.crece{flex:1 1 250px}
-  .con-unidad{display:flex;align-items:center;background:var(--surface-2);border:1px solid var(--line);border-radius:3px}
-  .con-unidad:focus-within{border-color:var(--tu)}
-  .con-unidad input{width:90px;background:transparent;border:0;padding:8px 4px 8px 12px;font-family:"Space Mono",monospace;font-size:16px;font-weight:700}
+  .btn-go{
+    background:var(--track-red);
+    border:2px solid var(--navy);
+    color:#ffffff;
+    font-family:"Anton",Impact,sans-serif;
+    font-size:20px;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    padding:8px 22px;
+    border-radius:9px;
+    box-shadow:0 2px 0 var(--navy);
+  }
+  .btn-go:hover{background:#e04037}
+  .chip{
+    background:var(--card-inner);
+    border:1.5px solid var(--line-strong);
+    border-radius:99px;
+    color:var(--ink);
+    padding:6px 12px;
+    font-size:12.5px;
+    font-weight:600;
+  }
+  .chip[aria-pressed="true"]{
+    background:var(--navy);
+    border-color:var(--navy);
+    color:#ffffff;
+  }
+
+  /* ---------- Panel de Controles Suavizado ---------- */
+  .panel-control{
+    background:var(--card);
+    border:2px solid var(--line-strong);
+    border-radius:12px;
+    padding:12px 14px;
+    box-shadow:0 3px 10px rgba(14,42,123,.07);
+  }
+  .top-bar-controles{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px 14px;
+    padding-bottom:10px;
+    border-bottom:1px solid var(--line);
+  }
+  .rapidez-group{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .con-unidad{
+    display:inline-flex;
+    align-items:center;
+    background:#ffffff;
+    border:1.5px solid var(--navy);
+    border-radius:7px;
+    overflow:hidden;
+  }
+  .con-unidad input{
+    width:68px;
+    background:transparent;
+    border:0;
+    padding:5px 4px 5px 9px;
+    font-family:"Space Mono",monospace;
+    font-size:16px;
+    font-weight:700;
+    color:var(--navy);
+  }
   .con-unidad input:focus-visible{outline:none}
-  .con-unidad span{padding-right:12px;color:var(--ink-3);font-size:13px}
-  select{width:100%}
-  .acciones{display:flex;flex-wrap:wrap;gap:8px}
-  .error{flex-basis:100%;margin:0;color:var(--error);font-size:13px}
+  .con-unidad span{padding-right:9px;color:var(--ink-3);font-size:12px;font-weight:700}
+  .presets-vel{
+    display:flex;
+    gap:5px;
+    flex-wrap:wrap;
+  }
+  .btn-preset{
+    font-size:11.5px;
+    padding:4px 9px;
+    border-radius:6px;
+    border:1px solid var(--line-strong);
+    background:var(--card-inner);
+    color:var(--ink-2);
+    font-weight:600;
+  }
+  .btn-preset:hover{background:var(--card-chip);color:var(--navy)}
+
+  .acciones{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+  .error{flex-basis:100%;margin:4px 0 0;color:var(--error);font-size:12.5px;font-weight:700}
   .error:empty{display:none}
 
-  /* ---------- marcador ---------- */
-  .marcador{--acento:var(--line);margin-top:16px;border:1px solid var(--line);border-left:4px solid var(--acento);border-radius:4px;background:var(--surface);padding:16px 18px;transition:background .35s,border-color .35s}
-  .marcador[data-estado="cuenta"],.marcador[data-estado="carrera"]{--acento:var(--ink-3)}
-  .marcador[data-estado="gano"]{--acento:var(--tu);background:color-mix(in srgb,var(--tu) 12%,var(--surface))}
-  .marcador[data-estado="perdio"]{--acento:var(--rival);background:color-mix(in srgb,var(--rival) 12%,var(--surface))}
-  .marcador[data-estado="empate"]{--acento:var(--ink-2);background:var(--surface-2)}
-  .fila{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:12px}
-  .lado{display:flex;flex-direction:column;gap:2px;min-width:0}
-  .lado-rival{align-items:flex-end;text-align:right}
-  .quien{display:flex;align-items:center;gap:8px;font-weight:600;font-size:15px;min-width:0}
-  .lado-rival .quien{flex-direction:row-reverse}
-  .token{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;flex:none;font-size:16px;line-height:1}
-  .tok-tu{background:var(--tu);color:#15070b;font-family:"Anton",Impact,sans-serif;font-size:12px;letter-spacing:.04em}
-  .tok-rival{background:var(--rival)}
-  .metros{font-size:clamp(20px,3.6vw,30px);font-weight:700;line-height:1.15}
-  .lado-tu .metros{color:var(--tu)}
-  .lado-rival .metros{color:var(--rival)}
-  .kmh{font-size:12px;color:var(--ink-3)}
-  .reloj{font-size:clamp(28px,6vw,46px);font-weight:700;line-height:1;text-align:center;min-width:4.4ch}
-  .reloj small{font-size:.42em;color:var(--ink-3);font-weight:400}
-  .anuncio{margin-top:14px;padding-top:14px;border-top:1px solid var(--line-soft);text-align:center}
-  .titulo{margin:0;font-size:clamp(32px,6.4vw,60px);line-height:1}
-  .marcador[data-estado="gano"] .titulo{color:var(--tu)}
-  .marcador[data-estado="perdio"] .titulo{color:var(--rival)}
-  .sub{margin:10px 0 0;font-size:17px}
-  .sub:empty{display:none}
-  .detalle{margin:6px auto 0;font-size:14px;color:var(--ink-2);max-width:64ch}
-  .detalle:empty{display:none}
-  @media (prefers-reduced-motion:no-preference){
-    .pop{animation:pop .45s cubic-bezier(.2,.9,.3,1.25)}
-    @keyframes pop{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
+  /* Selector visual de los 43 animales con contraste suave y armónico */
+  .selector-animales{margin-top:10px}
+  .selector-header{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    margin-bottom:7px;
+  }
+  .selector-titulo{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .badge-count{
+    background:var(--card-inner);
+    border:1px solid var(--line-strong);
+    color:var(--ink-2);
+    font-size:11.5px;
+    font-weight:600;
+    padding:2px 9px;
+    border-radius:99px;
+  }
+  .filtros-habitat{
+    display:flex;
+    flex-wrap:wrap;
+    gap:5px;
+  }
+  .tab-hab{
+    font-size:12px;
+    padding:4px 10px;
+    border-radius:99px;
+    border:1px solid var(--line-strong);
+    background:var(--card-inner);
+    color:var(--ink-2);
+    font-weight:600;
+  }
+  .tab-hab[aria-selected="true"]{
+    background:var(--navy);
+    border-color:var(--navy);
+    color:#ffffff;
+  }
+  .carrusel-animales{
+    display:grid;
+    grid-auto-flow:column;
+    grid-auto-columns:minmax(134px,1fr);
+    grid-template-rows:repeat(2,auto);
+    gap:6px;
+    overflow-x:auto;
+    padding:6px;
+    background:var(--card-inner);
+    border:1px solid var(--line);
+    border-radius:10px;
+    scroll-snap-type:x proximity;
+    scrollbar-width:thin;
+    scrollbar-color:var(--line-strong) var(--card-inner);
+  }
+  .card-animal{
+    scroll-snap-align:start;
+    display:flex;
+    align-items:center;
+    gap:7px;
+    padding:6px 9px;
+    border-radius:8px;
+    border:1.5px solid var(--line);
+    background:var(--card);
+    text-align:left;
+    cursor:pointer;
+    transition:border-color .12s,background .12s;
+  }
+  .card-animal:hover{
+    border-color:var(--navy-soft);
+    background:var(--card-chip);
+  }
+  .card-animal[aria-selected="true"]{
+    border-color:var(--navy);
+    background:var(--navy);
+    color:#ffffff;
+  }
+  .card-animal .emo{font-size:19px;line-height:1;flex:none}
+  .card-animal .info{min-width:0;flex:1}
+  .card-animal .nom{
+    display:block;
+    font-size:12.5px;
+    font-weight:700;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    color:inherit;
+  }
+  .card-animal .vel{
+    display:block;
+    font-size:11px;
+    color:var(--ink-3);
+  }
+  .card-animal[aria-selected="true"] .vel{
+    color:var(--gold);
+  }
+  .sr-only{
+    position:absolute;
+    width:1px;
+    height:1px;
+    padding:0;
+    margin:-1px;
+    overflow:hidden;
+    clip:rect(0,0,0,0);
+    border:0;
   }
 
-  /* ---------- pista ---------- */
-  .pista{margin-top:16px;background:var(--surface);border:1px solid var(--line-soft);border-radius:4px;padding:12px 14px 16px}
-  .pista svg{display:block;width:100%;max-width:760px;height:auto;margin:0 auto}
-  .t-pct{font:400 11px "Space Mono",ui-monospace,monospace;fill:#6e7482}
-  .t-m{font:700 12px "Space Mono",ui-monospace,monospace;fill:#a3a8b5}
-  .t-carril{font:15px "Anton",Impact,sans-serif;letter-spacing:4px;opacity:.6;dominant-baseline:central}
-  .t-pm{font:14px "Anton",Impact,sans-serif;letter-spacing:2px;fill:#a3a8b5}
-  .t-tu{font:13px "Anton",Impact,sans-serif;letter-spacing:.5px;fill:#15070b}
-  .t-emoji{font-size:19px}
-  .brazo{stroke:#bfc3cd;stroke-width:5;stroke-linecap:round}
-  .brazo-alto{stroke:#e6e8ee;stroke-width:6}
-  .leyenda{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 22px;margin-top:6px;font-size:13px;color:var(--ink-2)}
-  .leyenda i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
-  .pin{font-family:"Space Mono",monospace;font-size:11px;color:var(--ink-3);border:1px solid var(--line);border-radius:3px;padding:0 5px;margin-left:6px}
-  .escala{margin:10px auto 0;max-width:70ch;text-align:center;font-size:13px;color:var(--ink-3)}
-  .escala b{color:var(--ink-2);font-weight:600}
+  /* ---------- Marcador / Visualización Comparativa Compacta ---------- */
+  .marcador{
+    margin-top:10px;
+    border:2px solid var(--line-strong);
+    border-radius:12px;
+    background:var(--card);
+    padding:10px 14px;
+    box-shadow:0 3px 10px rgba(14,42,123,.07);
+    transition:background .25s,border-color .25s;
+  }
+  .marcador[data-estado="gano"]{border-color:var(--tu);background:#f9f0f2}
+  .marcador[data-estado="perdio"]{border-color:var(--track-red);background:#f8f3eb}
 
-  /* ---------- paneles ---------- */
-  details.panel{margin-top:14px;background:var(--surface);border:1px solid var(--line-soft);border-radius:4px}
-  details.panel>summary{cursor:pointer;padding:12px 16px;font-weight:600;font-size:14px;color:var(--ink-2)}
-  details.panel[open]>summary{color:var(--ink);border-bottom:1px solid var(--line-soft)}
-  .panel-body{padding:14px 16px 16px}
-  .pasos{margin:0 0 14px;padding-left:20px;color:var(--ink-2);font-size:13.5px}
+  .marcador-top{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px 14px;
+    padding-bottom:7px;
+    border-bottom:1px solid var(--line);
+  }
+  .anuncio-inline{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:baseline;
+    gap:6px 12px;
+    min-width:0;
+    flex:1;
+  }
+  .badge-titulo{
+    display:inline-block;
+    padding:2px 10px;
+    border-radius:6px;
+    background:var(--navy);
+    color:#ffffff;
+    font-size:clamp(17px,2.4vw,22px);
+    line-height:1.15;
+    margin:0;
+  }
+  .marcador[data-estado="gano"] .badge-titulo{background:var(--tu);color:#ffffff}
+  .marcador[data-estado="perdio"] .badge-titulo{background:var(--track-red);color:#ffffff}
+  .marcador[data-estado="carrera"] .badge-titulo{background:var(--ok);color:#ffffff}
+  .sub-inline{
+    margin:0;
+    font-size:14px;
+    font-weight:700;
+    color:var(--ink);
+  }
+  .reloj-pill{
+    display:inline-flex;
+    align-items:baseline;
+    gap:6px;
+    background:var(--card-inner);
+    border:1px solid var(--line-strong);
+    color:var(--ink-2);
+    padding:3px 10px;
+    border-radius:99px;
+    font-size:12px;
+    font-weight:600;
+  }
+  .reloj-pill .reloj{
+    font-size:14.5px;
+    font-weight:700;
+    color:var(--navy);
+  }
+
+  /* Barras horizontales de proporción de datos */
+  .duelo-barras{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    margin-top:8px;
+  }
+  .carril-dato{
+    display:grid;
+    grid-template-columns:145px 1fr 125px;
+    align-items:center;
+    gap:10px;
+  }
+  .quien{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    font-weight:700;
+    font-size:13.5px;
+    color:var(--ink);
+    min-width:0;
+  }
+  .quien span:last-child{
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .token{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:25px;
+    height:25px;
+    border-radius:50%;
+    border:1.5px solid var(--navy);
+    flex:none;
+    font-size:13px;
+    line-height:1;
+  }
+  .tok-tu{
+    background:var(--tu);
+    color:#ffffff;
+    font-family:"Anton",Impact,sans-serif;
+    font-size:10.5px;
+  }
+  .tok-rival{background:var(--gold)}
+
+  .barra-wrap{
+    height:15px;
+    background:var(--card-inner);
+    border:1.5px solid var(--line-strong);
+    border-radius:99px;
+    overflow:hidden;
+    position:relative;
+  }
+  .barra-fill{
+    height:100%;
+    width:0%;
+    border-radius:99px;
+    transition:width .06s linear;
+  }
+  .barra-tu{background:var(--tu)}
+  .barra-rival{background:var(--track-progress)}
+
+  .metricas-lado{
+    display:flex;
+    align-items:baseline;
+    justify-content:flex-end;
+    gap:6px;
+    text-align:right;
+  }
+  .metros{
+    font-size:16px;
+    font-weight:700;
+    color:var(--navy);
+  }
+  .kmh{
+    font-size:11.5px;
+    color:var(--ink-3);
+  }
+  .detalle{
+    margin:6px 0 0;
+    padding-top:6px;
+    border-top:1px solid var(--line);
+    font-size:12.5px;
+    color:var(--ink-2);
+  }
+  .detalle:empty{display:none}
+
+  @media (prefers-reduced-motion:no-preference){
+    .pop{animation:pop .35s cubic-bezier(.2,.9,.3,1.25)}
+    @keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+  }
+
+  /* ---------- La Pista (idéntica a la lámina impresa con rastro rojo oscuro) ---------- */
+  .pista{
+    margin-top:10px;
+    background:var(--card);
+    border:2px solid var(--line-strong);
+    border-radius:12px;
+    padding:10px 12px 12px;
+    box-shadow:0 3px 10px rgba(14,42,123,.07);
+  }
+  .pista-top{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    margin-bottom:6px;
+  }
+  .escala-titulo{
+    margin:0;
+    font-size:clamp(13.5px,3vw,15.5px);
+    font-weight:700;
+    color:var(--navy);
+  }
+  .toggle-pista{
+    font-size:12px;
+    font-weight:600;
+    color:var(--ink-2);
+    display:flex;
+    align-items:center;
+    gap:6px;
+    cursor:pointer;
+  }
+  .toggle-pista input{accent-color:var(--navy)}
+  .pista svg{display:block;width:100%;max-width:700px;height:auto;margin:0 auto;border:2px solid var(--navy);border-radius:12px}
+  .t-pct{font:700 14px "Archivo",system-ui,sans-serif;fill:#0e2a7b}
+  .t-m{font:700 12px "Space Mono",ui-monospace,monospace;fill:#2b3a5e}
+  .t-carril{font:24px "Anton",Impact,sans-serif;letter-spacing:3px;dominant-baseline:central}
+  .t-pm{font:700 13px "Archivo",system-ui,sans-serif;letter-spacing:.08em;fill:#ffffff}
+  .t-eje{font:700 11px "Archivo",system-ui,sans-serif;fill:#0e2a7b}
+  .t-tu{font:13px "Anton",Impact,sans-serif;letter-spacing:.5px;fill:#ffffff}
+  .t-emoji{font-size:19px}
+  .brazo{stroke:#ffffff;stroke-width:5;stroke-linecap:round}
+  .brazo-alto{stroke:#ffffff;stroke-width:6}
+  .brazo-borde{stroke:#0e2a7b;stroke-width:10;stroke-linecap:round}
+  .leyenda{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:8px 22px;
+    margin-top:8px;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--ink);
+  }
+  .leyenda i{display:inline-block;width:12px;height:12px;border-radius:3px;border:1px solid var(--navy);margin-right:6px;vertical-align:-1px}
+  .pin{font-family:"Space Mono",monospace;font-size:11px;color:var(--ink-2);background:var(--card-inner);border:1px solid var(--line-strong);border-radius:4px;padding:0 5px;margin-left:6px}
+  .escala{margin:5px auto 0;max-width:72ch;text-align:center;font-size:12px;color:var(--ink-2)}
+  body.r2-solo-maqueta .pista svg{display:none}
+
+  /* ---------- Sonificación debajo de la pista ---------- */
+  .sonido-bar{
+    margin-top:10px;
+    background:var(--card);
+    border:1.5px solid var(--line-strong);
+    border-radius:10px;
+    padding:8px 14px;
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px 16px;
+  }
+  .r2-escuchar{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:8px;
+    font-size:12.5px;
+    font-weight:700;
+    color:var(--ink);
+  }
+  .r2-escuchar button{font-size:12px;padding:5px 10px}
+  .r2-explica{font-size:11.5px;color:var(--ink-2);margin:0;max-width:54ch}
+
+  /* ---------- Paneles desplegables e instrucciones ---------- */
+  details.panel{
+    margin-top:10px;
+    background:var(--card);
+    border:1.5px solid var(--line-strong);
+    border-radius:10px;
+  }
+  details.panel>summary{
+    cursor:pointer;
+    padding:9px 14px;
+    font-weight:700;
+    font-size:13px;
+    color:var(--ink);
+  }
+  details.panel[open]>summary{border-bottom:1px solid var(--line)}
+  .panel-body{padding:12px 14px}
+  .pasos{margin:0 0 12px;padding-left:20px;color:var(--ink-2);font-size:13px}
   .pasos li{margin:4px 0}
   .pasos b{color:var(--ink)}
-  .cal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:12px}
-  .cal{background:var(--surface-2);border:1px solid var(--line);border-radius:4px;padding:12px 14px}
-  .cal h3{margin:0 0 10px;font-size:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-  .cal .sw{width:11px;height:11px;border-radius:3px;flex:none}
+  .cal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+  .cal{background:var(--card-inner);border:1.5px solid var(--line-strong);border-radius:8px;padding:12px}
+  .cal h3{margin:0 0 8px;font-size:13.5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--ink)}
+  .cal .sw{width:12px;height:12px;border-radius:3px;border:1px solid var(--navy);flex:none}
   .cal-slider{display:flex;align-items:center;gap:10px}
-  .cal-slider input{flex:1;accent-color:var(--tu)}
-  .cal-slider output{min-width:44px;text-align:right}
+  .cal-slider input{flex:1;accent-color:var(--navy)}
+  .cal-slider output{min-width:44px;text-align:right;font-weight:700}
   .cal-botones{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-  .cal-botones button{font-size:13px;padding:7px 11px}
-  .cal-valores{margin:10px 0 0;font-size:13px;color:var(--ink-2)}
-  .cal-aviso{margin:6px 0 0;font-size:12.5px;color:var(--aviso)}
+  .cal-botones button{font-size:12px;padding:5px 9px}
+  .cal-valores{margin:8px 0 0;font-size:12px;color:var(--ink-2)}
+  .cal-aviso{margin:6px 0 0;font-size:12px;color:var(--aviso);font-weight:700}
   .cal-aviso:empty{display:none}
-  .link{background:none;border:0;padding:0;color:var(--ink-3);text-decoration:underline;font-size:12.5px;margin-top:8px}
-  .link:hover{color:var(--ink-2)}
-  .ayuda h3{font-size:13px;margin:14px 0 6px;color:var(--ink)}
-  .ayuda dl{margin:0;font-size:13.5px}
-  .ayuda dt{color:var(--ink);font-weight:600;margin-top:8px}
+  .link{background:none;border:0;padding:0;color:var(--ink-3);text-decoration:underline;font-size:12px;margin-top:6px}
+  .link:hover{color:var(--navy)}
+  .ayuda h3{font-size:13px;margin:12px 0 6px;color:var(--ink)}
+  .ayuda dl{margin:0;font-size:12.5px}
+  .ayuda dt{color:var(--ink);font-weight:700;margin-top:8px}
   .ayuda dd{margin:2px 0 0;color:var(--ink-2)}
-  footer{margin-top:28px;font-size:12px;color:var(--ink-3);text-align:center}
 
-  @media (max-width:640px){
-    .wrap{padding:20px 16px 48px}
+  footer{
+    margin-top:18px;
+    font-size:12px;
+    color:var(--ink-2);
+    background:var(--card);
+    border:1.5px solid var(--line-strong);
+    border-radius:99px;
+    padding:7px 16px;
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .btn-toggle-equipo{
+    background:transparent;
+    border:1px dashed var(--ink-3);
+    color:var(--ink-2);
+    font-size:11.5px;
+    padding:3px 10px;
+    border-radius:99px;
+  }
+  .btn-toggle-equipo:hover{background:var(--card-inner);color:var(--navy)}
+  body.equipo .btn-toggle-equipo{
+    background:var(--navy);
+    color:var(--gold);
+    border-style:solid;
+  }
+  body:not(.equipo) .solo-equipo{display:none !important}
+
+  @media (max-width:680px){
+    .wrap{padding:12px 10px 36px}
+    .carril-dato{grid-template-columns:115px 1fr 105px;gap:6px}
     .acciones{width:100%}
     .acciones .btn-go{flex:1 1 auto}
-    .fila{gap:8px}
-    .quien{font-size:13px}
-    .token{width:26px;height:26px;font-size:14px}
   }
-  .paso-previo{background:var(--surface);border:1px solid var(--line-soft);border-left:4px solid var(--tu);border-radius:4px;padding:12px 16px;margin:0 0 12px}
-  .paso-previo p{margin:4px 0 0}
-  .paso-previo a{color:var(--ink);font-weight:600}
-  body:not(.equipo) .solo-equipo{display:none !important}
 </style>
 </head>
 <body>
+
+<header class="estadio-banner">
+  <div class="banner-inner">
+    <div class="banner-title">
+      <h1 class="display">¿Le ganas al <em>animal?</em></h1>
+      <p class="lead">Tú y el animal corren 8 segundos en la misma pista. Cada brazo avanza la proporción de distancia que recorre su competidor.</p>
+    </div>
+    <div class="banner-actions">
+      <button id="btnConectar" class="btn-arduino" type="button">Conectar Arduino</button>
+      <span id="estado" class="pill" data-tono="neutro" role="status">Sin Arduino · la carrera se ve en pantalla</span>
+      <a class="volver" href="https://maripiiu.github.io/carrera-animales/">↗ Medir mi rapidez</a>
+    </div>
+  </div>
+</header>
+
 <div class="wrap">
 
-  <header class="cabecera">
-    <div>
-      <p class="eyebrow"><span class="punto" aria-hidden="true"></span>Entrega 2 · la pista física</p>
-      <h1 class="display">¿Le ganas al <em>animal?</em></h1>
-      <p class="lead">Tú y un animal corren 8 segundos en la misma pista. En la maqueta, cada brazo avanza lo que avanzaría su competidor.</p>
-    </div>
-    <a class="volver" href="https://maripiiu.github.io/carrera-animales/">↗ Página principal</a>
-  </header>
-
-  <div class="conexion">
-    <button id="btnConectar" type="button">Conectar Arduino</button>
-    <span id="estado" class="pill" data-tono="neutro" role="status">Sin Arduino · la carrera se ve igual en pantalla</span>
-  </div>
-
-  <div class="paso-previo">
-    <p class="eyebrow">Antes de correr</p>
-    <p>Mide tu rapidez en km/h en la <a href="https://maripiiu.github.io/carrera-animales/">página principal</a> (con el celular) y escríbela abajo.</p>
-  </div>
-
-  <div class="controles">
-    <div class="campo">
-      <label for="tuVel" class="eyebrow">Tu rapidez</label>
-      <div class="con-unidad"><input id="tuVel" type="text" inputmode="decimal" autocomplete="off" value="12" aria-describedby="errorVel"><span>km/h</span></div>
-    </div>
-    <div class="campo crece">
-      <label for="rival" class="eyebrow">Tu rival</label>
-      <select id="rival"></select>
-    </div>
-    <div class="acciones">
-      <button id="btnCorrer" class="btn-go" type="button">Iniciar carrera</button>
-      <button id="btnPartida" type="button">Volver a la partida</button>
-      <button id="btnSonido" class="chip" type="button" aria-pressed="true">♪ Sonido</button>
-    </div>
-    <p id="errorVel" class="error" role="alert"></p>
-  </div>
-
-  <section id="marcador" class="marcador" data-estado="inicio" aria-label="Marcador de la carrera">
-    <div class="fila">
-      <div class="lado lado-tu">
-        <span class="quien"><span class="token tok-tu" aria-hidden="true">TÚ</span><span>Tú</span></span>
-        <span class="metros mono" id="mTu">0 m</span>
-        <span class="kmh mono" id="kTu">12 km/h</span>
+  <!-- Controles principales + Galería visual de 43 animales -->
+  <section class="panel-control" data-r2-v3="1" aria-label="Configuración de la carrera">
+    <div class="top-bar-controles">
+      <div class="rapidez-group">
+        <label for="tuVel" class="eyebrow">1. Tu rapidez</label>
+        <div class="con-unidad">
+          <input id="tuVel" type="text" inputmode="decimal" autocomplete="off" value="12" aria-describedby="errorVel">
+          <span>km/h</span>
+        </div>
+        <div class="presets-vel" aria-label="Ejemplos de rapidez humana">
+          <button type="button" class="btn-preset" data-vel="5">Caminando (5)</button>
+          <button type="button" class="btn-preset" data-vel="12">Trotando (12)</button>
+          <button type="button" class="btn-preset" data-vel="24">Corriendo rápido (24)</button>
+          <button type="button" class="btn-preset" data-vel="44.7">Usain Bolt (44,7)</button>
+        </div>
       </div>
-      <div class="reloj mono" id="reloj">0,0<small> s</small></div>
-      <div class="lado lado-rival">
-        <span class="quien"><span class="token tok-rival" id="emojiRival" aria-hidden="true">🐆</span><span id="nombreRival">Guepardo</span></span>
-        <span class="metros mono" id="mRival">0 m</span>
-        <span class="kmh mono" id="kRival">120 km/h</span>
+
+      <div class="acciones">
+        <button id="btnCorrer" class="btn-go" type="button">▶ Iniciar carrera</button>
+        <button id="btnPartida" type="button">↺ Partida</button>
+        <button id="btnSonido" class="chip" type="button" aria-pressed="true">♪ Sonido</button>
       </div>
+      <p id="errorVel" class="error" role="alert"></p>
     </div>
-    <div class="anuncio" id="anuncio" aria-live="polite">
-      <p class="titulo display" id="titulo">¿Le ganas?</p>
-      <p class="sub" id="sub"></p>
-      <p class="detalle" id="detalle"></p>
+
+    <div class="selector-animales">
+      <div class="selector-header">
+        <div class="selector-titulo">
+          <span class="eyebrow">2. Elige un animal para competir</span>
+          <span class="badge-count" id="badgeCount">43 animales disponibles · desliza para ver más →</span>
+        </div>
+        <div class="filtros-habitat" role="tablist" aria-label="Filtrar animales por medio">
+          <button type="button" class="tab-hab" data-medio="todos" role="tab" aria-selected="true">Todos (43)</button>
+          <button type="button" class="tab-hab" data-medio="tierra" role="tab" aria-selected="false">🐾 Tierra</button>
+          <button type="button" class="tab-hab" data-medio="aire" role="tab" aria-selected="false">🦅 Aire</button>
+          <button type="button" class="tab-hab" data-medio="agua" role="tab" aria-selected="false">🌊 Agua</button>
+        </div>
+      </div>
+
+      <!-- Galería visual de tarjetas con contraste suave -->
+      <div id="galeriaRivales" class="carrusel-animales" role="listbox" aria-label="Lista de animales rivales"></div>
+
+      <!-- Select nativo sincronizado para accesibilidad -->
+      <label for="rival" class="sr-only">Tu rival</label>
+      <select id="rival" class="sr-only"></select>
     </div>
   </section>
 
+  <!-- Marcador compacto con visualización de barras proporcionales -->
+  <section id="marcador" class="marcador" data-estado="inicio" aria-label="Marcador de la carrera">
+    <div class="marcador-top">
+      <div class="anuncio-inline" id="anuncio" aria-live="polite">
+        <p class="badge-titulo display" id="titulo">¿Le ganas?</p>
+        <p class="sub-inline" id="sub"></p>
+      </div>
+      <div class="reloj-pill">
+        <span>Duración</span>
+        <span class="reloj mono" id="reloj">0,0<small> s</small></span>
+        <span>/ 8,0 s</span>
+      </div>
+    </div>
+
+    <div class="duelo-barras">
+      <div class="carril-dato">
+        <span class="quien"><span class="token tok-tu" aria-hidden="true">TÚ</span><span>Tú</span></span>
+        <div class="barra-wrap" aria-hidden="true"><div id="barraTu" class="barra-fill barra-tu"></div></div>
+        <div class="metricas-lado">
+          <span class="metros mono" id="mTu">0 m</span>
+          <span class="kmh mono" id="kTu">12 km/h</span>
+        </div>
+      </div>
+      <div class="carril-dato">
+        <span class="quien"><span class="token tok-rival" id="emojiRival" aria-hidden="true">🐆</span><span id="nombreRival">Guepardo</span></span>
+        <div class="barra-wrap" aria-hidden="true"><div id="barraRival" class="barra-fill barra-rival"></div></div>
+        <div class="metricas-lado">
+          <span class="metros mono" id="mRival">0 m</span>
+          <span class="kmh mono" id="kRival">120 km/h</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="detalle" id="detalle"></p>
+  </section>
+
+  <!-- La Pista Digital (sincronizada con la lámina impresa y con rastro rojo oscuro) -->
   <section class="pista" aria-label="La pista">
-    <svg id="svg" viewBox="0 0 680 380" role="img" aria-labelledby="svgTitulo svgDesc">
-      <title id="svgTitulo">Pista de dos carriles</title>
-      <desc id="svgDesc">Una sola pista semicircular. El carril interior es tuyo y el exterior es del animal. Los dos brazos giran desde el mismo centro, desde la partida a la izquierda hasta la meta a la derecha.</desc>
+    <div class="pista-top">
+      <p class="escala-titulo" id="escalaTitulo"></p>
+      <label class="toggle-pista">
+        <input id="mostrarPistaDigital" type="checkbox" checked>
+        <span>Mostrar pista digital en pantalla</span>
+      </label>
+    </div>
+
+    <svg id="svg" viewBox="0 0 680 392" role="img" aria-labelledby="svgTitulo svgDesc">
+      <title id="svgTitulo">Pista semicircular de dos carriles</title>
+      <desc id="svgDesc">Una sola pista semicircular idéntica a la lámina impresa. El carril interior es tuyo y el exterior es del animal. A medida que cada brazo avanza, su recorrido queda marcado en rojo oscuro.</desc>
       <defs>
         <pattern id="cuadros" width="12" height="12" patternUnits="userSpaceOnUse">
           <rect width="12" height="12" fill="#edeef2"/>
@@ -226,18 +794,49 @@
         </pattern>
         <path id="arcoTu" d=""/>
         <path id="arcoRival" d=""/>
+        <clipPath id="marco"><rect width="680" height="392" rx="12"/></clipPath>
       </defs>
+      <g clip-path="url(#marco)" aria-hidden="true">
+        <rect width="680" height="392" fill="#a3c03b"/>
+        <rect y="34" width="680" height="30" fill="#98b534"/>
+        <rect y="94" width="680" height="30" fill="#98b534"/>
+        <rect y="154" width="680" height="30" fill="#98b534"/>
+        <rect y="214" width="680" height="30" fill="#98b534"/>
+        <rect y="274" width="680" height="30" fill="#98b534"/>
+        <rect y="334" width="680" height="30" fill="#98b534"/>
+        <rect width="680" height="30" fill="#0e2a7b"/>
+        <rect y="30" width="680" height="4" fill="#1e6f8e"/>
+        <polygon points="48,44 20,112 76,112" fill="#257a5a"/>
+        <polygon points="48,72 14,160 82,160" fill="#277f5b"/>
+        <rect x="44" y="160" width="8" height="14" fill="#6b4a2b"/>
+        <polygon points="632,44 604,112 660,112" fill="#257a5a"/>
+        <polygon points="632,72 598,160 666,160" fill="#277f5b"/>
+        <rect x="628" y="160" width="8" height="14" fill="#6b4a2b"/>
+      </g>
       <g id="capa"></g>
     </svg>
+
     <div class="leyenda">
       <span><i style="background:var(--tu)"></i>Tú · carril interior<span class="pin solo-equipo">pin 5</span></span>
-      <span><i style="background:var(--rival)"></i><span id="legRival">Guepardo</span> · carril exterior<span class="pin solo-equipo">pin 6</span></span>
+      <span><i style="background:var(--gold)"></i><span id="legRival">Guepardo</span> · carril exterior<span class="pin solo-equipo">pin 6</span></span>
+      <span><i style="background:var(--track-progress)"></i>Tramo ya recorrido</span>
     </div>
     <p class="escala" id="escala"></p>
   </section>
 
+  <!-- Prueba de sonido debajo de la pista -->
+  <div class="sonido-bar" aria-label="Prueba de sonidos de la carrera">
+    <div class="r2-escuchar">
+      <span>🔊 Escuchar cada ritmo por separado:</span>
+      <button type="button" id="probarHumano">▶ Tu paso (humano)</button>
+      <button type="button" id="probarAnimal">▶ Pulso del animal</button>
+    </div>
+    <p class="r2-explica">El humano suena como un paso grave de tambor; el animal, como un pulso agudo brillante. A mayor rapidez (km/h), más pulsos por segundo.</p>
+  </div>
+
+  <!-- Panel de Calibración (sin recargar la página ni desconectar el Arduino) -->
   <details class="panel solo-equipo" id="panelCal">
-    <summary>Calibrar los brazos de la maqueta</summary>
+    <summary>⚙️ Calibrar los brazos de la maqueta (Modo Equipo)</summary>
     <div class="panel-body">
       <ol class="pasos">
         <li>Conecta el Arduino (arriba) y espera a que diga <b>Arduino listo</b>.</li>
@@ -259,7 +858,7 @@
           <button type="button" class="link" data-reset="0">Restablecer este brazo</button>
         </div>
         <div class="cal">
-          <h3><span class="sw" style="background:var(--rival)"></span>Animal · carril exterior <span class="pin">pin 6</span></h3>
+          <h3><span class="sw" style="background:var(--gold)"></span>Animal · carril exterior <span class="pin">pin 6</span></h3>
           <div class="cal-slider"><input type="range" id="crudo1" min="0" max="180" step="1" value="0" aria-label="Posición del brazo del animal, en grados del servo"><output id="crudo1v" class="mono">0°</output></div>
           <div class="cal-botones">
             <button type="button" data-guardar="partida" data-i="1">Guardar partida</button>
@@ -271,36 +870,33 @@
           <button type="button" class="link" data-reset="1">Restablecer este brazo</button>
         </div>
       </div>
-      <p class="escala" style="text-align:left;margin-left:0">La calibración se guarda en este navegador, así que basta hacerla una vez por computador.</p>
+      <p class="escala" style="text-align:left;margin-left:0">La calibración queda guardada en este navegador. Puedes ocultar el Modo Equipo en el pie de página sin perder tu conexión con el Arduino.</p>
     </div>
   </details>
 
   <details class="panel ayuda">
-    <summary>¿Cómo se usa?</summary>
+    <summary>❓ ¿Cómo funciona la maqueta y cómo conectarla?</summary>
     <div class="panel-body">
       <ol class="pasos">
-        <li>Abre esta página en <b>Google Chrome</b> o <b>Edge</b>. Safari no puede conectarse al Arduino.</li>
-        <li>Cierra el Arduino IDE: solo un programa a la vez puede usar el Arduino.</li>
-        <li>Aprieta <b>Conectar Arduino</b> y elige el Arduino de la lista. Al conectarse, el Arduino hace su barrido de prueba (unos 5 segundos).</li>
-        
-        <li>Escribe tu rapidez, elige un rival y aprieta <b>Iniciar carrera</b> (o Enter).</li>
+        <li>Abre esta página en <b>Google Chrome</b> o <b>Edge</b>.</li>
+        <li>Cierra el Arduino IDE para dejar libre el puerto USB.</li>
+        <li>Aprieta <b>Conectar Arduino</b> arriba a la derecha y elige tu placa. Al conectarse, el Arduino hace su barrido de prueba (5 segundos).</li>
+        <li>Ingresa tu rapidez (o elige un ejemplo como <i>Caminando</i>, <i>Trotando</i> o <i>Corriendo rápido</i>), haz clic en cualquiera de los <b>43 animales</b> y presiona <b>Iniciar carrera</b>.</li>
       </ol>
-      <h3>Si algo falla</h3>
+      <h3>Solución de problemas</h3>
       <dl>
         <dt>«No se pudo abrir el Arduino»</dt>
-        <dd>El Arduino IDE (o su Serial Monitor) lo está usando. Ciérralo y vuelve a conectar.</dd>
-        <dt>El Arduino no aparece en la lista</dt>
-        <dd>Prueba otro cable USB: algunos solo cargan y no transmiten datos.</dd>
-        <dt>Un brazo gira al revés o no llega justo a la meta</dt>
-        <dd class="solo-equipo">Calíbralo en «Calibrar los brazos de la maqueta».</dd>
-        <dd>Avísale al equipo.</dd>
-        <dt>Los brazos tiemblan o el Arduino se reinicia</dt>
-        <dd>Los dos servos piden más corriente de la que da el USB. Prueben con un servo a la vez o con una fuente externa de 5 V.</dd>
+        <dd>El Monitor Serial del Arduino IDE está abierto. Ciérralo y vuelve a conectar.</dd>
+        <dt>Necesito calibrar los ángulos de partida y meta sin recargar la página</dt>
+        <dd>Haz clic en el botón <b>«⚙️ Calibrar brazos»</b> que está abajo a la derecha en el pie de página (o presiona <kbd>Alt</kbd> + <kbd>C</kbd>). Así se despliega el panel sin perder la conexión USB activa.</dd>
       </dl>
     </div>
   </details>
 
-  <footer>IIC2026 · Visualización de Información · ¿Le ganas al animal? · Datos: los mismos de la página de la E1.</footer>
+  <footer>
+    <span>IIC2026 · Visualización de Información · ¿Le ganas al animal?</span>
+    <button type="button" id="btnToggleEquipo" class="btn-toggle-equipo" title="Atajo: Alt + C">⚙️ Calibrar brazos (Modo Equipo)</button>
+  </footer>
 </div>
 
 <script>
@@ -308,8 +904,7 @@
   "use strict";
   const $ = id => document.getElementById(id);
 
-  // ===== Datos: los mismos de la página de la E1 (js/velocidad.js) =====
-  // nombre, km/h, medio, clase, emoji
+  // ===== Datos: los 43 animales =====
   const DATA = [
     ["Halcón peregrino",389,"aire","ave","🦅"],
     ["Águila real",320,"aire","ave","🦅"],
@@ -317,9 +912,9 @@
     ["Murciélago",160,"aire","mamífero","🦇"],
     ["Fragata",153,"aire","ave","🐦"],
     ["Paloma mensajera",148,"aire","ave","🕊️"],
+    ["Guepardo",120,"tierra","mamífero","🐆"],
     ["Pez vela",110,"agua","pez","🐟"],
     ["Pez espada",97,"agua","pez","🐠"],
-    ["Guepardo",120,"tierra","mamífero","🐆"],
     ["Berrendo",88,"tierra","mamífero","🦌"],
     ["Caballo de carrera",88,"tierra","mamífero","🐎"],
     ["León",80,"tierra","mamífero","🦁"],
@@ -357,20 +952,21 @@
   ].map(([nombre,kmh,medio,clase,emoji]) => ({nombre,kmh,medio,clase,emoji}))
    .sort((a,b) => b.kmh - a.kmh);
 
-  const COLOR = {tierra:"#e6af70", aire:"#9b7bf0", agua:"#1f97a6", tu:"#ff6d92"};
+  const COLOR = {tierra:"#e6af70", aire:"#9b7bf0", agua:"#1f97a6", tu:"#e84c77"};
   const MEDIOS = [["tierra","Tierra"],["aire","Aire"],["agua","Agua"]];
 
-  const DURACION = 8;            // segundos de carrera
-  const ENVIOS_POR_SEG = 25;     // veces por segundo que se le habla al Arduino
-  const PREPARACION_MS = 5000;   // el Arduino UNO se reinicia al conectarse y hace su barrido de prueba
-  const PASO_CUENTA_MS = 1000;   // "En sus marcas…" y "Listos…"
+  const DURACION = 8;
+  const ENVIOS_POR_SEG = 25;
+  const PREPARACION_MS = 5000;
+  const PASO_CUENTA_MS = 1000;
+  const MUESTRA_S = 1.2;
 
-  // ===== Textos =====
+  // ===== Formateo de textos y números =====
   const FEMENINOS = new Set(["Fragata","Paloma mensajera","Liebre","Cebra","Jirafa","Orca","Tortuga marina","Abeja","Ardilla","Mariposa monarca","Gallina","Mosca doméstica","Araña","Hormiga","Tortuga terrestre","Estrella de mar"]);
   const articulo = a => a.nombre === "Usain Bolt" ? "" : a.nombre === "Humano trotando" ? "un" : FEMENINOS.has(a.nombre) ? "la" : "el";
   const nombreMin = a => a.nombre === "Usain Bolt" ? a.nombre : a.nombre.charAt(0).toLowerCase() + a.nombre.slice(1);
-  const conArt = a => (articulo(a) ? articulo(a) + " " : "") + nombreMin(a);          // "el guepardo"
-  const conA = a => { const art = articulo(a), n = nombreMin(a);                       // "al guepardo"
+  const conArt = a => (articulo(a) ? articulo(a) + " " : "") + nombreMin(a);
+  const conA = a => { const art = articulo(a), n = nombreMin(a);
     return art === "el" ? "al " + n : art ? "a " + art + " " + n : "a " + n; };
   const mayus = s => s.charAt(0).toUpperCase() + s.slice(1);
   const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -383,13 +979,15 @@
     return m < 1 ? nf(m * 100, 0) + " cm" : nf(m, 1) + " m";
   }
   const fmtVivo = m => m <= 0 ? "0 m" : m < 1 ? nf(m * 100, 0) + " cm" : nf(m, 1) + " m";
-  // "un 4 % más rápido" si son parecidos; "10 veces más rápido" si no
   const cuantoMas = r => r < 1.95 ? `un ${nf(Math.round((r - 1) * 100), 0)} % más rápido`
     : `${r < 10 ? nf(r, 1) : nf(Math.round(r), 0)} veces más rápido`;
   const fmtPct = p => p * 100 < 1 ? nf(p * 100, 1) : nf(Math.round(p * 100), 0);
 
-  // ===== Rival y rapidez =====
+  // ===== Selector de Rival (Select + Galería Visual de Tarjetas) =====
   const sel = $("rival");
+  const galeria = $("galeriaRivales");
+  let filtroMedio = "todos";
+
   MEDIOS.forEach(([medio, etiqueta]) => {
     const g = document.createElement("optgroup");
     g.label = etiqueta;
@@ -405,6 +1003,52 @@
   sel.value = String(DATA.findIndex(d => d.nombre === "Guepardo"));
   const rival = () => DATA[+sel.value];
 
+  function renderGaleria(){
+    galeria.replaceChildren();
+    const actual = +sel.value;
+    const lista = DATA.map((d, i) => ({...d, idx: i}))
+                      .filter(d => filtroMedio === "todos" || d.medio === filtroMedio);
+
+    $("badgeCount").textContent = `${lista.length} animales disponibles · haz clic en cualquiera`;
+
+    lista.forEach(d => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "card-animal";
+      btn.setAttribute("role", "option");
+      btn.setAttribute("aria-selected", String(d.idx === actual));
+      btn.innerHTML = `
+        <span class="emo" aria-hidden="true">${d.emoji}</span>
+        <span class="info">
+          <span class="nom">${esc(d.nombre)}</span>
+          <span class="vel mono">${fmtVel(d.kmh)} km/h</span>
+        </span>
+      `;
+      btn.addEventListener("click", () => {
+        sel.value = String(d.idx);
+        sel.dispatchEvent(new Event("change"));
+        renderGaleria();
+      });
+      galeria.appendChild(btn);
+    });
+  }
+
+  document.querySelectorAll(".tab-hab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      filtroMedio = tab.dataset.medio;
+      document.querySelectorAll(".tab-hab").forEach(t => t.setAttribute("aria-selected", String(t === tab)));
+      renderGaleria();
+    });
+  });
+
+  // Botones rápidos de rapidez humana
+  document.querySelectorAll(".btn-preset").forEach(b => {
+    b.addEventListener("click", () => {
+      $("tuVel").value = b.dataset.vel;
+      $("tuVel").dispatchEvent(new Event("input"));
+    });
+  });
+
   function velTu(){
     const txt = $("tuVel").value.trim().replace(",", ".");
     const v = Number(txt);
@@ -417,7 +1061,7 @@
     return v;
   }
 
-  // ===== Sonido (el mismo de maqueta.html) =====
+  // ===== Sonido =====
   let audio = null;
   let sonidoOn = true;
   try { sonidoOn = localStorage.getItem("pista-sonido") !== "0"; } catch (e) {}
@@ -425,9 +1069,8 @@
     if (!audio) audio = new (window.AudioContext || window.webkitAudioContext)();
     if (audio.state === "suspended") audio.resume();
   }
-  function nota(freq, dur, tipo, vol){
-    if (!sonidoOn || !audio) return;
-    const o = audio.createOscillator(), g = audio.createGain(), t = audio.currentTime;
+  function notaEn(t, freq, dur, tipo, vol){
+    const o = audio.createOscillator(), g = audio.createGain();
     o.type = tipo; o.frequency.value = freq;
     g.gain.setValueAtTime(0, t);
     g.gain.linearRampToValueAtTime(vol, t + 0.01);
@@ -435,21 +1078,42 @@
     o.connect(g).connect(audio.destination);
     o.start(t); o.stop(t + dur + 0.05);
   }
-  // Escala logarítmica: 0,05 km/h → grave, 400 km/h → agudo
+  function nota(freq, dur, tipo, vol){
+    if (!sonidoOn || !audio) return;
+    notaEn(audio.currentTime, freq, dur, tipo, vol);
+  }
   function frecuencia(kmh){
     const f = Math.log10(Math.max(kmh, 0.05) / 0.05) / Math.log10(400 / 0.05);
-    return 160 * Math.pow(2, f * 3);          // de 160 Hz a 1280 Hz (3 octavas)
+    return 160 * Math.pow(2, f * 3);
   }
   function pulsosPorSeg(kmh){
     const f = Math.log10(Math.max(kmh, 0.05) / 0.05) / Math.log10(400 / 0.05);
-    return 0.5 + f * 9.5;                       // de 0,5 a 10 pasos por segundo
+    return 0.5 + f * 9.5;
+  }
+  function sonidoHumano(kmh, t){
+    if (!sonidoOn || !audio) return;
+    if (t === undefined) t = audio.currentTime;
+    notaEn(t, 95 + 0.16 * frecuencia(kmh), 0.095, "sine", 0.16);
+  }
+  function sonidoAnimal(kmh, t){
+    if (!sonidoOn || !audio) return;
+    if (t === undefined) t = audio.currentTime;
+    const base = frecuencia(kmh);
+    notaEn(t, Math.min(1500, base * 0.95), 0.11, "sawtooth", 0.035);
+    notaEn(t, Math.min(1800, base * 1.4), 0.065, "triangle", 0.035);
+  }
+  function muestra(sonido, kmh){
+    asegurarAudio();
+    if (!sonidoOn) return;
+    const paso = 1 / pulsosPorSeg(kmh), t0 = audio.currentTime + 0.05;
+    for (let t = 0; t < MUESTRA_S; t += paso) sonido(kmh, t0 + t);
   }
   function pintarSonido(){
     $("btnSonido").setAttribute("aria-pressed", String(sonidoOn));
     $("btnSonido").textContent = sonidoOn ? "♪ Sonido" : "♪ Sin sonido";
   }
 
-  // ===== Calibración (se guarda en este navegador) =====
+  // ===== Calibración =====
   const CAL_KEY = "pista-calibracion";
   const CAL_BASE = () => [{partida:0, meta:180}, {partida:0, meta:180}];
   function cargarCal(){
@@ -466,10 +1130,10 @@
   const aCrudo = (i, ang) => Math.round(cal[i].partida + (cal[i].meta - cal[i].partida) * recorte(ang, 0, 180) / 180);
   const aAngulo = (i, crudo) => cal[i].meta === cal[i].partida ? 0 : recorte((crudo - cal[i].partida) / (cal[i].meta - cal[i].partida) * 180, -6, 186);
 
-  // ===== Conexión con el Arduino (Web Serial: Chrome o Edge) =====
+  // ===== Conexión Arduino (Web Serial) =====
   let puerto = null, escritor = null, listo = false, prepTimer = null;
   let esperando = [];
-  let deseado = [aCrudo(0, 0), aCrudo(1, 0)];   // ángulos del servo que queremos
+  let deseado = [aCrudo(0, 0), aCrudo(1, 0)];
   let enviado = "";
   const codificador = new TextEncoder();
 
@@ -501,10 +1165,10 @@
     clearInterval(prepTimer);
     const tick = () => {
       const quedan = Math.ceil((fin - performance.now()) / 1000);
-      if (quedan > 0) { estado(`Conectado · el Arduino hace su barrido de prueba (${quedan} s)…`, "aviso"); return; }
+      if (quedan > 0) { estado(`Conectado · barrido de prueba (${quedan} s)…`, "aviso"); return; }
       clearInterval(prepTimer);
       listo = true;
-      estado("Arduino listo · los brazos siguen la carrera", "ok");
+      estado("Arduino listo · brazos sincronizados", "ok");
       enviarCrudo(deseado[0], deseado[1], true);
       liberarEspera();
     };
@@ -514,14 +1178,14 @@
 
   async function conectar(){
     if (!("serial" in navigator)) {
-      estado("Este navegador no puede hablar con el Arduino. Abre la página en Google Chrome o Edge.", "error");
+      estado("Abre esta página en Google Chrome o Edge para usar el Arduino.", "error");
       return;
     }
     let p;
     try { p = await navigator.serial.requestPort(); }
-    catch (e) { estado("No elegiste ningún Arduino. Aprieta «Conectar Arduino» y elige el Arduino de la lista.", "neutro"); return; }
+    catch (e) { estado("No elegiste ningún Arduino.", "neutro"); return; }
     try { await p.open({ baudRate: 9600 }); }
-    catch (e) { estado("No se pudo abrir el Arduino. Cierra el Arduino IDE (o su Serial Monitor) y vuelve a intentarlo.", "error"); return; }
+    catch (e) { estado("No se pudo abrir el Arduino. Cierra el Arduino IDE e inténtalo de nuevo.", "error"); return; }
     puerto = p;
     escritor = p.writable.getWriter();
     listo = false; enviado = "";
@@ -537,7 +1201,7 @@
     if (p) { try { await p.close(); } catch (e) {} }
     liberarEspera();
     $("btnConectar").textContent = "Conectar Arduino";
-    estado(mensaje || "Sin Arduino · la carrera se ve igual en pantalla", tono || "neutro");
+    estado(mensaje || "Sin Arduino · la carrera se ve en pantalla", tono || "neutro");
   }
 
   $("btnConectar").addEventListener("click", () => puerto ? desconectar() : conectar());
@@ -545,17 +1209,17 @@
     navigator.serial.addEventListener("disconnect", e => {
       if (puerto && (!e.target || e.target === puerto || e.target === navigator.serial)) {
         escritor = null;
-        desconectar("Se desconectó el Arduino. Revisa el cable y vuelve a conectar.", "error");
+        desconectar("Se desconectó el Arduino. Revisa el cable USB.", "error");
       }
     });
   } else {
-    estado("Este navegador no puede conectarse al Arduino (usa Chrome o Edge). La carrera igual se ve en pantalla.", "aviso");
+    estado("Usa Chrome o Edge para conectar el Arduino. En pantalla funciona igual.", "aviso");
   }
 
-  // ===== Dibujo de la pista =====
+  // ===== Dibujo de la pista SVG (Con rastro rojo oscuro de alto contraste) =====
   const CX = 340, CY = 318;
-  const R_IN = 126, R_MID = 194, R_OUT = 262;   // bordes de los carriles
-  const R_TU = 160, R_RIV = 228, R_LBL = 290;   // largo de cada brazo y etiquetas
+  const R_IN = 126, R_MID = 194, R_OUT = 262;
+  const R_TU = 160, R_RIV = 228, R_LBL = 290;
   let angulos = [0, 0];
 
   const pt = (r, a) => { const t = a * Math.PI / 180; return [CX - r * Math.cos(t), CY - r * Math.sin(t)]; };
@@ -568,48 +1232,55 @@
   $("arcoRival").setAttribute("d", arco(R_RIV, 25, 155));
 
   function dibujar(){
-    const r = rival(), cR = COLOR[r.medio], cT = COLOR.tu;
+    const r = rival(), cT = COLOR.tu, cR = COLOR[r.medio];
     const v = velTu();
     const maxD = v ? Math.max(metros(v), metros(r.kmh)) : null;
     let s = "";
-    s += `<path d="M${CX} ${CY} L${P(R_IN,-6)} A${R_IN} ${R_IN} 0 1 1 ${P(R_IN,186)} Z" fill="#14171d"/>`;
-    s += `<path d="${sector(R_IN, R_OUT, -6, 186)}" fill="#1c2029"/>`;
-    s += `<path d="${sector(R_IN, R_MID, -6, 186)}" fill="${cT}" fill-opacity=".07"/>`;
-    s += `<path d="${sector(R_MID, R_OUT, -6, 186)}" fill="${cR}" fill-opacity=".07"/>`;
-    // Lo recorrido por cada uno
+    // Fondo de pista rojo vivo
+    s += `<path d="${sector(R_IN, R_OUT, -2, 182)}" fill="#ee4e45"/>`;
+    // Recorrido avanzado en rojo oscuro profundo (#7a110c) con borde blanco sutil para que el contraste sea clarísimo
     const a0 = recorte(angulos[0], 0, 180), a1 = recorte(angulos[1], 0, 180);
-    if (a0 > 0.2) s += `<path d="${sector(R_IN + 4, R_MID - 4, 0, a0)}" fill="${cT}" fill-opacity=".42"/>`;
-    if (a1 > 0.2) s += `<path d="${sector(R_MID + 4, R_OUT - 4, 0, a1)}" fill="${cR}" fill-opacity=".42"/>`;
-    [R_IN, R_MID, R_OUT].forEach(rr => {
-      s += `<path d="${arco(rr, -6, 186)}" fill="none" stroke="#3b414e" stroke-width="${rr === R_MID ? 2 : 1.5}"/>`;
-    });
-    // Cuartos de la pista, con su equivalencia en metros para este duelo
-    [[45, "end"], [90, "middle"], [135, "start"]].forEach(([a, anchor]) => {
+    if (a0 > 0.2) s += `<path d="${sector(R_IN, R_MID, 0, a0)}" fill="#7a110c" fill-opacity=".82"/>`;
+    if (a1 > 0.2) s += `<path d="${sector(R_MID, R_OUT, 0, a1)}" fill="#7a110c" fill-opacity=".82"/>`;
+
+    s += `<path d="${arco(R_IN - 4, -2, 182)}" fill="none" stroke="#d9dde3" stroke-width="8"/>`;
+    s += `<path d="${arco(R_OUT + 4, -2, 182)}" fill="none" stroke="#d9dde3" stroke-width="8"/>`;
+    s += `<path d="${arco(R_MID, -2, 182)}" fill="none" stroke="#ffffff" stroke-width="4"/>`;
+    [[45, "25 %"], [90, "50 %"], [135, "75 %"]].forEach(([a, etiq]) => {
       const [x1, y1] = pt(R_IN, a), [x2, y2] = pt(R_OUT, a), [x, y] = pt(R_LBL, a);
-      s += `<line x1="${x1.toFixed(2)}" y1="${y1.toFixed(2)}" x2="${x2.toFixed(2)}" y2="${y2.toFixed(2)}" stroke="#545b6a" stroke-width="1.2" stroke-dasharray="4 5"/>`;
-      s += `<text class="t-pct" x="${x.toFixed(1)}" y="${(y - 6).toFixed(1)}" text-anchor="${anchor}">${a / 180 * 100} %</text>`;
-      if (maxD) s += `<text class="t-m" x="${x.toFixed(1)}" y="${(y + 9).toFixed(1)}" text-anchor="${anchor}">${fmtDist(maxD * a / 180)}</text>`;
+      s += `<line x1="${x1.toFixed(2)}" y1="${y1.toFixed(2)}" x2="${x2.toFixed(2)}" y2="${y2.toFixed(2)}" stroke="#ffffff" stroke-width="3" stroke-dasharray="6 6"/>`;
+      const h = maxD ? 40 : 24;
+      s += `<rect x="${(x - 40).toFixed(1)}" y="${(y - h / 2).toFixed(1)}" width="80" height="${h}" rx="9" fill="#ffffff" stroke="#0e2a7b" stroke-width="2"/>`;
+      s += maxD
+        ? `<text class="t-pct" x="${x.toFixed(1)}" y="${(y - 3).toFixed(1)}" text-anchor="middle">${etiq}</text>` +
+          `<text class="t-m" x="${x.toFixed(1)}" y="${(y + 12).toFixed(1)}" text-anchor="middle">${fmtDist(maxD * a / 180)}</text>`
+        : `<text class="t-pct" x="${x.toFixed(1)}" y="${(y + 5).toFixed(1)}" text-anchor="middle">${etiq}</text>`;
     });
     s += `<path d="${sector(R_IN, R_OUT, -2.2, 2.2)}" fill="#edeef2"/>`;
     s += `<path d="${sector(R_IN, R_OUT, 177.8, 182.2)}" fill="url(#cuadros)"/>`;
-    s += `<text class="t-carril" fill="${cT}"><textPath href="#arcoTu" startOffset="50%" text-anchor="middle">TÚ</textPath></text>`;
-    s += `<text class="t-carril" fill="${cR}"><textPath href="#arcoRival" startOffset="50%" text-anchor="middle">${esc(r.nombre.toUpperCase())}</textPath></text>`;
+    s += `<text class="t-carril" fill="#ffffff"><textPath href="#arcoTu" startOffset="50%" text-anchor="middle">TÚ</textPath></text>`;
+    s += `<text class="t-carril" fill="#ffc83d"><textPath href="#arcoRival" startOffset="50%" text-anchor="middle">${esc(r.nombre.toUpperCase())}</textPath></text>`;
     const [xp] = pt((R_IN + R_OUT) / 2, 0), [xm] = pt((R_IN + R_OUT) / 2, 180);
-    s += `<text class="t-pm" x="${xp.toFixed(1)}" y="${CY + 50}" text-anchor="middle">PARTIDA</text>`;
-    s += `<text class="t-pm" x="${xm.toFixed(1)}" y="${CY + 50}" text-anchor="middle">META</text>`;
-    // Brazos: el tuyo va abajo (más corto) y el del animal arriba (más largo)
+    [[xp, "PARTIDA"], [xm, "META"]].forEach(([x, texto]) => {
+      s += `<rect x="${(x - 56).toFixed(1)}" y="${CY + 26}" width="112" height="24" rx="12" fill="#0e2a7b"/>`;
+      s += `<text class="t-pm" x="${x.toFixed(1)}" y="${CY + 43}" text-anchor="middle">${texto}</text>`;
+    });
+    if (maxD) s += `<text class="t-m" x="${xm.toFixed(1)}" y="${CY + 66}" text-anchor="middle">100 % = ${fmtDist(maxD)}</text>`;
     const [xt, yt] = pt(R_TU, angulos[0]), [xr, yr] = pt(R_RIV, angulos[1]);
+    s += `<line class="brazo-borde" x1="${CX}" y1="${CY}" x2="${xt.toFixed(2)}" y2="${yt.toFixed(2)}"/>`;
+    s += `<line class="brazo-borde" x1="${CX}" y1="${CY}" x2="${xr.toFixed(2)}" y2="${yr.toFixed(2)}"/>`;
     s += `<line class="brazo" x1="${CX}" y1="${CY}" x2="${xt.toFixed(2)}" y2="${yt.toFixed(2)}"/>`;
     s += `<line class="brazo brazo-alto" x1="${CX}" y1="${CY}" x2="${xr.toFixed(2)}" y2="${yr.toFixed(2)}"/>`;
-    s += `<circle cx="${CX}" cy="${CY}" r="11" fill="#2a2f3a" stroke="#6e7482"/><circle cx="${CX}" cy="${CY}" r="5" fill="#ef9f27"/>`;
-    s += `<circle cx="${xt.toFixed(2)}" cy="${yt.toFixed(2)}" r="17" fill="${cT}" stroke="#111318" stroke-width="3"/>`;
+    s += `<circle cx="${CX}" cy="${CY}" r="12" fill="#ffffff" stroke="#0e2a7b" stroke-width="2.5"/><circle cx="${CX}" cy="${CY}" r="4" fill="#0e2a7b"/>`;
+    s += `<text class="t-eje" x="${CX}" y="${CY + 32}" text-anchor="middle">EJE</text>`;
+    s += `<circle cx="${xt.toFixed(2)}" cy="${yt.toFixed(2)}" r="17" fill="${cT}" stroke="#0e2a7b" stroke-width="3"/>`;
     s += `<text class="t-tu" x="${xt.toFixed(2)}" y="${yt.toFixed(2)}" text-anchor="middle" dominant-baseline="central">TÚ</text>`;
-    s += `<circle cx="${xr.toFixed(2)}" cy="${yr.toFixed(2)}" r="18" fill="${cR}" stroke="#111318" stroke-width="3"/>`;
+    s += `<circle cx="${xr.toFixed(2)}" cy="${yr.toFixed(2)}" r="18" fill="${cR}" stroke="#0e2a7b" stroke-width="3"/>`;
     s += `<text class="t-emoji" x="${xr.toFixed(2)}" y="${(yr + 1).toFixed(2)}" text-anchor="middle" dominant-baseline="central">${r.emoji}</text>`;
     $("capa").innerHTML = s;
   }
 
-  // ===== Marcador =====
+  // ===== Marcador y Barras Proporcionales =====
   function pintarLados(t){
     const r = rival(), v = velTu();
     $("nombreRival").textContent = r.nombre;
@@ -620,6 +1291,11 @@
     $("mTu").textContent = v ? fmtVivo(v / 3.6 * t) : "—";
     $("mRival").textContent = fmtVivo(r.kmh / 3.6 * t);
     $("reloj").innerHTML = nf(t, 1) + "<small> s</small>";
+
+    const pctTu = recorte(angulos[0] / 180 * 100, 0, 100);
+    const pctRival = recorte(angulos[1] / 180 * 100, 0, 100);
+    $("barraTu").style.width = pctTu.toFixed(1) + "%";
+    $("barraRival").style.width = pctRival.toFixed(1) + "%";
   }
 
   function anunciar(estadoMarcador, titulo, sub, detalle, animar){
@@ -629,45 +1305,50 @@
     $("detalle").textContent = detalle || "";
     if (animar) { const a = $("anuncio"); a.classList.remove("pop"); void a.offsetWidth; a.classList.add("pop"); }
   }
-  const INVITACION = "Escribe tu rapidez, elige un rival y aprieta «Iniciar carrera».";
+  const INVITACION = "Elige un animal arriba y presiona «Iniciar carrera».";
 
   function actualizarEscala(){
     const r = rival(), v = velTu();
     document.documentElement.style.setProperty("--rival", COLOR[r.medio]);
-    if (!v) { $("escala").textContent = "La meta es lo que recorre el más rápido de los dos en 8 segundos."; return; }
+    if (!v) {
+      $("escalaTitulo").textContent = "Escribe tu rapidez para calcular la escala de la pista";
+      $("escala").textContent = "";
+      return;
+    }
     const ganasTu = v >= r.kmh;
-    $("escala").innerHTML = `En este duelo, de la partida a la meta hay <b>${fmtDist(Math.max(metros(v), metros(r.kmh)))}</b>: lo que ${ganasTu ? "recorres tú" : "recorre " + esc(conArt(r))} en 8 segundos. Se compara el ángulo: si los dos brazos apuntan a la misma línea, recorrieron lo mismo.`;
+    const maxD = Math.max(metros(v), metros(r.kmh));
+    $("escalaTitulo").textContent = `Escala de este duelo: la pista completa (100 %) mide ${fmtDist(maxD)}`;
+    $("escala").innerHTML = `De la partida a la meta es lo que ${ganasTu ? "recorres tú" : "recorre " + esc(conArt(r))} en 8 segundos.`;
   }
 
-  // ===== Resultado =====
   function resultado(vTu, r){
     const vAn = r.kmh;
     const dTu = metros(vTu), dAn = metros(vAn);
     const nom = conArt(r);
     if (vTu === vAn) {
       return { estado: "empate", titulo: "¡Empate!",
-        sub: `Tú y ${nom} recorrieron lo mismo: ${fmtDist(dTu)} en 8 segundos.`,
+        sub: `Ambos recorrieron ${fmtDist(dTu)} en 8 segundos.`,
         detalle: "Los dos brazos llegaron juntos a la meta." };
     }
     const ratio = Math.max(vTu, vAn) / Math.min(vTu, vAn);
     const justo = ratio < 1.03;
-    const recorrido = `En 8 segundos recorriste ${fmtDist(dTu)} y ${nom} ${fmtDist(dAn)}.`;
+    const recorrido = `En 8 s recorriste ${fmtDist(dTu)} y ${nom} ${fmtDist(dAn)}.`;
     if (vTu > vAn) {
       const p = dAn / dTu;
       return { estado: "gano", titulo: "¡Ganaste!",
         sub: `${justo ? "¡Por un pelo! " : ""}Le ganaste ${conA(r)} por ${fmtDist(dTu - dAn)}.`,
         detalle: `${recorrido} ${justo ? "Fueron casi a la par." : `Vas ${cuantoMas(ratio)} que ${nom}.`} ` +
-          `Cuando cruzaste la meta, ${nom} ${p * 100 < 0.1 ? "casi no se había movido de la partida" : `iba en el ${fmtPct(p)} % del recorrido`}.` };
+          `Cuando cruzaste la meta, ${nom} ${p * 100 < 0.1 ? "casi no se había movido de la partida" : `iba en el ${fmtPct(p)} % de la pista`}.` };
     }
     const p = dTu / dAn;
     return { estado: "perdio", titulo: "Perdiste",
       sub: `${justo ? "¡Por un pelo! " : ""}${mayus(nom)} te ganó por ${fmtDist(dAn - dTu)}.`,
       detalle: `${recorrido} ${justo ? "Fueron casi a la par." : `${mayus(nom)} va ${cuantoMas(ratio)} que tú.`} ` +
-        `Cuando ${nom} cruzó la meta, ${p * 100 < 0.1 ? "casi no te habías movido de la partida" : `ibas en el ${fmtPct(p)} % del recorrido`}.` };
+        `Cuando ${nom} cruzó la meta, ${p * 100 < 0.1 ? "casi no te habías movido de la partida" : `ibas en el ${fmtPct(p)} % de la pista`}.` };
   }
 
-  // ===== La carrera =====
-  let turno = 0;   // cambia cada vez que algo empieza o se cancela
+  // ===== La Carrera =====
+  let turno = 0;
   const pausa = ms => new Promise(r => setTimeout(r, ms));
 
   async function correr(){
@@ -684,18 +1365,18 @@
     enviarAngulos(0, 0, true);
 
     if (puerto && !listo) {
-      anunciar("cuenta", "Un momento", "El Arduino está terminando su barrido de prueba…", "", true);
+      anunciar("cuenta", "Preparando…", "Esperando a que el Arduino termine su barrido inicial…", "", true);
       await esperarArduino();
       if (id !== turno) return;
       enviarAngulos(0, 0, true);
     }
-    anunciar("cuenta", "En sus marcas…", "", "", true);
+    anunciar("cuenta", "En sus marcas…", "Prepárate para mirar la pista", "", true);
     await pausa(PASO_CUENTA_MS); if (id !== turno) return;
-    anunciar("cuenta", "Listos…", "", "", true);
+    anunciar("cuenta", "Listos…", "8 segundos de carrera", "", true);
     await pausa(PASO_CUENTA_MS); if (id !== turno) return;
-    anunciar("carrera", "¡Ya!", "Mira la maqueta: cada brazo avanza a la rapidez de su competidor.", "", true);
+    anunciar("carrera", "¡Ya!", "Cada brazo avanza proporcional a su rapidez.", "", true);
 
-    const timbres = ["triangle", "square"];
+    const sonidos = [sonidoHumano, sonidoAnimal];
     const proximoPulso = [0, 0];
     let ultimoEnvio = -1, cambioTitulo = false;
     const t0 = performance.now();
@@ -712,7 +1393,7 @@
       }
       vel.forEach((x, i) => {
         if (t >= proximoPulso[i] && t < DURACION) {
-          nota(frecuencia(x), 0.08, timbres[i], i ? 0.06 : 0.12);
+          sonidos[i](x);
           proximoPulso[i] = t + 1 / pulsosPorSeg(x);
         }
       });
@@ -742,6 +1423,46 @@
   sel.addEventListener("change", aPartida);
   $("tuVel").addEventListener("input", () => { if (validarVel() !== null) aPartida(); else { dibujar(); pintarLados(0); actualizarEscala(); } });
   $("tuVel").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); correr(); } });
+
+  $("mostrarPistaDigital").addEventListener("change", e => {
+    document.body.classList.toggle("r2-solo-maqueta", !e.target.checked);
+  });
+
+  $("probarHumano").addEventListener("click", () => {
+    if (!sonidoOn) $("btnSonido").click();
+    muestra(sonidoHumano, velTu() || 12);
+  });
+  $("probarAnimal").addEventListener("click", () => {
+    if (!sonidoOn) $("btnSonido").click();
+    muestra(sonidoAnimal, rival().kmh);
+  });
+
+  // ===== Modo Equipo sin recargar la página (conserva la conexión USB con Arduino) =====
+  function toggleModoEquipo(forzarEstado){
+    const activo = typeof forzarEstado === "boolean"
+      ? forzarEstado
+      : !document.body.classList.contains("equipo");
+    document.body.classList.toggle("equipo", activo);
+    if (activo) {
+      $("panelCal").open = true;
+      sincronizarSliders();
+      $("panelCal").scrollIntoView({behavior: "smooth", block: "nearest"});
+    }
+    try {
+      const url = new URL(location.href);
+      if (activo) url.searchParams.set("equipo", "1");
+      else url.searchParams.delete("equipo");
+      history.replaceState(null, "", url);
+    } catch (e) {}
+  }
+
+  $("btnToggleEquipo").addEventListener("click", () => toggleModoEquipo());
+  window.addEventListener("keydown", e => {
+    if (e.altKey && (e.key === "c" || e.key === "C")) {
+      e.preventDefault();
+      toggleModoEquipo();
+    }
+  });
 
   // ===== Panel de calibración =====
   const sliders = [$("crudo0"), $("crudo1")];
@@ -809,15 +1530,15 @@
   $("panelCal").addEventListener("toggle", () => { if ($("panelCal").open) sincronizarSliders(); });
 
   // ===== Inicio =====
-  // Se puede abrir con la rapidez ya puesta: pista.html?vel=15&rival=Guepardo
   const q = new URLSearchParams(location.search);
   if (q.has("equipo")) document.body.classList.add("equipo");
   if (q.get("vel")) $("tuVel").value = q.get("vel");
   if (q.get("rival")) {
-    const norm = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
+    const norm = s => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
     const k = DATA.findIndex(d => norm(d.nombre) === norm(q.get("rival")));
     if (k >= 0) sel.value = String(k);
   }
+  renderGaleria();
   pintarSonido(); pintarCal(); validarVel();
   dibujar(); pintarLados(0); actualizarEscala();
   anunciar("inicio", "¿Le ganas?", INVITACION);
