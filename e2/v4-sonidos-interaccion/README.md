@@ -1,6 +1,6 @@
 # E2 — Avance posterior a la Revisión 3: ajustes de sonificación y selección de animales
 
-Esta actualización continúa el trabajo de la V3 a partir de las sugerencias recibidas durante la **Revisión 3 (R3)** con el profesor. Se trata de una **iteración en desarrollo**, centrada por ahora en mejorar los sonidos y simplificar la elección del animal. **No corresponde todavía a una V4 final**: quedan pendientes cambios relacionados con la interacción física de la maqueta.
+Esta actualización continúa el trabajo de la V3 a partir de las sugerencias recibidas durante la **Revisión 3 (R3)** con el profesor. Se trata de una **iteración en desarrollo**, centrada en lograr una sonificación reconocible y equilibrada, además de depurar la selección de animales. **No corresponde todavía a una V4 final**: quedan pendientes los cambios relacionados con la interacción física de la maqueta.
 
 ---
 
@@ -20,84 +20,80 @@ En esta actualización abordamos las **dos primeras sugerencias**. La selección
 
 ## 2. Cambios implementados
 
-### 2.1 Selección de once animales
+### 2.1 Curaduría progresiva: de 43 a 11 y finalmente a 6 animales
 
-La galería de la maqueta se redujo de 43 opciones a **once animales** representativos:
+En una primera prueba posterior a R3 redujimos la galería original de 43 opciones a 11 animales. Sin embargo, al evaluar los audios en conjunto detectamos dos problemas de diseño:
 
-- **Caballo de carrera** — 88 km/h
-- **Abeja** — 29 km/h
-- **Elefante** — 40 km/h
-- **Guepardo** — 120 km/h
-- **Gallina** — 14 km/h
-- **Halcón peregrino** — 389 km/h
-- **León** — 80 km/h
-- **Conejo** — 56 km/h
-- **Caracol** — 0,048 km/h
-- **Berrendo** — 88 km/h
-- **Delfín** — 60 km/h
+- **Falta de reconocibilidad auditiva en varias especies:** mientras los pasos humanos y el galope del caballo son icónicos, las pisadas aisladas de especies como guepardo, león, berrendo, elefante o halcón peregrino resultaban difíciles de distinguir entre sí al oído sin explicación previa.
+- **Amplitud excesiva frente al objetivo de la maqueta:** mantener especies cuyo sonido no aportaba información clara perjudicaba la lectura sonora exigida por la experiencia físico-digital.
 
-Se conservaron los valores de rapidez utilizados en el proyecto. La reducción busca simplificar la interacción y permitir que el equipo trabaje con mayor detalle la representación sonora de cada competidor. La carrera continúa enfrentando a **una persona contra un animal**.
+Por ello, se decidió depurar el catálogo a **6 animales con firma sonora distintiva**, conservando los **tres hábitats** (tierra, aire y agua) y un rango completo de velocidades comparables contra un ser humano:
 
-### 2.2 Pasos humanos en lugar de pulsos sintetizados
+| Animal | Rapidez | Hábitat | Rol en la comparación |
+| :--- | :--- | :--- | :--- |
+| **Caballo de carrera** | 88 km/h | Tierra | Referencia rápida con galope inconfundible |
+| **Delfín** | 60 km/h | Agua | Desplazamiento acuático claramente diferenciable |
+| **Conejo** | 56 km/h | Tierra | Referencia ligeramente superior al récord humano |
+| **Abeja** | 29 km/h | Aire | Referencia aérea alcanzable corriendo rápido |
+| **Gallina** | 14 km/h | Tierra | Duelo muy parejo frente al trote humano (12 km/h) |
+| **Caracol** | 0,048 km/h | Tierra | Contraste extremo de lentitud |
 
-Se reemplazó el sonido abstracto del humano por pistas de pisadas diferenciadas según las cuatro velocidades de referencia disponibles:
+**Qué se descartó:** se retiraron *guepardo, león, berrendo, elefante* y *halcón peregrino* de esta iteración porque sus grabaciones de pisadas/movimiento no se diferenciaban claramente durante la carrera simultánea.
 
-| Rapidez de referencia | Movimiento representado | Audio incorporado |
+### 2.2 Pasos humanos sobre superficie firme
+
+Se reemplazó el sonido abstracto del humano por cuatro pistas de pisadas diferenciadas según rangos de rapidez ingresada por el usuario:
+
+| Rango de rapidez ingresada | Movimiento representado | Audio incorporado |
 | :--- | :--- | :--- |
-| **5 km/h** | Caminando | `humano5.mp3` |
-| **12 km/h** | Trotando | `humano12.mp3` |
-| **24 km/h** | Corriendo | `humano24.wav` |
-| **44,7 km/h** | Esprint | `humano44.mp3` |
+| **Menos de 8,5 km/h** | Caminando (ref. 5 km/h) | `caminando.mp3` |
+| **8,5 a 17,9 km/h** | Trotando (ref. 12 km/h) | `trotando.mp3` |
+| **18 a 33,9 km/h** | Corriendo (ref. 24 km/h) | `corriendo.mp3` |
+| **34 km/h o más** | Esprint (ref. 44,7 km/h) | `usain bolt.mp3` |
 
-La intención es que el usuario pueda **reconocer el tipo e intensidad del movimiento al escucharlo**, en lugar de interpretar solamente cambios de tono o frecuencia de pulsos. Estos audios funcionan como una representación auditiva del ritmo y no implican registros reales tomados exactamente a esas velocidades.
+Tras las primeras pruebas se descartaron las pistas iniciales de pasos humanos sobre pasto, ya que su textura se confundía con el desplazamiento de los animales; se reemplazaron por grabaciones sobre superficie firme para separar ambos timbres.
 
-### 2.3 Sonidos de animales y galope del caballo
+### 2.3 Generación y selección de efectos sonoros
 
-El sonido sintetizado del **caballo de carrera** se reemplazó por una pista de galope (`caballito.mp3`) para distinguir claramente los cascos de las pisadas humanas.
+Para el **caballo de carrera** se incorporó una grabación real de galope (`caballito.mp3`). Para los demás animales y las pistas humanas actualizadas se generaron efectos sonoros mediante herramientas de IA, evitando enlaces rotos o problemas de carga:
 
-*(Nota: Los otros diez animales mantienen temporalmente los sonidos sintetizados de V3 o los efectos generados mediante IA según corresponda a las pruebas actuales. Su ajuste definitivo queda sujeto a nuevas evaluaciones).*
+- **Herramientas utilizadas:** ElevenLabs y Morphic Studio.
+- **Distribución:** `Chicken running footsteps.mp3` (gallina) fue generado en Morphic Studio; el resto de los efectos de animales (`abeja.mp3`, `delfin.mp3`, `conejo.mp3`, `caracol+.mp3`) y pistas complementarias se generaron en ElevenLabs (debido al límite gratuito de Morphic).
+- **Criterios de generación (prompt base):** `Close-up Foley sound effect of [animal o persona] [acción y velocidad] on [superficie], [textura y ritmo de pisadas], no [vocalizations or wind], clean isolated SFX, no background noise.`
 
-### 2.4 Generación de efectos sonoros con Inteligencia Artificial
+### 2.4 Integración local, normalización automática y control de mezcla en vivo
 
-Para lograr sonidos más reconocibles y evitar problemas de derechos de autor o enlaces rotos, se recurrió a herramientas de inteligencia artificial para generar los efectos de sonido de los animales:
+En las pruebas con audio simultáneo se detectó que algunas grabaciones venían a un volumen mucho mayor que otras, tapando las pisadas humanas durante los 8 segundos de carrera. Para resolverlo:
 
-- **Herramienta / Plataforma de IA utilizada:** ` [ElevenLabs, Morphic Studio]`
-- **Audios generados con esta herramienta:** `[Todos menos el galope del caballo. El sonido del guepardo, elefante y gallina fueron creados en Morphic Studio los demás en ElevenLabs (esto solo porque la versión gratuita de Morphic no permitía más uso.)]`
-- **Criterios de generación / Prompts base:** `[Close-up Foley sound effect of [animal o persona] [acción y velocidad, ej: running at maximum speed] on [superficie, ej: dry dirt and grass], [textura y ritmo de pisadas, ej: rapid rhythmic footsteps], no [sonido a evitar, ej: vocalizations or wind], clean isolated SFX, no background noise.]`
-
-### 2.5 Integración de audios y ajuste de volumen
-
-- Las pistas de audio quedaron **incorporadas directamente en el archivo `maqueta.html`** (codificadas/integradas), eliminando la dependencia de cargar archivos desde servidores externos.
-- Se calibraron los niveles de ganancia/volumen para que los nuevos efectos sonoros mantuvieran un equilibrio adecuado respecto a los sonidos base de V3.
-- Tras las primeras pruebas auditivas, se redujo ligeramente el volumen específico del caballo para evitar saturación.
-
-Antes de llegar a esta solución se probaron sonidos sintetizados por código (que se confundían con golpes o ruido blanco) y audios enlazados externamente (que presentaban fallos de carga), por lo que la integración local en el HTML resultó ser la opción más estable.
+- **Audios incrustados sin conexión:** las pistas quedaron codificadas directamente dentro del archivo `maqueta.html`, eliminando dependencias de carpetas externas o servidores.
+- **Normalización automática por RMS:** al decodificar cada pista con Web Audio API, la página calcula su nivel energético real (RMS) y ajusta automáticamente su ganancia base para que todos los animales partan equilibrados.
+- **Prioridad base y controles de volumen independientes:** la mezcla inicial prioriza ligeramente las pisadas humanas (110 % humano / 85 % animal) y se incorporaron **dos barras de volumen en vivo** (`Tus pasos` y `Animal`, de 0 % a 150 %) conectadas a nodos de ganancia separados (`GainNode`). Esto permite al usuario enfatizar o aislar cualquiera de los dos carriles incluso en medio de la carrera.
 
 ---
 
 ## 3. Qué se mantuvo de V3
 
-- El diseño general de la interfaz, la pista visual y los controles de inicio/reinicio de la carrera.
+- El diseño general de la interfaz, la pista semicircular y los controles de inicio/reinicio de la carrera.
 - La **duración estándar de ocho segundos**, los cálculos de distancia y la representación angular del avance.
 - La comunicación entre la interfaz web y la placa Arduino mediante **Web Serial**.
 - El mecanismo físico de **dos servomotores y dos brazos** que representan a los competidores.
-- Los controles de escucha individual (previsualización de sonido) y la calibración de la maqueta.
+- Los botones de escucha individual previa y el panel de calibración de la maqueta (`Modo Equipo`).
 
-**No se modificó el programa de Arduino** en esta iteración; todos los cambios se concentraron en la interfaz web.
+**No se modificó el programa de Arduino** en esta iteración; todos los cambios se concentraron en la interfaz web y su motor de audio.
 
 ---
 
 ## 4. Pendiente: interacción física y próximas pruebas
 
-La recomendación de R3 de **dar mayor protagonismo a la interacción física** sigue abierta. Como siguiente paso, se evaluará la propuesta del profesor de implementar **códigos QR asociados a los once animales** directamente sobre la maqueta, permitiendo que el usuario seleccione al competidor desde el montaje físico y no exclusivamente desde la pantalla.
+La recomendación de R3 de **dar mayor protagonismo a la interacción física** sigue abierta. Como siguiente paso, se evaluará implementar **selección tangible desde la maqueta** (por ejemplo, mediante códigos QR o pulsadores físicos asociados a los 6 animales), de modo que el usuario no dependa exclusivamente de la pantalla.
 
-**Esto constituye una línea de desarrollo futura, no una funcionalidad disponible actualmente.** Asimismo, queda pendiente validar esta actualización con usuarios reales, verificar el balance sonoro en conjunto y registrar el funcionamiento completo en una nueva prueba audiovisual.
+**Esto constituye una línea de desarrollo futura, no una funcionalidad disponible actualmente.** Queda pendiente validar esta nueva mezcla sonora con usuarios externos (*thinking aloud*) y registrar la sincronía completa con la maqueta física en video.
 
 ---
 
 ## 5. Archivos y registro
 
-- **`maqueta.html`** — Interfaz actualizada de la maqueta con la selección de once animales y los nuevos audios integrados.
+- **`maqueta.html`** — Interfaz actualizada con los 6 animales seleccionados, audios incrustados, normalización automática RMS y barras de volumen independientes.
 - **Programa Arduino (`../v2-pruebas-arduino/carrera_servos.ino`)** — Se mantiene sin cambios para el control de los dos servomotores.
 - **`../v3-pruebas-usuarios/README.md`** — Documenta el estado anterior de la interfaz y las evaluaciones que motivaron esta iteración.
 
