@@ -698,6 +698,99 @@
     .acciones{width:100%}
     .acciones .btn-go{flex:1 1 auto}
   }
+
+  /* ---------- Lector QR de la Maqueta (Modo 100% físico) ---------- */
+  .qr-panel{
+    margin-bottom:10px;
+    background:var(--card);
+    border:2px solid var(--navy);
+    border-radius:12px;
+    padding:10px 14px;
+    box-shadow:0 3px 10px rgba(14,42,123,.08);
+  }
+  .qr-top{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px 14px;
+  }
+  .qr-acciones{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:8px;
+  }
+  .btn-qr-on{
+    background:var(--navy);
+    border-color:var(--navy);
+    color:#ffffff;
+    border-radius:99px;
+    padding:6px 14px;
+    font-size:12.5px;
+  }
+  .btn-qr-on:hover{background:var(--navy-dark);color:var(--gold)}
+  .qr-check{
+    font-size:12px;
+    font-weight:600;
+    color:var(--ink-2);
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    cursor:pointer;
+  }
+  .qr-check input{accent-color:var(--navy)}
+  .qr-body{
+    margin-top:10px;
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:12px;
+  }
+  .qr-body[hidden]{display:none}
+  .qr-video-wrap{
+    position:relative;
+    width:220px;
+    max-width:100%;
+    border-radius:10px;
+    overflow:hidden;
+    border:2px solid var(--navy);
+    background:#091c54;
+    line-height:0;
+    flex:none;
+  }
+  .qr-video-wrap video{
+    width:100%;
+    height:155px;
+    object-fit:cover;
+    display:block;
+  }
+  .qr-reticula{
+    position:absolute;
+    inset:18px;
+    border:2px dashed rgba(245,190,54,.85);
+    border-radius:8px;
+    pointer-events:none;
+  }
+  .qr-info{
+    flex:1 1 240px;
+    min-width:0;
+  }
+  .qr-estado{
+    margin:0;
+    font-size:13.5px;
+    font-weight:700;
+    color:var(--navy);
+  }
+  .qr-estado[data-tono="ok"]{color:var(--ok)}
+  .qr-estado[data-tono="aviso"]{color:var(--aviso)}
+  .qr-estado[data-tono="error"]{color:var(--error)}
+  .qr-ayuda{
+    margin:4px 0 0;
+    font-size:12px;
+    color:var(--ink-2);
+  }
+
 </style>
 </head>
 <body>
@@ -717,6 +810,34 @@
 </header>
 
 <div class="wrap">
+
+  <!-- Lector QR en vivo para interacción 100% física con las 10 fichas -->
+  <section class="qr-panel" aria-label="Lector de fichas QR de la maqueta">
+    <div class="qr-top">
+      <div>
+        <p class="eyebrow">Interacción física con fichas QR (4 ritmos + 6 animales)</p>
+      </div>
+      <div class="qr-acciones">
+        <button type="button" id="btnQrActivar" class="btn-qr-on">📷 Activar lector QR</button>
+        <button type="button" id="btnQrDetener" hidden>⏹ Detener cámara</button>
+        <label class="qr-check">
+          <input type="checkbox" id="qrAutoCorrer" checked>
+          <span>Iniciar carrera al tiro al leer un animal</span>
+        </label>
+      </div>
+    </div>
+    <div id="qrBody" class="qr-body" hidden>
+      <div class="qr-video-wrap">
+        <video id="qrVideo" playsinline muted></video>
+        <div class="qr-reticula" aria-hidden="true"></div>
+      </div>
+      <canvas id="qrCanvas" hidden></canvas>
+      <div class="qr-info">
+        <p id="qrEstado" class="qr-estado" role="status" aria-live="polite">Cámara inactiva.</p>
+        <p class="qr-ayuda"><b>Paso 1:</b> muestra una ficha de tu ritmo (<code>VEL:5</code>, <code>12</code>, <code>24</code> o <code>44.7</code>) para fijar tu rapidez.<br><b>Paso 2:</b> muestra la ficha de un animal (<code>ANIMAL:...</code>) y la carrera de 8 s parte sola.</p>
+      </div>
+    </div>
+  </section>
 
   <!-- Controles principales + Galería visual de 6 animales -->
   <section class="panel-control" data-r2-v3="1" aria-label="Configuración de la carrera">
@@ -945,6 +1066,7 @@
   </details>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script>
 (() => {
   "use strict";
@@ -1488,6 +1610,7 @@
 
   // ===== La Carrera =====
   let turno = 0;
+  let enCarrera = false;
   const pausa = ms => new Promise(r => setTimeout(r, ms));
 
   async function correr(){
@@ -1497,6 +1620,7 @@
     detenerGrabaciones();
     if (sonidoOn) void cargarGrabaciones().catch(() => {});
     const id = ++turno;
+    enCarrera = true;
     const r = rival();
     const vel = [v, r.kmh];
     const max = Math.max(...vel);
@@ -1538,6 +1662,7 @@
         ultimoEnvio = t;
       }
       if (t < DURACION) { requestAnimationFrame(paso); return; }
+      enCarrera = false;
       nota(1568, 0.5, "sine", 0.18);
       setTimeout(() => nota(2093, 0.6, "sine", 0.15), 140);
       const res = resultado(v, r);
@@ -1548,6 +1673,7 @@
 
   function aPartida(){
     turno++;
+    enCarrera = false;
     detenerGrabaciones();
     angulos = [0, 0];
     dibujar(); pintarLados(0); actualizarEscala();
@@ -1672,9 +1798,198 @@
   }));
   $("panelCal").addEventListener("toggle", () => { if ($("panelCal").open) sincronizarSliders(); });
 
+
+  // ===== Lector QR integrado (BarcodeDetector nativo + respaldo jsQR) =====
+  let qrStream = null;
+  let qrActivo = false;
+  let qrDetectorNativo = null;
+  let qrUltimoTexto = "";
+  let qrUltimoMs = 0;
+  let qrBusy = false;
+
+  const ETIQUETAS_VEL = {
+    "5": "Caminando (5 km/h)",
+    "12": "Trotando (12 km/h)",
+    "24": "Corriendo rápido (24 km/h)",
+    "44.7": "Usain Bolt (44,7 km/h)"
+  };
+
+  function setQrEstado(texto, tono = "neutro"){
+    const el = $("qrEstado");
+    el.textContent = texto;
+    el.dataset.tono = tono;
+  }
+
+  function normalizarTextoQr(s){
+    return String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+  }
+
+  async function procesarCodigoQr(raw){
+    const texto = String(raw || "").trim();
+    if (!texto) return;
+    const ahora = performance.now();
+    // Evita lecturas repetidas mientras corre una carrera o si se mantiene la misma ficha fija
+    if (enCarrera) return;
+    if (texto === qrUltimoTexto && (ahora - qrUltimoMs) < 3200) return;
+
+    // 1. Ficha de velocidad humana: VEL:5, VEL:12, VEL:24, VEL:44.7
+    const matchVel = texto.match(/^VEL\s*:\s*([0-9]+(?:[.,][0-9]+)?)$/i);
+    if (matchVel) {
+      const valStr = matchVel[1].replace(",", ".");
+      const valNum = Number(valStr);
+      if (Number.isFinite(valNum) && valNum > 0 && valNum <= 500) {
+        qrUltimoTexto = texto;
+        qrUltimoMs = ahora;
+        $("tuVel").value = valStr;
+        validarVel();
+        aPartida();
+        try { localStorage.setItem("maqueta-vel-fija", valStr); } catch (_) {}
+        asegurarAudio();
+        nota(523.25, 0.12, "sine", 0.14);
+        setTimeout(() => nota(659.25, 0.16, "sine", 0.14), 90);
+        // Breve muestra de 1.3s de los pasos humanos para confirmar sin mirar pantalla
+        if (sonidoOn) {
+          cargarGrabaciones().then(() => {
+            if (!enCarrera) {
+              detenerGrabaciones();
+              reproducirGrabacion(clavePasoHumano(valNum), 1.3);
+            }
+          }).catch(() => {});
+        }
+        const etiq = ETIQUETAS_VEL[valStr] || (fmtVel(valNum) + " km/h");
+        setQrEstado(`✅ Ritmo fijado: ${etiq}. Ahora muestra la ficha de un animal.`, "ok");
+        return;
+      }
+    }
+
+    // 2. Ficha de animal: ANIMAL:caballo (o nombre del animal / URL ?rival=...)
+    let candidatoAnimal = null;
+    const matchAn = texto.match(/^ANIMAL\s*:\s*(.+)$/i);
+    if (matchAn) {
+      candidatoAnimal = matchAn[1].trim();
+    } else {
+      try {
+        const u = new URL(texto);
+        if (u.searchParams.get("rival")) candidatoAnimal = u.searchParams.get("rival");
+      } catch (_) {
+        candidatoAnimal = texto;
+      }
+    }
+
+    if (candidatoAnimal) {
+      const busq = normalizarTextoQr(candidatoAnimal);
+      const idx = DATA.findIndex(d =>
+        normalizarTextoQr(d.audioClave) === busq ||
+        normalizarTextoQr(d.nombre) === busq
+      );
+      if (idx >= 0) {
+        qrUltimoTexto = texto;
+        qrUltimoMs = ahora;
+        sel.value = String(idx);
+        renderGaleria();
+        const r = DATA[idx];
+        asegurarAudio();
+        nota(784, 0.14, "triangle", 0.15);
+        if ($("qrAutoCorrer").checked) {
+          setQrEstado(`🏁 Ficha leída: ${r.emoji} ${r.nombre} (${fmtVel(r.kmh)} km/h). ¡Iniciando carrera!`, "ok");
+          void correr();
+        } else {
+          aPartida();
+          setQrEstado(`✅ Animal seleccionado: ${r.emoji} ${r.nombre} (${fmtVel(r.kmh)} km/h).`, "ok");
+        }
+        return;
+      }
+    }
+
+    setQrEstado(`⚠️ Código QR no reconocido: "${texto.slice(0, 32)}"`, "aviso");
+  }
+
+  async function cicloQr(){
+    if (!qrActivo) return;
+    const vid = $("qrVideo");
+    if (!qrBusy && !enCarrera && vid.readyState === vid.HAVE_ENOUGH_DATA && vid.videoWidth > 0) {
+      qrBusy = true;
+      try {
+        let detectado = null;
+        if (qrDetectorNativo) {
+          const codigos = await qrDetectorNativo.detect(vid);
+          if (codigos && codigos.length > 0 && codigos[0].rawValue) {
+            detectado = codigos[0].rawValue;
+          }
+        } else if (window.jsQR) {
+          const cvs = $("qrCanvas");
+          const w = Math.min(vid.videoWidth, 640);
+          const h = Math.round(vid.videoHeight * (w / vid.videoWidth));
+          if (cvs.width !== w || cvs.height !== h) { cvs.width = w; cvs.height = h; }
+          const ctx = cvs.getContext("2d", { willReadFrequently: true });
+          ctx.drawImage(vid, 0, 0, w, h);
+          const img = ctx.getImageData(0, 0, w, h);
+          const res = window.jsQR(img.data, w, h, { inversionAttempts: "dontInvert" });
+          if (res && res.data) detectado = res.data;
+        }
+        if (detectado) await procesarCodigoQr(detectado);
+      } catch (_) {}
+      qrBusy = false;
+    }
+    if (qrActivo) setTimeout(() => requestAnimationFrame(cicloQr), 110);
+  }
+
+  function detenerQr(){
+    qrActivo = false;
+    if (qrStream) {
+      qrStream.getTracks().forEach(t => t.stop());
+      qrStream = null;
+    }
+    $("qrVideo").srcObject = null;
+    $("qrBody").hidden = true;
+    $("btnQrActivar").hidden = false;
+    $("btnQrDetener").hidden = true;
+    setQrEstado("Cámara detenida.");
+  }
+
+  $("btnQrActivar").addEventListener("click", async () => {
+    asegurarAudio();
+    if (sonidoOn) void cargarGrabaciones().catch(() => {});
+    if ("BarcodeDetector" in window) {
+      try {
+        const formatos = await window.BarcodeDetector.getSupportedFormats();
+        if (formatos.includes("qr_code")) qrDetectorNativo = new window.BarcodeDetector({ formats: ["qr_code"] });
+      } catch (_) { qrDetectorNativo = null; }
+    }
+    if (!qrDetectorNativo && !window.jsQR) {
+      $("qrBody").hidden = false;
+      setQrEstado("No se pudo cargar el lector QR (sin conexión para jsQR y navegador sin BarcodeDetector).", "error");
+      return;
+    }
+    try {
+      qrStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: "environment" }, width: { ideal: 640 } },
+        audio: false
+      });
+      const vid = $("qrVideo");
+      vid.srcObject = qrStream;
+      $("qrBody").hidden = false;
+      $("btnQrActivar").hidden = true;
+      $("btnQrDetener").hidden = false;
+      await vid.play();
+      qrActivo = true;
+      setQrEstado("📷 Lector QR activo. Muestra primero tu ficha de ritmo o directo la de un animal.", "ok");
+      cicloQr();
+    } catch (err) {
+      detenerQr();
+      $("qrBody").hidden = false;
+      setQrEstado("No se pudo abrir la cámara (" + err.message + "). Revisa los permisos del navegador.", "error");
+    }
+  });
+  $("btnQrDetener").addEventListener("click", detenerQr);
+
   // ===== Inicio =====
   const q = new URLSearchParams(location.search);
   if (q.has("equipo")) document.body.classList.add("equipo");
+  try {
+    const velGuardada = localStorage.getItem("maqueta-vel-fija");
+    if (!q.get("vel") && velGuardada && Number(velGuardada) > 0) $("tuVel").value = velGuardada;
+  } catch (_) {}
   if (q.get("vel")) $("tuVel").value = q.get("vel");
   if (q.get("rival")) {
     const norm = s => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
