@@ -89,5 +89,15 @@ Para que el usuario interactúe únicamente con la maqueta física —sin perder
 ## 4. Archivos y registro
 
 - **`maqueta.html`** — Interfaz final con los 6 animales, audios incrustados, normalización RMS, barras de volumen en vivo, lector QR automático y selector de cámara (compatible con iPhone vía Cámara de Continuidad).
-- **`Fichas QR imprimibles`** — Hoja imprimible (100 % offline, códigos QR en SVG) con las 10 fichas plegables (4 de ritmo humano + 6 de animales) listas para cortar, doblar y pegar en cartón.
+- **`fichas-qr-imprimir.html`** — Hoja imprimible (100 % offline, códigos QR en SVG) con las 10 fichas plegables (4 de ritmo humano + 6 de animales) listas para cortar, doblar y pegar en cartón.
 - **Programa Arduino (`../v2-pruebas-arduino/carrera_servos.ino`)** — Sin cambios.
+
+---
+
+## 5. Registro audiovisual y enlaces de videos
+
+| Video | Qué muestra | Enlace |
+| :--- | :--- | :--- |
+| **1. Funcionamiento completo de la página y sonidos** | Recorrido completo de la página (incluyendo ocultar interfaz hacia abajo y probar botones), lectura de tarjetas de ritmo humano (*caminando, trotando, corriendo, Usain Bolt*), lectura de fichas de animales y muestra de los sonidos de cada animal. | `[https://drive.google.com/file/d/1tVgoWTOTUAofqcDElxqYk5nHG65hHRDV/view?usp=share_link]` |
+| **2. Captura de pantalla + pista física superpuesta** | Grabación de pantalla escaneando una rapidez humana y un animal con video real de la pista superpuesto para apreciar en paralelo la interfaz/lector y el movimiento físico. | `[https://drive.google.com/file/d/1xYHICQCCn5gW1zDR8pxC6O8os89XOf34/view?usp=share_link]` |
+| **3. Toma exterior en vida real (interacción física)** | Registro externo (grabado por fuera) mostrando la interacción real con la maqueta: fijar rapidez humana, escanear animal y ver iniciarse la carrera. | `[https://drive.google.com/file/d/11jOySsPk5OSzLh9Nf029sXM12ioJUniA/view?usp=sharing]` |
